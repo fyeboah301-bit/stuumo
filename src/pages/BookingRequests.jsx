@@ -84,11 +84,9 @@ export default function BookingRequests() {
       await supabase.from('notifications').insert({
         user_id: booking.client_id,
         title: status === 'confirmed' ? '🎉 Booking confirmed!' : 'Booking update',
-        message: status === 'confirmed'
-          ? `${profile?.full_name} has confirmed your ${booking.subject} booking.`
-          : `${profile?.full_name} is unable to take your ${booking.subject} booking.`,
-        type: status === 'confirmed' ? 'booking_confirmed' : 'booking_declined',
-        link: '/booking'
+       message: status === 'confirmed'
+  ? `${profile?.full_name} accepted your ${booking.subject} session. Go to My Bookings to pay and unlock your call room.`
+  : `${profile?.full_name} is unable to take your ${booking.subject} session.`,
       })
       setMessage(`✅ Booking ${status}.`)
       fetchBookings()
@@ -120,7 +118,7 @@ export default function BookingRequests() {
               Booking Requests
             </h1>
             <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', margin: 0, lineHeight: '1.6' }}>
-              Review and respond to home tuition requests from parents and learners
+              Review and respond to private session requests from parents and learners
             </p>
           </div>
 
@@ -296,7 +294,7 @@ export default function BookingRequests() {
                           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                             <button onClick={() => updateStatus(booking.id, 'confirmed')} disabled={updating === booking.id}
                               style={{ flex: 1, padding: '13px 24px', background: '#DCFCE7', color: '#166534', border: '2px solid #BBF7D0', borderRadius: '50px', fontSize: '14px', cursor: updating === booking.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: '800', transition: TRANSITION, minWidth: '140px' }}>
-                              {updating === booking.id ? '⏳ Updating...' : '✓ Accept booking'}
+                              {updating === booking.id ? '⏳ Updating...' : '✓ Accept session'}
                             </button>
                             <button onClick={() => updateStatus(booking.id, 'declined')} disabled={updating === booking.id}
                               style={{ flex: 1, padding: '13px 24px', background: '#FEE2E2', color: '#991B1B', border: '2px solid #FECACA', borderRadius: '50px', fontSize: '14px', cursor: updating === booking.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: '800', transition: TRANSITION, minWidth: '140px' }}>
@@ -320,7 +318,7 @@ export default function BookingRequests() {
                             {booking.room_id && (
                               <Link to={`/call/${booking.room_id}`}
                                 style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '11px 20px', background: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)', color: '#fff', borderRadius: '50px', fontSize: '13px', fontWeight: '800', textDecoration: 'none', boxShadow: '0 4px 12px rgba(34,197,94,0.3)' }}>
-                                🎥 Join call
+                                🎥 Join session
                               </Link>
                             )}
                             <Link to="/assignments"

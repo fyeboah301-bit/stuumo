@@ -19,12 +19,12 @@ const sendEmail = async (payload) => {
 
 const MESSAGE_TEMPLATES = [
   'My child needs help preparing for BECE exams.',
-  'Looking for weekly after-school lessons.',
+  'Looking for weekly after-school sessions.',
   'Need urgent help before upcoming exams.',
   'My child is struggling and needs extra support.',
 ]
 
-const DAYS_FULL = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+const DAYS_FULL  = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 const DAYS_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 function useIsMobile() {
@@ -37,12 +37,162 @@ function useIsMobile() {
   return isMobile
 }
 
+// ── Teacher Card ──────────────────────────────────────────────────────────────
+function TeacherCard({ teacher, avg, hasCerts, hasRate, onSelect }) {
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <div
+      onClick={hasRate ? onSelect : undefined}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '14px',
+        padding: '14px 18px',
+        border: `2px solid ${hovered && hasRate ? BLUE : '#E2E8F0'}`,
+        borderRadius: '16px',
+        cursor: hasRate ? 'pointer' : 'not-allowed',
+        background: hovered && hasRate ? '#EFF6FF' : '#fff',
+        transition: TRANSITION,
+        boxShadow: hovered && hasRate ? SHADOW_BLUE : '0 1px 4px rgba(0,0,0,0.05)',
+        transform: hovered && hasRate ? 'translateY(-2px)' : 'translateY(0)',
+        opacity: hasRate ? 1 : 0.6,
+      }}
+    >
+      {/* Avatar */}
+      <div style={{ position: 'relative', flexShrink: 0 }}>
+        {teacher.profiles?.avatar_url ? (
+          <img src={teacher.profiles.avatar_url} alt="" style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover', border: `3px solid ${teacher.is_verified ? '#22C55E' : '#E2E8F0'}`, display: 'block' }} />
+        ) : (
+          <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: hovered ? GRADIENT_BLUE : `linear-gradient(135deg, ${BLUE}, ${DARK_BLUE})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: '800', color: '#fff', border: `3px solid ${teacher.is_verified ? '#22C55E' : '#E2E8F0'}` }}>
+            {teacher.profiles?.full_name?.charAt(0)}
+          </div>
+        )}
+        {teacher.is_verified && (
+          <div style={{ position: 'absolute', bottom: 0, right: 0, background: '#22C55E', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: '#fff', fontWeight: '800', border: '2px solid #fff' }}>✓</div>
+        )}
+      </div>
+
+      {/* Info */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Name row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '4px' }}>
+          <span style={{ fontSize: '15px', fontWeight: '800', color: hovered ? BLUE : '#111' }}>
+            {teacher.profiles?.full_name}
+          </span>
+          {teacher.is_verified && (
+            <span style={{ fontSize: '10px', background: '#DCFCE7', color: '#166534', padding: '2px 8px', borderRadius: '50px', fontWeight: '800' }}>✓ Verified</span>
+          )}
+          {hasCerts && (
+            <span style={{ fontSize: '10px', background: '#DBEAFE', color: BLUE, padding: '2px 8px', borderRadius: '50px', fontWeight: '800' }}>📋 Certified</span>
+          )}
+        </div>
+
+        {/* Location */}
+        <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '7px' }}>
+          📍 {teacher.profiles?.city}, {teacher.profiles?.country}
+        </div>
+
+        {/* Subjects */}
+        {teacher.subjects?.length > 0 && (
+          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+            {teacher.subjects.slice(0, 4).map(s => (
+              <span key={s} style={{ fontSize: '11px', background: hovered ? '#DBEAFE' : '#F1F5F9', color: hovered ? BLUE : '#64748B', padding: '3px 9px', borderRadius: '50px', fontWeight: '600' }}>{s}</span>
+            ))}
+            {teacher.subjects.length > 4 && (
+              <span style={{ fontSize: '11px', color: '#94A3B8', padding: '3px 6px' }}>+{teacher.subjects.length - 4}</span>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Right — price + rating */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
+        {hasRate ? (
+          <>
+            <div style={{ background: hovered ? YELLOW : '#DBEAFE', color: BLUE, padding: '6px 14px', borderRadius: '50px', fontFamily: 'Georgia, serif', fontSize: '16px', fontWeight: '700', boxShadow: hovered ? SHADOW_YELLOW : 'none', transition: TRANSITION }}>
+              GH₵ {teacher.hourly_rate}
+            </div>
+            {avg ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: '12px', color: parseFloat(avg) >= s ? '#F59E0B' : '#E2E8F0' }}>★</span>)}
+                <span style={{ fontSize: '11px', color: '#64748B', fontWeight: '600', marginLeft: '3px' }}>{avg}</span>
+              </div>
+            ) : (
+              <span style={{ fontSize: '11px', color: '#94A3B8' }}>No reviews yet</span>
+            )}
+            {hovered && (
+              <div style={{ fontSize: '12px', fontWeight: '800', color: '#fff', background: GRADIENT_BLUE, padding: '6px 14px', borderRadius: '50px', boxShadow: SHADOW_BLUE }}>
+                Select →
+              </div>
+            )}
+          </>
+        ) : (
+          <div style={{ fontSize: '11px', color: '#DC2626', fontWeight: '700', background: '#FEE2E2', padding: '4px 12px', borderRadius: '20px' }}>
+            Rate not set
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── Pay Now Banner ────────────────────────────────────────────────────────────
+function PayNowBanner({ bookings, userEmail, onSuccess }) {
+  const unpaid = bookings.filter(b => b.status === 'confirmed' && b.payment_status !== 'paid' && b.amount > 0)
+  if (!unpaid.length) return null
+  return (
+    <div style={{ marginBottom: '2rem' }}>
+      {unpaid.map(booking => (
+        <div key={booking.id} style={{ background: GRADIENT_HERO, borderRadius: '20px', overflow: 'hidden', boxShadow: SHADOW_BLUE, marginBottom: '12px', border: `2px solid ${YELLOW}` }}>
+          <div style={{ background: YELLOW, padding: '8px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '16px' }}>⚡</span>
+            <span style={{ fontSize: '13px', fontWeight: '800', color: BLUE, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Action required — Payment pending</span>
+          </div>
+          <div style={{ padding: '1.5rem 1.75rem', display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+            <div style={{ flexShrink: 0 }}>
+              {booking.teachers?.profiles?.avatar_url ? (
+                <img src={booking.teachers.profiles.avatar_url} alt="" style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', border: `3px solid ${YELLOW}` }} />
+              ) : (
+                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: YELLOW, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px', fontWeight: '800', color: BLUE, border: '3px solid rgba(255,255,255,0.3)' }}>
+                  {booking.teachers?.profiles?.full_name?.charAt(0)}
+                </div>
+              )}
+            </div>
+            <div style={{ flex: 1, minWidth: '200px' }}>
+              <div style={{ fontSize: '11px', color: YELLOW, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>
+                {booking.teachers?.profiles?.full_name} accepted your request
+              </div>
+              <div style={{ fontFamily: 'Georgia, serif', fontSize: '22px', fontWeight: '700', color: '#fff', marginBottom: '4px' }}>
+                {booking.subject} — Private Session
+              </div>
+              <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)' }}>
+                Pay to unlock your video call room and messaging
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontFamily: 'Georgia, serif', fontSize: '36px', fontWeight: '700', color: YELLOW, lineHeight: 1 }}>GH₵ {booking.amount}</div>
+                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>one session</div>
+              </div>
+              <PayButton booking={booking} userEmail={userEmail} onSuccess={onSuccess} large />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ── Booking Confirmation ──────────────────────────────────────────────────────
 function BookingConfirmation({ booking, teacher, navigate }) {
   return (
     <div style={{ maxWidth: '560px', margin: '0 auto', padding: '2rem 1.25rem' }}>
       <div style={{ background: 'linear-gradient(135deg, #166534 0%, #14532D 100%)', borderRadius: '20px', padding: '2.5rem 2rem', textAlign: 'center', marginBottom: '1.25rem', boxShadow: '0 12px 32px rgba(22,101,52,0.25)' }}>
         <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', margin: '0 auto 1rem' }}>🎉</div>
-        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: '26px', fontWeight: '700', color: '#fff', marginBottom: '8px', letterSpacing: '-0.02em' }}>Booking request sent!</h2>
+        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: '26px', fontWeight: '700', color: '#fff', marginBottom: '8px' }}>Booking request sent!</h2>
         <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.8)', margin: 0, lineHeight: '1.6' }}>
           Your request has been sent to <strong>{teacher?.profiles?.full_name}</strong>. They'll respond within 24 hours.
         </p>
@@ -54,11 +204,11 @@ function BookingConfirmation({ booking, teacher, navigate }) {
         </div>
         <div style={{ padding: '1.25rem 1.5rem' }}>
           {[
-            ['Teacher', teacher?.profiles?.full_name],
-            ['Subject', booking?.subject],
-            ['Sessions', booking?.sessions ? `${booking.sessions} session${booking.sessions > 1 ? 's' : ''}` : '—'],
+            ['Teacher',         teacher?.profiles?.full_name],
+            ['Subject',         booking?.subject],
+            ['Sessions',        '1 private session'],
             ['Estimated total', booking?.amount > 0 ? `GH₵ ${booking.amount}` : 'To be confirmed'],
-            ['Status', '⏳ Pending teacher response'],
+            ['Status',          '⏳ Pending teacher response'],
           ].map(([label, value], i, arr) => (
             <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 0', borderBottom: i < arr.length - 1 ? BORDER : 'none' }}>
               <span style={{ fontSize: '13px', color: TEXT_MUTED, fontWeight: '500' }}>{label}</span>
@@ -74,10 +224,10 @@ function BookingConfirmation({ booking, teacher, navigate }) {
         </div>
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {[
-            { icon: '🔔', step: '1', title: 'Teacher is notified', desc: 'They received your request and will respond soon.' },
+            { icon: '🔔', step: '1', title: 'Teacher is notified',    desc: 'They received your request and will respond soon.' },
             { icon: '✅', step: '2', title: 'They accept or decline', desc: "You'll get a notification and email when they respond." },
-            { icon: '💳', step: '3', title: 'Pay to confirm', desc: 'If accepted, a Pay Now button appears to secure your sessions.' },
-            { icon: '🎥', step: '4', title: 'Start learning', desc: 'Once paid, message your teacher and join video calls.' },
+            { icon: '💳', step: '3', title: 'Pay to confirm',         desc: 'If accepted, a Pay Now button appears to secure your session.' },
+            { icon: '🎥', step: '4', title: 'Start your session',     desc: 'Once paid, message your teacher and join the private video call.' },
           ].map(({ icon, step, title, desc }) => (
             <div key={step} style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
               <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: LIGHT_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>{icon}</div>
@@ -111,27 +261,28 @@ function BookingConfirmation({ booking, teacher, navigate }) {
   )
 }
 
+// ── Main Component ────────────────────────────────────────────────────────────
 export default function Booking() {
-  usePageMeta('Book a Teacher', 'Send a free booking request to a verified teacher. No payment until confirmed.')
+  usePageMeta('Book a Private Session', 'Send a free booking request to a verified teacher. No payment until confirmed.')
 
   const { user, profile } = useAuth()
   const navigate = useNavigate()
   const isMobile = useIsMobile()
   const [searchParams] = useSearchParams()
-  const [teachers, setTeachers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [submitting, setSubmitting] = useState(false)
+  const [teachers, setTeachers]               = useState([])
+  const [loading, setLoading]                 = useState(true)
+  const [submitting, setSubmitting]           = useState(false)
   const [selectedTeacher, setSelectedTeacher] = useState(null)
   const [teacherAvailability, setTeacherAvailability] = useState([])
-  const [bookings, setBookings] = useState([])
-  const [search, setSearch] = useState('')
-  const [locationFilter, setLocationFilter] = useState('')
-  const [subjectFilter, setSubjectFilter] = useState('')
-  const [form, setForm] = useState({ subject: '', message: '', sessions: '' })
-  const [activeTab, setActiveTab] = useState('new')
-  const [confirmation, setConfirmation] = useState(null)
-  const [cancellingId, setCancellingId] = useState(null)
-  const [templateUsed, setTemplateUsed] = useState(null)
+  const [bookings, setBookings]               = useState([])
+  const [search, setSearch]                   = useState('')
+  const [locationFilter, setLocationFilter]   = useState('')
+  const [subjectFilter, setSubjectFilter]     = useState('')
+  const [form, setForm]                       = useState({ subject: '', message: '' })
+  const [activeTab, setActiveTab]             = useState('new')
+  const [confirmation, setConfirmation]       = useState(null)
+  const [cancellingId, setCancellingId]       = useState(null)
+  const [templateUsed, setTemplateUsed]       = useState(null)
 
   useEffect(() => {
     if (!user) navigate('/login')
@@ -147,17 +298,26 @@ export default function Booking() {
   }, [teachers, searchParams])
 
   const fetchTeachers = async () => {
-    const { data } = await supabase.from('teachers').select('*, profiles (full_name, city, country, email, avatar_url), reviews (rating), certificates (status)')
+    const { data } = await supabase.from('teachers')
+      .select('*, profiles (full_name, city, country, email, avatar_url), reviews (rating), certificates (status)')
+      .eq('is_verified', true)
     setTeachers(data || [])
     setLoading(false)
   }
 
   const fetchMyBookings = async () => {
-    const { data } = await supabase.from('bookings').select('*, teachers (id, profiles (full_name, avatar_url)), room_id').eq('client_id', user.id).order('created_at', { ascending: false })
+    const { data } = await supabase.from('bookings')
+      .select('*, teachers (id, profiles (full_name, avatar_url)), room_id')
+      .eq('client_id', user.id)
+      .order('created_at', { ascending: false })
     setBookings(data || [])
   }
 
   const selectTeacher = async (teacher) => {
+    if (!teacher.hourly_rate || teacher.hourly_rate <= 0) {
+      alert('This teacher has not set their session rate yet. Please choose another teacher or check back later.')
+      return
+    }
     setSelectedTeacher(teacher)
     const subjectParam = searchParams.get('subject')
     if (subjectParam) setForm(f => ({ ...f, subject: subjectParam }))
@@ -170,19 +330,31 @@ export default function Booking() {
     if (!selectedTeacher) return
     setSubmitting(true)
     try {
-      const hourlyRate = selectedTeacher.hourly_rate || 0
-      const sessions = parseInt(form.sessions || 1)
-      const totalAmount = hourlyRate * sessions
+      const totalAmount = selectedTeacher.hourly_rate || 0
       const { error } = await supabase.from('bookings').insert({
         teacher_id: selectedTeacher.id, client_id: user.id,
-        subject: form.subject, message: form.message, status: 'pending', amount: totalAmount
+        subject: form.subject, message: form.message, status: 'pending', amount: totalAmount,
       })
       if (error) throw error
       const { data: teacherProfile } = await supabase.from('profiles').select('email, full_name').eq('id', selectedTeacher.id).single()
-      await sendEmail({ type: 'new_booking_teacher', teacherEmail: teacherProfile?.email, teacherName: teacherProfile?.full_name || selectedTeacher.profiles?.full_name, clientName: profile?.full_name, subject: form.subject, amount: totalAmount, message: form.message })
-      await supabase.from('notifications').insert({ user_id: selectedTeacher.id, title: 'New booking request', message: `${profile?.full_name} has requested ${form.subject} tuition.`, type: 'booking_new', link: '/booking-requests' })
-      setConfirmation({ booking: { subject: form.subject, sessions, amount: totalAmount }, teacher: selectedTeacher })
-      setSelectedTeacher(null); setTeacherAvailability([]); setForm({ subject: '', message: '', sessions: '' })
+      await sendEmail({
+        type: 'new_booking_teacher',
+        teacherEmail: teacherProfile?.email,
+        teacherName:  teacherProfile?.full_name || selectedTeacher.profiles?.full_name,
+        clientName:   profile?.full_name,
+        subject:      form.subject,
+        amount:       totalAmount,
+        message:      form.message,
+      })
+      await supabase.from('notifications').insert({
+        user_id: selectedTeacher.id,
+        title:   'New private session request',
+        message: `${profile?.full_name} has requested a ${form.subject} private session.`,
+        type:    'booking_new',
+        link:    '/booking-requests',
+      })
+      setConfirmation({ booking: { subject: form.subject, amount: totalAmount }, teacher: selectedTeacher })
+      setSelectedTeacher(null); setTeacherAvailability([]); setForm({ subject: '', message: '' })
       fetchMyBookings()
     } catch (err) { console.log(err) }
     finally { setSubmitting(false) }
@@ -197,24 +369,32 @@ export default function Booking() {
 
   const quickRebook = (booking) => {
     const teacher = teachers.find(t => t.id === booking.teacher_id)
-    if (teacher) { selectTeacher(teacher); setForm({ subject: booking.subject || '', message: booking.message || '', sessions: '' }); setActiveTab('new'); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+    if (teacher) {
+      selectTeacher(teacher)
+      setForm({ subject: booking.subject || '', message: booking.message || '' })
+      setActiveTab('new')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }
 
   const allLocations = [...new Set(teachers.map(t => t.profiles?.country).filter(Boolean))].sort()
-  const allSubjects = [...new Set(teachers.flatMap(t => t.subjects || []))].sort()
+  const allSubjects  = [...new Set(teachers.flatMap(t => t.subjects || []))].sort()
 
   const filteredTeachers = teachers.filter(teacher => {
-    const name = teacher.profiles?.full_name?.toLowerCase() || ''
+    const name     = teacher.profiles?.full_name?.toLowerCase() || ''
     const subjects = teacher.subjects || []
-    if (search.trim()) { const q = search.toLowerCase(); if (!name.includes(q) && !subjects.join(' ').toLowerCase().includes(q)) return false }
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      if (!name.includes(q) && !subjects.join(' ').toLowerCase().includes(q)) return false
+    }
     if (locationFilter && teacher.profiles?.country !== locationFilter) return false
     if (subjectFilter && !subjects.includes(subjectFilter)) return false
     return true
   })
 
-  const availableDays = DAYS_FULL.filter(day => teacherAvailability.some(s => s.day_of_week === day))
-  const estimatedTotal = selectedTeacher?.hourly_rate > 0 && form.sessions && parseInt(form.sessions) > 0
-    ? selectedTeacher.hourly_rate * parseInt(form.sessions) : null
+  const availableDays  = DAYS_FULL.filter(day => teacherAvailability.some(s => s.day_of_week === day))
+  const estimatedTotal = selectedTeacher?.hourly_rate > 0 ? selectedTeacher.hourly_rate : null
+  const unpaidCount    = bookings.filter(b => b.status === 'confirmed' && b.payment_status !== 'paid' && b.amount > 0).length
 
   const bookingsByTeacher = bookings.reduce((acc, b) => {
     const tid = b.teacher_id
@@ -225,16 +405,16 @@ export default function Booking() {
 
   const statusStyle = (s) => ({
     confirmed: { bg: '#DCFCE7', color: '#166534' },
-    declined: { bg: '#FEE2E2', color: '#991B1B' },
-    pending: { bg: '#FEF9C3', color: '#854D0E' },
+    declined:  { bg: '#FEE2E2', color: '#991B1B' },
+    pending:   { bg: '#FEF9C3', color: '#854D0E' },
   }[s] || { bg: GREY_BG, color: TEXT_MUTED })
 
   if (confirmation) return (
-    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'DM Sans, sans-serif', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'inherit', display: 'flex', flexDirection: 'column' }}>
       <NavBar />
       <div style={{ background: GRADIENT_HERO, padding: isMobile ? '1.5rem 1.25rem' : '2rem 2rem' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '22px' : '28px', color: '#fff', margin: 0, fontWeight: '700', letterSpacing: '-0.02em' }}>Booking sent ✓</h1>
+          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '22px' : '28px', color: '#fff', margin: 0, fontWeight: '700' }}>Booking sent ✓</h1>
         </div>
       </div>
       <div style={{ flex: 1 }}><BookingConfirmation booking={confirmation.booking} teacher={confirmation.teacher} navigate={navigate} /></div>
@@ -243,107 +423,103 @@ export default function Booking() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'DM Sans, sans-serif', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'inherit', display: 'flex', flexDirection: 'column' }}>
       <NavBar />
 
+      {/* HERO */}
       <div style={{ background: GRADIENT_HERO, padding: isMobile ? '2rem 1.25rem' : '2.5rem 2rem', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '220px', height: '220px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: '1100px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <p style={{ fontSize: '12px', fontWeight: '700', color: YELLOW, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>Home tuition</p>
-          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '26px' : '36px', color: '#fff', marginBottom: '8px', fontWeight: '700', letterSpacing: '-0.02em' }}>Book a verified teacher</h1>
-          <p style={{ fontSize: isMobile ? '14px' : '15px', color: 'rgba(255,255,255,0.75)', margin: 0, lineHeight: '1.6' }}>Send a request — free, secure, no commitment until accepted</p>
+          <p style={{ fontSize: '12px', fontWeight: '700', color: YELLOW, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>Private Sessions</p>
+          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '26px' : '36px', color: '#fff', marginBottom: '8px', fontWeight: '700', letterSpacing: '-0.02em' }}>Book a private session</h1>
+          <p style={{ fontSize: isMobile ? '14px' : '15px', color: 'rgba(255,255,255,0.75)', margin: 0, lineHeight: '1.6' }}>
+            One-on-one online sessions with verified teachers — free to request, no payment until confirmed
+          </p>
         </div>
       </div>
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: isMobile ? '1.25rem' : '1.75rem 2rem', flex: 1, width: '100%', boxSizing: 'border-box' }}>
 
+        {/* PAY NOW BANNER */}
+        <PayNowBanner bookings={bookings} userEmail={user?.email} onSuccess={fetchMyBookings} />
+
+        {/* TABS */}
         <div style={{ display: 'flex', gap: '4px', background: '#fff', padding: '4px', borderRadius: '50px', border: BORDER, marginBottom: '1.75rem', width: 'fit-content', boxShadow: SHADOW_LG }}>
-          {[['new', '📅 New booking'], ['history', `📋 My bookings (${bookings.length})`]].map(([key, label]) => (
+          {[
+            ['new',     '📅 New booking'],
+            ['history', `📋 My bookings (${bookings.length})${unpaidCount > 0 ? ` · ${unpaidCount} to pay` : ''}`],
+          ].map(([key, label]) => (
             <button key={key} onClick={() => setActiveTab(key)}
-              style={{ padding: '10px 22px', border: 'none', borderRadius: '50px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', background: activeTab === key ? BLUE : 'transparent', color: activeTab === key ? '#fff' : TEXT_MUTED, fontWeight: activeTab === key ? '700' : '400', boxShadow: activeTab === key ? SHADOW_BLUE : 'none', transition: TRANSITION }}>
+              style={{ padding: '10px 22px', border: 'none', borderRadius: '50px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', background: activeTab === key ? BLUE : 'transparent', color: activeTab === key ? '#fff' : key === 'history' && unpaidCount > 0 ? '#DC2626' : TEXT_MUTED, fontWeight: activeTab === key || (key === 'history' && unpaidCount > 0) ? '700' : '400', boxShadow: activeTab === key ? SHADOW_BLUE : 'none', transition: TRANSITION }}>
               {label}
             </button>
           ))}
         </div>
 
+        {/* NEW BOOKING TAB */}
         {activeTab === 'new' && (
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 320px', gap: '1.5rem', alignItems: 'start' }}>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
+              {/* Step 1 */}
               <div style={{ background: '#fff', borderRadius: '20px', border: BORDER, overflow: 'hidden', boxShadow: SHADOW_LG }}>
                 <div style={{ padding: '1.25rem 1.5rem', borderBottom: BORDER, display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: selectedTeacher ? '#DCFCE7' : GRADIENT_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '800', color: selectedTeacher ? '#166534' : '#fff', flexShrink: 0, transition: TRANSITION }}>
                     {selectedTeacher ? '✓' : '1'}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ fontSize: '16px', fontWeight: '800', color: TEXT, margin: 0, letterSpacing: '-0.01em' }}>Choose a teacher</h3>
-                    <p style={{ fontSize: '13px', color: TEXT_MUTED, margin: 0 }}>Search by name, subject, or location</p>
+                    <h3 style={{ fontSize: '16px', fontWeight: '800', color: TEXT, margin: 0 }}>Choose a teacher</h3>
+                    <p style={{ fontSize: '13px', color: TEXT_MUTED, margin: 0 }}>Browse verified teachers and pick the right one</p>
                   </div>
                   {selectedTeacher && <span style={{ fontSize: '12px', color: '#166534', background: '#DCFCE7', padding: '4px 12px', borderRadius: '50px', fontWeight: '700', flexShrink: 0 }}>Selected ✓</span>}
                 </div>
 
                 {!selectedTeacher ? (
                   <div style={{ padding: '1.25rem' }}>
-                    <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
-                      <div style={{ flex: 1, minWidth: '200px', display: 'flex', alignItems: 'center', border: BORDER, borderRadius: '50px', background: '#fff', padding: '0 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-                        <span style={{ fontSize: '16px', marginRight: '8px' }}>🔍</span>
-                        <input style={{ flex: 1, border: 'none', outline: 'none', fontSize: '14px', fontFamily: 'inherit', padding: '11px 0', color: TEXT, background: 'transparent' }} placeholder="Search teachers..." value={search} onChange={e => setSearch(e.target.value)} />
-                        {search && <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', fontSize: '18px', color: TEXT_MUTED, cursor: 'pointer', padding: 0 }}>×</button>}
+                    {/* Filters */}
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                      <div style={{ flex: 1, minWidth: '200px', display: 'flex', alignItems: 'center', gap: '10px', border: `1.5px solid ${GREY_LIGHT}`, borderRadius: '50px', background: '#fff', padding: '0 16px', boxShadow: '0 1px 6px rgba(0,0,0,0.05)' }}>
+                        <span style={{ fontSize: '15px', color: TEXT_MUTED }}>🔍</span>
+                        <input style={{ flex: 1, border: 'none', outline: 'none', fontSize: '14px', fontFamily: 'inherit', padding: '12px 0', color: TEXT, background: 'transparent' }} placeholder="Search by name or subject..." value={search} onChange={e => setSearch(e.target.value)} />
+                        {search && <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', fontSize: '18px', color: TEXT_MUTED, cursor: 'pointer', padding: 0, lineHeight: 1 }}>×</button>}
                       </div>
-                      <select style={{ padding: '10px 14px', border: BORDER, borderRadius: '50px', fontSize: '13px', fontFamily: 'inherit', outline: 'none', color: TEXT, cursor: 'pointer', background: '#fff' }} value={locationFilter} onChange={e => setLocationFilter(e.target.value)}>
-                        <option value="">All locations</option>
+                      <select style={{ padding: '12px 16px', border: `1.5px solid ${GREY_LIGHT}`, borderRadius: '50px', fontSize: '13px', fontFamily: 'inherit', outline: 'none', color: TEXT, cursor: 'pointer', background: '#fff', boxShadow: '0 1px 6px rgba(0,0,0,0.05)', fontWeight: '500' }} value={locationFilter} onChange={e => setLocationFilter(e.target.value)}>
+                        <option value="">🌍 All countries</option>
                         {allLocations.map(l => <option key={l} value={l}>{l}</option>)}
                       </select>
-                      <select style={{ padding: '10px 14px', border: BORDER, borderRadius: '50px', fontSize: '13px', fontFamily: 'inherit', outline: 'none', color: TEXT, cursor: 'pointer', background: '#fff' }} value={subjectFilter} onChange={e => setSubjectFilter(e.target.value)}>
-                        <option value="">All subjects</option>
+                      <select style={{ padding: '12px 16px', border: `1.5px solid ${GREY_LIGHT}`, borderRadius: '50px', fontSize: '13px', fontFamily: 'inherit', outline: 'none', color: TEXT, cursor: 'pointer', background: '#fff', boxShadow: '0 1px 6px rgba(0,0,0,0.05)', fontWeight: '500' }} value={subjectFilter} onChange={e => setSubjectFilter(e.target.value)}>
+                        <option value="">📚 All subjects</option>
                         {allSubjects.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </div>
 
                     {loading ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {[1, 2, 3].map(i => <div key={i} style={{ height: '80px', background: GREY_BG, borderRadius: '14px', animation: 'pulse 1.5s infinite' }} />)}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {[1, 2, 3].map(i => <div key={i} style={{ height: '90px', background: GREY_BG, borderRadius: '16px', animation: 'pulse 1.5s infinite' }} />)}
                         <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
                       </div>
                     ) : filteredTeachers.length === 0 ? (
-                      <div style={{ textAlign: 'center', padding: '2.5rem', color: TEXT_MUTED }}>
-                        <div style={{ fontSize: '40px', marginBottom: '10px' }}>🔍</div>
-                        <p style={{ fontSize: '14px', margin: 0 }}>No teachers match your search.</p>
+                      <div style={{ textAlign: 'center', padding: '3rem', color: TEXT_MUTED }}>
+                        <div style={{ fontSize: '40px', marginBottom: '12px' }}>🔍</div>
+                        <p style={{ fontSize: '14px', fontWeight: '600', color: TEXT, marginBottom: '6px' }}>No teachers found</p>
+                        <p style={{ fontSize: '13px', margin: 0 }}>Try adjusting your search or filters</p>
                       </div>
                     ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '420px', overflowY: 'auto', paddingRight: '4px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '480px', overflowY: 'auto', paddingRight: '4px' }}>
                         {filteredTeachers.map(teacher => {
-                          const avg = teacher.reviews?.length > 0 ? (teacher.reviews.reduce((s, r) => s + r.rating, 0) / teacher.reviews.length).toFixed(1) : null
+                          const avg      = teacher.reviews?.length > 0 ? (teacher.reviews.reduce((s, r) => s + r.rating, 0) / teacher.reviews.length).toFixed(1) : null
                           const hasCerts = teacher.certificates?.some(c => c.status === 'approved')
+                          const hasRate  = teacher.hourly_rate > 0
                           return (
-                            <div key={teacher.id} onClick={() => selectTeacher(teacher)}
-                              style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', border: BORDER, borderRadius: '14px', cursor: 'pointer', background: '#fff', transition: TRANSITION, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
-                              onMouseEnter={e => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.background = LIGHT_BLUE; e.currentTarget.style.boxShadow = SHADOW_BLUE }}
-                              onMouseLeave={e => { e.currentTarget.style.borderColor = GREY_LIGHT; e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)' }}>
-                              {teacher.profiles?.avatar_url ? (
-                                <img src={teacher.profiles.avatar_url} alt="" style={{ width: '52px', height: '52px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: `2px solid ${teacher.is_verified ? '#22C55E' : GREY_LIGHT}` }} />
-                              ) : (
-                                <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: GRADIENT_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: '800', color: '#fff', flexShrink: 0 }}>
-                                  {teacher.profiles?.full_name?.charAt(0)}
-                                </div>
-                              )}
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '3px' }}>
-                                  <span style={{ fontSize: '15px', fontWeight: '700', color: TEXT }}>{teacher.profiles?.full_name}</span>
-                                  {teacher.is_verified && <span style={{ fontSize: '10px', background: '#DCFCE7', color: '#166534', padding: '2px 8px', borderRadius: '50px', fontWeight: '800' }}>✓ Verified</span>}
-                                  {hasCerts && <span style={{ fontSize: '10px', background: LIGHT_BLUE, color: BLUE, padding: '2px 8px', borderRadius: '50px', fontWeight: '800' }}>📋 Certified</span>}
-                                </div>
-                                <div style={{ fontSize: '12px', color: TEXT_MUTED, marginBottom: '6px' }}>📍 {teacher.profiles?.city}, {teacher.profiles?.country}</div>
-                                <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-                                  {teacher.subjects?.slice(0, 3).map(s => <span key={s} style={{ fontSize: '11px', background: GREY_BG, color: TEXT_MUTED, padding: '2px 8px', borderRadius: '50px', fontWeight: '500' }}>{s}</span>)}
-                                </div>
-                              </div>
-                              <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                                {teacher.hourly_rate > 0 && <div style={{ fontFamily: 'Georgia, serif', fontSize: '17px', fontWeight: '700', color: BLUE }}>{`GH₵ ${teacher.hourly_rate}`}</div>}
-                                {avg && <div style={{ fontSize: '12px', color: '#854D0E', fontWeight: '700', marginTop: '2px' }}>⭐ {avg}</div>}
-                              </div>
-                            </div>
+                            <TeacherCard
+                              key={teacher.id}
+                              teacher={teacher}
+                              avg={avg}
+                              hasCerts={hasCerts}
+                              hasRate={hasRate}
+                              onSelect={() => selectTeacher(teacher)}
+                            />
                           )
                         })}
                       </div>
@@ -370,7 +546,7 @@ export default function Booking() {
                             {selectedTeacher.subjects?.map(s => <span key={s} style={{ fontSize: '12px', background: '#fff', color: BLUE, padding: '3px 10px', borderRadius: '50px', border: `1px solid ${BLUE}`, fontWeight: '600' }}>{s}</span>)}
                           </div>
                           <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
-                            {selectedTeacher.hourly_rate > 0 && <span style={{ fontFamily: 'Georgia, serif', fontSize: '16px', fontWeight: '700', color: BLUE }}>GH₵ {selectedTeacher.hourly_rate}/hr</span>}
+                            {selectedTeacher.hourly_rate > 0 && <span style={{ fontFamily: 'Georgia, serif', fontSize: '16px', fontWeight: '700', color: BLUE }}>GH₵ {selectedTeacher.hourly_rate}/session</span>}
                             {(() => {
                               const avg = selectedTeacher.reviews?.length > 0 ? (selectedTeacher.reviews.reduce((s, r) => s + r.rating, 0) / selectedTeacher.reviews.length).toFixed(1) : null
                               return avg ? <span style={{ fontSize: '13px', color: '#854D0E', fontWeight: '700', background: '#FEF9C3', padding: '3px 10px', borderRadius: '50px' }}>⭐ {avg} ({selectedTeacher.reviews.length})</span> : null
@@ -385,11 +561,7 @@ export default function Booking() {
                           <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
                             {DAYS_FULL.map((day, i) => {
                               const avail = availableDays.includes(day)
-                              return (
-                                <span key={day} style={{ fontSize: '12px', padding: '4px 10px', borderRadius: '50px', fontWeight: '700', background: avail ? '#DCFCE7' : GREY_BG, color: avail ? '#166534' : '#CBD5E1', border: `1px solid ${avail ? '#BBF7D0' : GREY_LIGHT}` }}>
-                                  {DAYS_SHORT[i]}
-                                </span>
-                              )
+                              return <span key={day} style={{ fontSize: '12px', padding: '4px 10px', borderRadius: '50px', fontWeight: '700', background: avail ? '#DCFCE7' : GREY_BG, color: avail ? '#166534' : '#CBD5E1', border: `1px solid ${avail ? '#BBF7D0' : GREY_LIGHT}` }}>{DAYS_SHORT[i]}</span>
                             })}
                           </div>
                         </div>
@@ -402,12 +574,13 @@ export default function Booking() {
                 )}
               </div>
 
+              {/* Step 2 */}
               {selectedTeacher && (
                 <div style={{ background: '#fff', borderRadius: '20px', border: BORDER, overflow: 'hidden', boxShadow: SHADOW_LG }}>
                   <div style={{ padding: '1.25rem 1.5rem', borderBottom: BORDER, display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: GRADIENT_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '800', color: '#fff', flexShrink: 0 }}>2</div>
                     <div>
-                      <h3 style={{ fontSize: '16px', fontWeight: '800', color: TEXT, margin: 0 }}>Booking details</h3>
+                      <h3 style={{ fontSize: '16px', fontWeight: '800', color: TEXT, margin: 0 }}>Session details</h3>
                       <p style={{ fontSize: '13px', color: TEXT_MUTED, margin: 0 }}>Tell the teacher what you need</p>
                     </div>
                   </div>
@@ -435,20 +608,6 @@ export default function Booking() {
                     </div>
 
                     <div>
-                      <label style={lbl}>Number of sessions</label>
-                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        {[1, 2, 4, 8, 12].map(n => (
-                          <button key={n} type="button" onClick={() => setForm({ ...form, sessions: String(n) })}
-                            style={{ padding: '10px 18px', border: `2px solid ${form.sessions === String(n) ? BLUE : GREY_LIGHT}`, borderRadius: '50px', background: form.sessions === String(n) ? LIGHT_BLUE : '#fff', color: form.sessions === String(n) ? BLUE : TEXT_MUTED, fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: form.sessions === String(n) ? '700' : '400', transition: TRANSITION, boxShadow: form.sessions === String(n) ? SHADOW_BLUE : 'none' }}>
-                            {n} {n === 1 ? 'session' : 'sessions'}
-                          </button>
-                        ))}
-                        <input type="number" min="1" max="50" placeholder="Other" value={![1, 2, 4, 8, 12].includes(parseInt(form.sessions)) ? form.sessions : ''} onChange={e => setForm({ ...form, sessions: e.target.value })}
-                          style={{ ...inp, width: '80px', textAlign: 'center' }} />
-                      </div>
-                    </div>
-
-                    <div>
                       <label style={lbl}>Message to teacher</label>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
                         {MESSAGE_TEMPLATES.map((t, i) => (
@@ -458,19 +617,26 @@ export default function Booking() {
                           </button>
                         ))}
                       </div>
-                      <textarea style={{ ...inp, height: '110px', resize: 'vertical' }} placeholder="Introduce yourself. What subject level? What are your goals?" value={form.message} onChange={e => { setForm({ ...form, message: e.target.value }); setTemplateUsed(null) }} required />
+                      <textarea style={{ ...inp, height: '110px', resize: 'vertical' }} placeholder="Introduce yourself. What level is the subject? What are your goals?" value={form.message} onChange={e => { setForm({ ...form, message: e.target.value }); setTemplateUsed(null) }} required />
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '14px 16px', background: '#FFFBEB', borderRadius: '14px', border: '1px solid #FDE68A' }}>
-                      <span style={{ fontSize: '22px', flexShrink: 0 }}>⚡</span>
+                      <span style={{ fontSize: '22px', flexShrink: 0 }}>🎥</span>
                       <p style={{ fontSize: '13px', color: '#854D0E', margin: 0, lineHeight: '1.6' }}>
+                        Sessions take place <strong>online</strong> via TeachMe's built-in video call. No travel needed.
+                      </p>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '14px 16px', background: '#EFF6FF', borderRadius: '14px', border: '1px solid #BFDBFE' }}>
+                      <span style={{ fontSize: '22px', flexShrink: 0 }}>⚡</span>
+                      <p style={{ fontSize: '13px', color: '#1E40AF', margin: 0, lineHeight: '1.6' }}>
                         Teachers typically respond within <strong>24 hours</strong>. You'll get a notification when they do.
                       </p>
                     </div>
 
-                    <button type="submit" disabled={submitting || !form.subject || !form.sessions || !form.message}
-                      style={{ padding: '15px', background: submitting || !form.subject || !form.sessions || !form.message ? GREY_BG : YELLOW, color: submitting || !form.subject || !form.sessions || !form.message ? TEXT_MUTED : BLUE, border: 'none', borderRadius: '50px', fontSize: '16px', cursor: submitting || !form.subject || !form.sessions || !form.message ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: '800', transition: TRANSITION, boxShadow: !submitting && form.subject && form.sessions && form.message ? SHADOW_YELLOW : 'none' }}>
-                      {submitting ? '⏳ Sending...' : '📅 Send booking request'}
+                    <button type="submit" disabled={submitting || !form.subject || !form.message}
+                      style={{ padding: '15px', background: submitting || !form.subject || !form.message ? GREY_BG : YELLOW, color: submitting || !form.subject || !form.message ? TEXT_MUTED : BLUE, border: 'none', borderRadius: '50px', fontSize: '16px', cursor: submitting || !form.subject || !form.message ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: '800', transition: TRANSITION, boxShadow: !submitting && form.subject && form.message ? SHADOW_YELLOW : 'none' }}>
+                      {submitting ? '⏳ Sending request...' : '📅 Send booking request'}
                     </button>
                   </form>
                 </div>
@@ -487,6 +653,7 @@ export default function Booking() {
               )}
             </div>
 
+            {/* SIDEBAR */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', position: isMobile ? 'static' : 'sticky', top: '80px' }}>
               <div style={{ background: '#fff', borderRadius: '20px', border: BORDER, overflow: 'hidden', boxShadow: SHADOW_XL }}>
                 <div style={{ background: GRADIENT_BLUE, padding: '1.25rem' }}>
@@ -508,9 +675,10 @@ export default function Booking() {
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {[
-                          ['Rate per session', selectedTeacher.hourly_rate > 0 ? `GH₵ ${selectedTeacher.hourly_rate}` : 'TBC'],
-                          ['Sessions', form.sessions || '—'],
+                          ['Rate per session', `GH₵ ${selectedTeacher.hourly_rate}`],
+                          ['Sessions',         '1 private session'],
                           ...(form.subject ? [['Subject', form.subject]] : []),
+                          ['Format',           '🎥 Online (video call)'],
                         ].map(([label, value]) => (
                           <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
                             <span style={{ fontSize: '13px', color: TEXT_MUTED }}>{label}</span>
@@ -520,13 +688,13 @@ export default function Booking() {
                       </div>
                       {estimatedTotal && (
                         <div style={{ background: GRADIENT_BLUE, borderRadius: '14px', padding: '1.25rem', textAlign: 'center', boxShadow: SHADOW_BLUE }}>
-                          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: '600' }}>Estimated total</div>
+                          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: '600' }}>Session total</div>
                           <div style={{ fontFamily: 'Georgia, serif', fontSize: '36px', fontWeight: '700', color: YELLOW, letterSpacing: '-0.02em', lineHeight: 1 }}>GH₵ {estimatedTotal}</div>
                           <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', marginTop: '6px' }}>Only paid after teacher confirms</div>
                         </div>
                       )}
                       <div style={{ fontSize: '12px', color: TEXT_MUTED, textAlign: 'center', lineHeight: '1.7', background: GREY_BG, borderRadius: '10px', padding: '10px' }}>
-                        🔒 No payment until the teacher accepts. Cancel anytime before payment.
+                        🔒 No payment until the teacher accepts.
                       </div>
                     </>
                   ) : (
@@ -542,10 +710,10 @@ export default function Booking() {
                 <h4 style={{ fontSize: '13px', fontWeight: '800', color: TEXT, marginBottom: '14px', marginTop: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Why book through TeachMe?</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {[
-                    ['🏅', 'All teachers verified', 'Certificates manually checked'],
-                    ['🔒', 'Your details are safe', 'Never shared without consent'],
+                    ['🏅', 'All teachers verified',   'Certificates manually checked'],
+                    ['🎥', 'Fully online sessions',   'Join from anywhere, no travel needed'],
                     ['💳', 'Pay only when confirmed', 'No upfront payment required'],
-                    ['⭐', 'Rated by real parents', 'Read reviews before booking'],
+                    ['⭐', 'Rated by real learners',  'Read reviews before booking'],
                   ].map(([icon, title, desc]) => (
                     <div key={title} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                       <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: LIGHT_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>{icon}</div>
@@ -561,16 +729,16 @@ export default function Booking() {
           </div>
         )}
 
+        {/* HISTORY TAB */}
         {activeTab === 'history' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             {bookings.length === 0 ? (
               <div style={{ background: '#fff', borderRadius: '20px', border: BORDER, padding: '5rem 2rem', textAlign: 'center', boxShadow: SHADOW_LG }}>
                 <div style={{ fontSize: '52px', marginBottom: '1rem' }}>📭</div>
                 <h3 style={{ fontSize: '20px', fontWeight: '700', color: TEXT, marginBottom: '8px' }}>No bookings yet</h3>
-                <p style={{ fontSize: '14px', color: TEXT_MUTED, marginBottom: '1.5rem', lineHeight: '1.6' }}>Send your first booking request to a verified teacher</p>
-                <button onClick={() => setActiveTab('new')}
-                  style={{ padding: '12px 28px', background: YELLOW, color: BLUE, border: 'none', borderRadius: '50px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '800', boxShadow: SHADOW_YELLOW }}>
-                  Make your first booking
+                <p style={{ fontSize: '14px', color: TEXT_MUTED, marginBottom: '1.5rem', lineHeight: '1.6' }}>Send your first private session request to a verified teacher</p>
+                <button onClick={() => setActiveTab('new')} style={{ padding: '12px 28px', background: YELLOW, color: BLUE, border: 'none', borderRadius: '50px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '800', boxShadow: SHADOW_YELLOW }}>
+                  Book your first session
                 </button>
               </div>
             ) : (
@@ -584,15 +752,17 @@ export default function Booking() {
                     )}
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '15px', fontWeight: '700', color: TEXT }}>{teacher?.profiles?.full_name}</div>
-                      <div style={{ fontSize: '12px', color: TEXT_MUTED }}>{tBookings.length} booking{tBookings.length !== 1 ? 's' : ''}</div>
+                      <div style={{ fontSize: '12px', color: TEXT_MUTED }}>{tBookings.length} session{tBookings.length !== 1 ? 's' : ''}</div>
                     </div>
-                    <button onClick={() => quickRebook(tBookings[0])}
-                      style={{ padding: '8px 18px', background: YELLOW, color: BLUE, border: 'none', borderRadius: '50px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '800', boxShadow: SHADOW_YELLOW, transition: TRANSITION }}>
+                    <button onClick={() => quickRebook(tBookings[0])} style={{ padding: '8px 18px', background: YELLOW, color: BLUE, border: 'none', borderRadius: '50px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '800', boxShadow: SHADOW_YELLOW, transition: TRANSITION }}>
                       ↩ Book again
                     </button>
                   </div>
                   {tBookings.map((booking, idx) => {
-                    const sc = statusStyle(booking.status)
+                    const sc       = statusStyle(booking.status)
+                    const isPaid   = booking.payment_status === 'paid'
+                    const isFree   = booking.amount === 0
+                    const unlocked = isPaid || isFree
                     return (
                       <div key={booking.id} style={{ padding: '1.25rem 1.5rem', borderBottom: idx < tBookings.length - 1 ? BORDER : 'none' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px', gap: '12px' }}>
@@ -610,17 +780,17 @@ export default function Booking() {
                         {booking.amount > 0 && (
                           <div style={{ fontSize: '15px', fontWeight: '700', color: BLUE, marginBottom: '12px', fontFamily: 'Georgia, serif' }}>
                             GH₵ {booking.amount}
-                            {booking.payment_status === 'paid' && <span style={{ fontSize: '13px', color: '#166534', marginLeft: '8px', fontFamily: 'DM Sans, sans-serif', fontWeight: '700' }}>✅ Paid</span>}
+                            {isPaid && <span style={{ fontSize: '13px', color: '#166534', marginLeft: '8px', fontFamily: 'inherit', fontWeight: '700' }}>✅ Paid</span>}
                           </div>
                         )}
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                          {booking.status === 'confirmed' && booking.payment_status !== 'paid' && booking.amount > 0 && (
+                          {booking.status === 'confirmed' && !isPaid && booking.amount > 0 && (
                             <PayButton booking={booking} userEmail={user.email} onSuccess={fetchMyBookings} />
                           )}
-                          {booking.status === 'confirmed' && booking.room_id && (
-                            <Link to={`/call/${booking.room_id}`} style={{ fontSize: '13px', fontWeight: '700', color: '#fff', background: '#16A34A', padding: '9px 18px', borderRadius: '50px', textDecoration: 'none' }}>🎥 Join call</Link>
+                          {booking.status === 'confirmed' && unlocked && booking.room_id && (
+                            <Link to={`/call/${booking.room_id}`} style={{ fontSize: '13px', fontWeight: '700', color: '#fff', background: '#16A34A', padding: '9px 18px', borderRadius: '50px', textDecoration: 'none' }}>🎥 Join session</Link>
                           )}
-                          {booking.status === 'confirmed' && (
+                          {booking.status === 'confirmed' && unlocked && (
                             <Link to={`/messages?booking=${booking.id}`} style={{ fontSize: '13px', color: BLUE, fontWeight: '700', padding: '9px 18px', border: BORDER, borderRadius: '50px', textDecoration: 'none', background: '#fff' }}>💬 Message</Link>
                           )}
                           {booking.status === 'pending' && (
@@ -630,7 +800,7 @@ export default function Booking() {
                             </button>
                           )}
                         </div>
-                        {booking.status === 'confirmed' && booking.payment_status === 'paid' && (
+                        {booking.status === 'confirmed' && unlocked && isPaid && (
                           <ReviewSection booking={booking} userId={user.id} onSuccess={fetchMyBookings} />
                         )}
                       </div>
@@ -650,26 +820,27 @@ export default function Booking() {
 const lbl = { fontSize: '11px', fontWeight: '800', color: TEXT_MUTED, display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.07em' }
 const inp = { width: '100%', padding: '12px 16px', border: BORDER, borderRadius: '12px', fontSize: '14px', fontFamily: 'inherit', outline: 'none', background: '#fff', color: TEXT, boxSizing: 'border-box', transition: TRANSITION }
 
-function PayButton({ booking, userEmail, onSuccess }) {
+// ── Pay Button ────────────────────────────────────────────────────────────────
+function PayButton({ booking, userEmail, onSuccess, large }) {
   const [loading, setLoading] = useState(false)
   const handlePay = () => {
     setLoading(true)
     const handler = window.PaystackPop.setup({
-      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
-      email: userEmail,
-      amount: booking.amount * 100,
+      key:      import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+      email:    userEmail,
+      amount:   booking.amount * 100,
       currency: 'GHS',
-      ref: 'TM-' + Date.now() + '-' + booking.id.slice(0, 8),
+      ref:      'TM-' + Date.now() + '-' + booking.id.slice(0, 8),
       callback: (response) => confirmPayment(response.reference),
-      onClose: () => setLoading(false),
+      onClose:  () => setLoading(false),
     })
     handler.openIframe()
   }
   const confirmPayment = async (reference) => {
     try {
-      const commissionRate = 0.125
+      const commissionRate   = 0.125
       const commissionAmount = Math.round(booking.amount * commissionRate * 100) / 100
-      const teacherPayout = Math.round(booking.amount * (1 - commissionRate) * 100) / 100
+      const teacherPayout    = Math.round(booking.amount * (1 - commissionRate) * 100) / 100
       await supabase.from('payments').insert({ booking_id: booking.id, payer_id: booking.client_id, amount: booking.amount, commission_amount: commissionAmount, teacher_payout: teacherPayout, reference, status: 'success' })
       await supabase.from('bookings').update({ payment_status: 'paid', commission_rate: commissionRate, commission_amount: commissionAmount, teacher_payout: teacherPayout, payout_status: 'pending' }).eq('id', booking.id)
       onSuccess()
@@ -678,19 +849,34 @@ function PayButton({ booking, userEmail, onSuccess }) {
   }
   return (
     <button onClick={handlePay} disabled={loading}
-      style={{ fontSize: '13px', fontWeight: '800', color: '#fff', background: '#16A34A', border: 'none', padding: '9px 18px', borderRadius: '50px', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 12px rgba(22,163,74,0.3)', transition: TRANSITION }}>
-      {loading ? '⏳ Processing...' : '💳 Pay Now'}
+      style={{
+        fontSize:     large ? '16px' : '13px',
+        fontWeight:   '800',
+        color:        large ? BLUE : '#fff',
+        background:   large ? YELLOW : '#16A34A',
+        border:       'none',
+        padding:      large ? '16px 32px' : '9px 18px',
+        borderRadius: '50px',
+        cursor:       loading ? 'not-allowed' : 'pointer',
+        fontFamily:   'inherit',
+        boxShadow:    large ? SHADOW_YELLOW : '0 4px 12px rgba(22,163,74,0.3)',
+        transition:   TRANSITION,
+        whiteSpace:   'nowrap',
+        opacity:      loading ? 0.7 : 1,
+      }}>
+      {loading ? '⏳ Processing...' : large ? '💳 Pay Now to unlock →' : '💳 Pay Now'}
     </button>
   )
 }
 
+// ── Review Section ────────────────────────────────────────────────────────────
 function ReviewSection({ booking, userId, onSuccess }) {
   const [existingReview, setExistingReview] = useState(null)
-  const [rating, setRating] = useState(0)
-  const [hoverRating, setHoverRating] = useState(0)
-  const [comment, setComment] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [submitting, setSubmitting] = useState(false)
+  const [rating, setRating]                 = useState(0)
+  const [hoverRating, setHoverRating]       = useState(0)
+  const [comment, setComment]               = useState('')
+  const [loading, setLoading]               = useState(true)
+  const [submitting, setSubmitting]         = useState(false)
 
   useEffect(() => {
     supabase.from('reviews').select('*').eq('booking_id', booking.id).maybeSingle()
@@ -720,7 +906,7 @@ function ReviewSection({ booking, userId, onSuccess }) {
 
   return (
     <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: BORDER }}>
-      <div style={{ fontSize: '13px', fontWeight: '700', marginBottom: '10px', color: TEXT }}>Rate your experience</div>
+      <div style={{ fontSize: '13px', fontWeight: '700', marginBottom: '10px', color: TEXT }}>Rate your session</div>
       <div style={{ display: 'flex', gap: '4px', marginBottom: '12px' }}>
         {[1, 2, 3, 4, 5].map(n => (
           <span key={n} onClick={() => setRating(n)} onMouseEnter={() => setHoverRating(n)} onMouseLeave={() => setHoverRating(0)}

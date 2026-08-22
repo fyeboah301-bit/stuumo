@@ -198,7 +198,7 @@ export default function Dashboard() {
               {[
                 { label: 'Find Teachers', icon: '🎓', link: '/teachers', color: BLUE },
                 { label: 'Live Sessions', icon: '🎥', link: '/sessions', color: '#7C3AED' },
-                { label: 'Book Tuition', icon: '📅', link: '/booking', color: '#0891B2' },
+                { label: 'Book a Session', icon: '📅', link: '/booking', color: '#0891B2' },
                 { label: 'Messages', icon: '💬', link: '/messages', color: '#059669' },
                 { label: 'Assignments', icon: '📝', link: '/assignments', color: '#D97706' },
                 { label: 'Referrals', icon: '🎁', link: '/referrals', color: '#DB2777' },
@@ -323,7 +323,7 @@ function TeacherOverview({ userId, profile, navigate }) {
               return (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: GREY_BG, borderRadius: '10px', border: '1px solid #E2E8F0' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#111', marginBottom: '2px' }}>{b.subject || 'Tuition session'}</div>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#111', marginBottom: '2px' }}>{b.subject || 'Private session'}</div>
                     <div style={{ fontSize: '12px', color: TEXT_MUTED }}>{new Date(b.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                   </div>
                   {b.teacher_payout > 0 && <div style={{ fontSize: '14px', fontWeight: '700', color: '#166534' }}>GH₵ {b.teacher_payout?.toFixed(2)}</div>}
@@ -500,7 +500,7 @@ function TeacherEarnings({ userId }) {
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: GREY_BG, borderRadius: '10px', border: '1px solid #E2E8F0' }}>
                   <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#DCFCE7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>💳</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#111' }}>{b.subject || 'Tuition'}</div>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#111' }}>{b.subject || 'Private session'}</div>
                     <div style={{ fontSize: '12px', color: TEXT_MUTED }}>{new Date(b.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                   </div>
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
@@ -566,7 +566,7 @@ function TeacherBioSection({ userId }) {
         <div>
           <label style={lbl}>Teaching levels</label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '12px', border: '1px solid #E2E8F0', borderRadius: '10px', background: GREY_BG }}>
-            {['Primary', 'JHS', 'SHS', 'University', 'Adult Learning'].map(level => {
+            {['Primary (1–6)', 'JHS (7–9)', 'SHS (10–12)', 'University', 'Professional'].map(level => {
               const selected = teachingLevels.includes(level)
               return (
                 <label key={level} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', cursor: 'pointer', padding: '7px 14px', borderRadius: '20px', background: selected ? BLUE : '#fff', color: selected ? '#fff' : '#374151', border: `1px solid ${selected ? BLUE : '#E2E8F0'}`, fontWeight: selected ? '700' : '400', transition: 'all 0.15s' }}>

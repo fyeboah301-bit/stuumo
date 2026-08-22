@@ -68,6 +68,8 @@ export default function Messages() {
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
 
+  const isTeacher = profile?.role === 'teacher'
+
   useEffect(() => {
     if (!user) navigate('/login')
     else fetchConversations()
@@ -85,7 +87,10 @@ export default function Messages() {
     if (!activeBooking) return
     fetchMessages(activeBooking.id)
     const channel = supabase.channel(`messages-${activeBooking.id}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `booking_id=eq.${activeBooking.id}` }, payload => {
+      .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'messages',
+        filter: `booking_id=eq.${activeBooking.id}`
+      }, payload => {
         setMessages(prev => [...prev, payload.new])
         if (payload.new.receiver_id === user.id) {
           supabase.from('messages').update({ read: true }).eq('id', payload.new.id)
@@ -100,11 +105,12 @@ export default function Messages() {
 
   const fetchConversations = async () => {
     const { data } = await supabase
-      .from('bookings')
-      .select('*, profiles:client_id (full_name, avatar_url), teachers (id, profiles (full_name, avatar_url))')
-      .eq('status', 'confirmed')
-      .or(`client_id.eq.${user.id},teacher_id.eq.${user.id}`)
-      .order('created_at', { ascending: false })
+  .from('bookings')
+  .select('*, profiles:client_id (full_name, avatar_url), teachers (id, profiles (full_name, avatar_url))')
+  .eq('status', 'confirmed')
+  .or('payment_status.eq.paid,amount.eq.0')
+  .or(`client_id.eq.${user.id},teacher_id.eq.${user.id}`)
+  .order('created_at', { ascending: false })
     const convs = data || []
     setConversations(convs)
     const meta = {}
@@ -130,8 +136,8 @@ export default function Messages() {
     setTimeout(() => inputRef.current?.focus(), 100)
   }
 
-  const getOtherPersonId = (conv) => conv.client_id === user.id ? conv.teacher_id : conv.client_id
-  const getOtherPersonName = (conv) => conv.client_id === user.id ? conv.teachers?.profiles?.full_name : conv.profiles?.full_name
+  const getOtherPersonId     = (conv) => conv.client_id === user.id ? conv.teacher_id : conv.client_id
+  const getOtherPersonName   = (conv) => conv.client_id === user.id ? conv.teachers?.profiles?.full_name : conv.profiles?.full_name
   const getOtherPersonAvatar = (conv) => conv.client_id === user.id ? conv.teachers?.profiles?.avatar_url : conv.profiles?.avatar_url
 
   const sendMessage = async (e) => {
@@ -162,14 +168,14 @@ export default function Messages() {
   }
 
   const filteredConversations = conversations.filter(conv => {
-    const name = getOtherPersonName(conv)?.toLowerCase() || ''
+    const name    = getOtherPersonName(conv)?.toLowerCase() || ''
     const subject = conv.subject?.toLowerCase() || ''
-    const q = search.toLowerCase()
+    const q       = search.toLowerCase()
     return name.includes(q) || subject.includes(q)
   })
 
   const totalUnread = Object.values(conversationMeta).reduce((sum, m) => sum + (m.unread || 0), 0)
-  const grouped = groupMessagesByDate(messages)
+  const grouped     = groupMessagesByDate(messages)
 
   function Avatar({ url, name, size = 44, color = GRADIENT_BLUE }) {
     return url ? (
@@ -221,23 +227,37 @@ export default function Messages() {
         ) : filteredConversations.length === 0 ? (
           <div style={{ padding: '3rem 1.5rem', textAlign: 'center' }}>
             <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: LIGHT_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', margin: '0 auto 1rem' }}>💬</div>
-            <p style={{ fontSize: '14px', fontWeight: '600', color: TEXT, marginBottom: '6px' }}>{search ? 'No results' : 'No conversations yet'}</p>
-            <p style={{ fontSize: '13px', color: TEXT_MUTED, lineHeight: '1.6', marginBottom: '1rem' }}>
-              {search ? 'Try a different search term.' : 'Messaging unlocks once a booking is confirmed.'}
-            </p>
-            {!search && (
-              <Link to="/booking" style={{ fontSize: '13px', color: '#fff', fontWeight: '700', textDecoration: 'none', background: GRADIENT_BLUE, padding: '9px 20px', borderRadius: '50px', display: 'inline-block', boxShadow: SHADOW_BLUE }}>
-                Book a teacher →
-              </Link>
+            {search ? (
+              <>
+                <p style={{ fontSize: '14px', fontWeight: '600', color: TEXT, marginBottom: '6px' }}>No results</p>
+                <p style={{ fontSize: '13px', color: TEXT_MUTED, lineHeight: '1.6' }}>Try a different search term.</p>
+              </>
+            ) : isTeacher ? (
+              <>
+                <p style={{ fontSize: '14px', fontWeight: '600', color: TEXT, marginBottom: '6px' }}>No messages yet</p>
+                <p style={{ fontSize: '13px', color: TEXT_MUTED, lineHeight: '1.6' }}>
+                  Learners and parents will message you here once they confirm a booking with you.
+                </p>
+              </>
+            ) : (
+              <>
+                <p style={{ fontSize: '14px', fontWeight: '600', color: TEXT, marginBottom: '6px' }}>No conversations yet</p>
+                <p style={{ fontSize: '13px', color: TEXT_MUTED, lineHeight: '1.6', marginBottom: '1rem' }}>
+                  Messaging unlocks once a booking is confirmed.
+                </p>
+                <Link to="/teachers" style={{ fontSize: '13px', color: '#fff', fontWeight: '700', textDecoration: 'none', background: GRADIENT_BLUE, padding: '9px 20px', borderRadius: '50px', display: 'inline-block', boxShadow: SHADOW_BLUE }}>
+                  Find a teacher →
+                </Link>
+              </>
             )}
           </div>
         ) : filteredConversations.map(conv => {
           const isActive = activeBooking?.id === conv.id
-          const meta = conversationMeta[conv.id] || {}
-          const lastMsg = meta.lastMessage
-          const unread = meta.unread || 0
-          const name = getOtherPersonName(conv)
-          const avatar = getOtherPersonAvatar(conv)
+          const meta     = conversationMeta[conv.id] || {}
+          const lastMsg  = meta.lastMessage
+          const unread   = meta.unread || 0
+          const name     = getOtherPersonName(conv)
+          const avatar   = getOtherPersonAvatar(conv)
           return (
             <div key={conv.id} onClick={() => openConversation(conv)}
               style={{ padding: '0.875rem 1.25rem', borderBottom: BORDER, cursor: 'pointer', background: isActive ? LIGHT_BLUE : '#fff', transition: TRANSITION, display: 'flex', gap: '12px', alignItems: 'center' }}
@@ -311,7 +331,9 @@ export default function Messages() {
                 <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: LIGHT_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px' }}>👋</div>
                 <div style={{ textAlign: 'center' }}>
                   <p style={{ fontSize: '15px', fontWeight: '700', color: TEXT, marginBottom: '6px', letterSpacing: '-0.01em' }}>Say hello!</p>
-                  <p style={{ fontSize: '13px', color: TEXT_MUTED, lineHeight: '1.6', margin: 0 }}>No messages yet. Start the conversation with {getOtherPersonName(activeBooking)}.</p>
+                  <p style={{ fontSize: '13px', color: TEXT_MUTED, lineHeight: '1.6', margin: 0 }}>
+                    No messages yet. Start the conversation with {getOtherPersonName(activeBooking)}.
+                  </p>
                 </div>
               </div>
             ) : grouped.map((item, idx) => {
@@ -323,10 +345,10 @@ export default function Messages() {
                 )
               }
               const isMe = item.sender_id === user.id
-              const myAvatar = profile?.avatar_url
+              const myAvatar    = profile?.avatar_url
               const theirAvatar = getOtherPersonAvatar(activeBooking)
               const nextItem = grouped[idx + 1]
-              const showAvatar = !isMe && (nextItem?.type === 'date' || nextItem?.sender_id !== item.sender_id || !nextItem)
+              const showAvatar     = !isMe && (nextItem?.type === 'date' || nextItem?.sender_id !== item.sender_id || !nextItem)
               const isFirstInGroup = idx === 0 || grouped[idx - 1]?.type === 'date' || grouped[idx - 1]?.sender_id !== item.sender_id
               return (
                 <div key={item.id} style={{ display: 'flex', flexDirection: isMe ? 'row-reverse' : 'row', alignItems: 'flex-end', gap: '8px', marginBottom: showAvatar ? '10px' : '2px' }}>
@@ -337,7 +359,9 @@ export default function Messages() {
                   )}
                   <div style={{ maxWidth: '68%', display: 'flex', flexDirection: 'column', alignItems: isMe ? 'flex-end' : 'flex-start', gap: '3px' }}>
                     {isFirstInGroup && !isMe && (
-                      <span style={{ fontSize: '11px', color: TEXT_MUTED, paddingLeft: '4px', fontWeight: '600' }}>{getOtherPersonName(activeBooking)?.split(' ')[0]}</span>
+                      <span style={{ fontSize: '11px', color: TEXT_MUTED, paddingLeft: '4px', fontWeight: '600' }}>
+                        {getOtherPersonName(activeBooking)?.split(' ')[0]}
+                      </span>
                     )}
                     <div style={{ background: isMe ? GRADIENT_BLUE : '#fff', color: isMe ? '#fff' : TEXT, padding: '10px 16px', borderRadius: isMe ? '20px 20px 6px 20px' : '20px 20px 20px 6px', fontSize: '14px', lineHeight: '1.6', boxShadow: isMe ? SHADOW_BLUE : '0 1px 4px rgba(0,0,0,0.06)', border: isMe ? 'none' : BORDER, wordBreak: 'break-word', letterSpacing: '0.01em' }}>
                       {item.content}
@@ -388,13 +412,23 @@ export default function Messages() {
           <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: LIGHT_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px' }}>💬</div>
           <div style={{ textAlign: 'center' }}>
             <h3 style={{ fontSize: '18px', fontWeight: '700', color: TEXT, marginBottom: '8px', letterSpacing: '-0.01em' }}>Your messages</h3>
-            <p style={{ fontSize: '14px', color: TEXT_MUTED, maxWidth: '260px', lineHeight: '1.7', margin: '0 auto 1.5rem' }}>
-              Select a conversation on the left to start messaging your teacher or student
-            </p>
-            {conversations.length === 0 && (
-              <Link to="/booking" style={{ padding: '11px 24px', background: GRADIENT_BLUE, color: '#fff', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_BLUE, display: 'inline-block' }}>
-                Book a teacher to start messaging
-              </Link>
+            {conversations.length > 0 ? (
+              <p style={{ fontSize: '14px', color: TEXT_MUTED, maxWidth: '260px', lineHeight: '1.7', margin: '0 auto' }}>
+                Select a conversation on the left to start chatting
+              </p>
+            ) : isTeacher ? (
+              <p style={{ fontSize: '14px', color: TEXT_MUTED, maxWidth: '280px', lineHeight: '1.7', margin: '0 auto' }}>
+                Messages will appear here once a learner or parent confirms a booking with you.
+              </p>
+            ) : (
+              <>
+                <p style={{ fontSize: '14px', color: TEXT_MUTED, maxWidth: '260px', lineHeight: '1.7', margin: '0 auto 1.5rem' }}>
+                  Confirm a booking with a teacher to unlock messaging.
+                </p>
+                <Link to="/teachers" style={{ padding: '11px 24px', background: GRADIENT_BLUE, color: '#fff', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_BLUE, display: 'inline-block' }}>
+                  Find a teacher →
+                </Link>
+              </>
             )}
           </div>
         </div>

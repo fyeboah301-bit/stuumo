@@ -151,7 +151,7 @@ export default function TeacherProfile() {
   }
 
   const shareWhatsApp = () => {
-    const text = `Check out ${teacher.profiles?.full_name} on TeachMe — a verified teacher offering ${teacher.subjects?.slice(0, 2).join(' and ')} in ${teacher.profiles?.city}. ${window.location.href}`
+    const text = `Check out ${teacher.profiles?.full_name} on TeachMe — a verified teacher offering online private sessions in ${teacher.subjects?.slice(0, 2).join(' and ')}. ${window.location.href}`
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
   }
 
@@ -229,7 +229,7 @@ export default function TeacherProfile() {
             {!isMobile && teacher.hourly_rate > 0 && (
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
                 <div style={{ fontFamily: 'Georgia, serif', fontSize: '32px', fontWeight: '700', color: YELLOW, letterSpacing: '-0.02em', lineHeight: 1 }}>GH₵ {teacher.hourly_rate}</div>
-                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', marginTop: '4px', fontWeight: '500' }}>per hour</div>
+                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', marginTop: '4px', fontWeight: '500' }}>per session</div>
               </div>
             )}
           </div>
@@ -454,8 +454,7 @@ export default function TeacherProfile() {
               {teacher.hourly_rate > 0 ? (
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontFamily: 'Georgia, serif', fontSize: '36px', fontWeight: '700', color: YELLOW, letterSpacing: '-0.02em', lineHeight: 1 }}>GH₵ {teacher.hourly_rate}</div>
-                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)', marginTop: '4px', fontWeight: '500' }}>per hour · prices negotiable</div>
-                </div>
+<div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)', marginTop: '4px', fontWeight: '500' }}>per session · prices negotiable</div>                </div>
               ) : (
                 <div style={{ textAlign: 'center', fontSize: '15px', fontWeight: '700', color: YELLOW }}>Contact for pricing</div>
               )}
@@ -521,7 +520,7 @@ export default function TeacherProfile() {
               {teacher.hourly_rate > 0 && (
                 <div>
                   <div style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: '700', color: BLUE, lineHeight: 1 }}>GH₵ {teacher.hourly_rate}</div>
-                  <div style={{ fontSize: '10px', color: TEXT_MUTED, fontWeight: '500' }}>per hour</div>
+                  <div style={{ fontSize: '10px', color: TEXT_MUTED, fontWeight: '500' }}>per session</div>
                 </div>
               )}
               <Link to={`/booking?teacher=${teacher.id}`} style={{ flex: 1, padding: '14px', background: YELLOW, color: BLUE, borderRadius: '50px', fontSize: '15px', textDecoration: 'none', textAlign: 'center', fontWeight: '800', boxShadow: SHADOW_YELLOW }}>

@@ -3,13 +3,13 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import heroVideo from '../assets/images/hero-video.mp4'
 import Footer from '../components/Footer'
-import heroImg from '../assets/images/hero.png'
 import teacherImg from '../assets/images/teacher.png'
 import parentImg from '../assets/images/parent.png'
 import learnerImg from '../assets/images/learner.png'
 import usePageMeta from '../hooks/usePageMeta'
+import Logo from '../components/Logo'
 import {
-  BLUE, YELLOW, DARK_BLUE, LIGHT_YELLOW, LIGHT_BLUE,
+  BLUE, YELLOW, DARK_BLUE, LIGHT_BLUE,
   GRADIENT_BLUE, GRADIENT_HERO, GRADIENT_YELLOW,
   SHADOW_LG, SHADOW_XL, SHADOW_BLUE, SHADOW_YELLOW,
   TRANSITION, TEXT, TEXT_MUTED,
@@ -44,92 +44,306 @@ function useCountUp(target, duration = 1200) {
   return value
 }
 
-export default function Home() {
-  usePageMeta('Find Verified Home Tutors', 'Connect with verified, certificate-checked teachers across Ghana for home tuition and live online sessions.')
+function useSessionCountdown(session) {
+  const [timeLeft, setTimeLeft] = useState(null)
+  useEffect(() => {
+    const calc = () => {
+      const diff = new Date(`${session.session_date}T${session.start_time}`) - new Date()
+      if (diff <= 0) { setTimeLeft(null); return }
+      setTimeLeft({
+        days:    Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours:   Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+        total:   diff,
+      })
+    }
+    calc()
+    const id = setInterval(calc, 1000)
+    return () => clearInterval(id)
+  }, [session.session_date, session.start_time])
+  return timeLeft
+}
 
-  const [sessionCount, setSessionCount] = useState(0)
-  const [teacherCount, setTeacherCount] = useState(0)
+function CountdownLine({ session }) {
+  const t = useSessionCountdown(session)
+  if (!t) return <span>Starting now</span>
+  if (t.days > 0) return <span>Starts in {t.days}d {t.hours}h {t.minutes}m</span>
+  if (t.hours > 0) return <span>Starts in {t.hours}h {t.minutes}m</span>
+  return <span>Starts in {t.minutes}m {String(t.seconds).padStart(2, '0')}s</span>
+}
+
+function FeaturedSession({ session, isMobile }) {
+  const timeLeft  = useSessionCountdown(session)
+  const date      = new Date(session.session_date + 'T00:00:00')
+  const enrolled  = session.enrolledCount || 0
+  const maxSpots  = session.max_spots || 20
+  const spotsLeft = maxSpots - enrolled
+  const spotsPct  = Math.min(Math.round((enrolled / maxSpots) * 100), 100)
+  const isFree    = !session.price || session.price <= 0
+  const isWithin48h = timeLeft && timeLeft.total < 48 * 60 * 60 * 1000
+
+  const barColor     = spotsPct >= 70 ? '#EF4444' : spotsPct >= 40 ? '#F59E0B' : '#22C55E'
+  const spotsMsg     = spotsPct >= 70 ? '🔥 Filling fast' : spotsPct >= 40 ? 'Going fast' : 'Spots available'
+  const spotsMsgColor = spotsPct >= 70 ? '#DC2626' : spotsPct >= 40 ? '#D97706' : '#166534'
+
+  return (
+    <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(37,99,235,0.15)', boxShadow: SHADOW_XL, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '280px 1fr' }}>
+
+      {/* Left — teacher panel */}
+      <div style={{ background: GRADIENT_HERO, padding: isMobile ? '1.5rem' : '2.5rem 2rem', display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: isMobile ? '14px' : '1.25rem', alignItems: isMobile ? 'center' : 'flex-start' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(255,215,0,0.15)', border: '1px solid rgba(255,215,0,0.3)', borderRadius: '50px', padding: '4px 12px', order: isMobile ? 2 : 0, flexShrink: 0 }}>
+          <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#22C55E', animation: 'pulse 2s infinite', flexShrink: 0 }} />
+          <span style={{ fontSize: '11px', fontWeight: '700', color: YELLOW, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Next up</span>
+        </div>
+        {session.teachers?.profiles?.avatar_url ? (
+          <img src={session.teachers.profiles.avatar_url} alt="" style={{ width: isMobile ? '56px' : '84px', height: isMobile ? '56px' : '84px', borderRadius: '50%', objectFit: 'cover', border: '3px solid rgba(255,215,0,0.5)', flexShrink: 0 }} />
+        ) : (
+          <div style={{ width: isMobile ? '56px' : '84px', height: isMobile ? '56px' : '84px', borderRadius: '50%', background: YELLOW, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isMobile ? '22px' : '32px', fontWeight: '800', color: BLUE, border: '3px solid rgba(255,215,0,0.5)', flexShrink: 0 }}>
+            {session.teachers?.profiles?.full_name?.charAt(0)}
+          </div>
+        )}
+        <div style={{ flex: isMobile ? 1 : 'none', minWidth: 0 }}>
+          <div style={{ fontSize: isMobile ? '15px' : '17px', fontWeight: '700', color: '#fff', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {session.teachers?.profiles?.full_name}
+          </div>
+          {session.avgRating && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+              <span style={{ color: '#F59E0B', fontSize: '13px' }}>⭐</span>
+              <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>{session.avgRating}</span>
+            </div>
+          )}
+          {!isMobile && session.teachers?.profiles?.city && (
+            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', marginTop: '6px' }}>📍 {session.teachers.profiles.city}</div>
+          )}
+        </div>
+      </div>
+
+      {/* Right — session details */}
+      <div style={{ background: '#fff', padding: isMobile ? '1.5rem' : '2.5rem 2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+        {/* Badges + title */}
+        <div>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
+            {session.subject && <span style={{ fontSize: '12px', background: LIGHT_BLUE, color: BLUE, padding: '3px 12px', borderRadius: '20px', fontWeight: '700' }}>{session.subject}</span>}
+            {isFree && <span style={{ fontSize: '12px', background: '#DCFCE7', color: '#166534', padding: '3px 12px', borderRadius: '20px', fontWeight: '800' }}>🎓 FREE</span>}
+          </div>
+          <h3 style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: '700', color: TEXT, margin: 0, lineHeight: '1.3', letterSpacing: '-0.01em' }}>{session.title}</h3>
+        </div>
+
+        {/* Date + time */}
+        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '14px', color: TEXT_MUTED }}>📅 {date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'long' })}</span>
+          <span style={{ fontSize: '14px', color: TEXT_MUTED }}>🕐 {session.start_time?.slice(0, 5)} – {session.end_time?.slice(0, 5)}</span>
+        </div>
+
+        {/* Countdown */}
+        {timeLeft && isWithin48h && (
+          <div style={{ background: '#FEF9C3', border: '1px solid #FDE68A', borderRadius: '12px', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '20px' }}>⏱</span>
+            <div>
+              <div style={{ fontSize: '11px', fontWeight: '700', color: '#854D0E', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Starting in</div>
+              <div style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: '700', color: '#92400E' }}>
+                {timeLeft.days > 0 && `${timeLeft.days}d `}{String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Spots progress */}
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+            <span style={{ fontSize: '13px', color: TEXT_MUTED }}>{enrolled} enrolled · {spotsLeft} spots left</span>
+            <span style={{ fontSize: '12px', fontWeight: '700', color: spotsMsgColor }}>{spotsMsg}</span>
+          </div>
+          <div style={{ height: '8px', background: '#F1F5F9', borderRadius: '50px', overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${spotsPct}%`, background: barColor, borderRadius: '50px', transition: 'width 0.6s ease' }} />
+          </div>
+        </div>
+
+        {/* Price + CTA */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: 'auto', paddingTop: '4px' }}>
+          <div>
+            <div style={{ fontFamily: 'Georgia, serif', fontSize: '26px', fontWeight: '700', color: isFree ? '#166534' : BLUE }}>
+              {isFree ? 'Free' : `GH₵ ${session.price}`}
+            </div>
+            <div style={{ fontSize: '11px', color: TEXT_MUTED }}>per person</div>
+          </div>
+          <Link to="/sessions" style={{ flex: 1, display: 'block', padding: '14px 24px', background: isFree ? '#16A34A' : GRADIENT_BLUE, color: '#fff', borderRadius: '50px', fontSize: '15px', textDecoration: 'none', fontWeight: '800', textAlign: 'center', boxShadow: isFree ? '0 4px 14px rgba(22,163,74,0.3)' : SHADOW_BLUE, transition: TRANSITION }}>
+            {isFree ? '🎓 Enroll free →' : '🎓 Enroll now →'}
+          </Link>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SessionCard({ session, isMobile }) {
+  const [hovered, setHovered] = useState(false)
+  const date      = new Date(session.session_date + 'T00:00:00')
+  const diffMs    = new Date(`${session.session_date}T${session.start_time}`) - new Date()
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+  const enrolled  = session.enrolledCount || 0
+  const maxSpots  = session.max_spots || 20
+  const spotsLeft = maxSpots - enrolled
+  const spotsPct  = Math.min(Math.round((enrolled / maxSpots) * 100), 100)
+  const isFree    = !session.price || session.price <= 0
+  const isWithin24h = diffHours >= 0 && diffHours < 24
+  const isWithin48h = diffHours >= 0 && diffHours < 48
+  const barColor  = spotsPct >= 70 ? '#EF4444' : spotsPct >= 40 ? '#F59E0B' : '#22C55E'
+
+  return (
+    <Link to="/sessions"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ background: '#fff', borderRadius: '18px', border: `1px solid ${hovered ? 'rgba(37,99,235,0.3)' : GREY_LIGHT}`, overflow: 'hidden', boxShadow: hovered ? SHADOW_BLUE : SHADOW_LG, flexShrink: 0, width: isMobile ? '270px' : 'auto', textDecoration: 'none', display: 'flex', flexDirection: 'column', transition: TRANSITION, transform: hovered ? 'translateY(-3px)' : 'translateY(0)' }}
+    >
+      {/* Header */}
+      <div style={{ background: GRADIENT_BLUE, padding: '1rem 1.25rem', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+        <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '10px', padding: '8px 10px', textAlign: 'center', minWidth: '48px', flexShrink: 0 }}>
+          <div style={{ fontFamily: 'Georgia, serif', fontSize: '22px', fontWeight: '700', color: '#fff', lineHeight: 1 }}>{date.getDate()}</div>
+          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.75)', textTransform: 'uppercase', marginTop: '2px', fontWeight: '600' }}>{date.toLocaleString('default', { month: 'short' })}</div>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff', lineHeight: '1.35', marginBottom: '6px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{session.title}</div>
+          <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+            {session.subject && <span style={{ fontSize: '11px', background: YELLOW, color: BLUE, padding: '2px 9px', borderRadius: '20px', fontWeight: '700' }}>{session.subject}</span>}
+            {isFree && <span style={{ fontSize: '11px', background: '#16A34A', color: '#fff', padding: '2px 9px', borderRadius: '20px', fontWeight: '800' }}>FREE</span>}
+            {!isFree && isWithin48h && <span style={{ fontSize: '11px', background: '#EF4444', color: '#fff', padding: '2px 9px', borderRadius: '20px', fontWeight: '700' }}>🔥 Soon</span>}
+          </div>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div style={{ padding: '1rem 1.25rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {session.teachers?.profiles?.avatar_url ? (
+            <img src={session.teachers.profiles.avatar_url} alt="" style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+          ) : (
+            <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: GRADIENT_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '700', color: '#fff', flexShrink: 0 }}>{session.teachers?.profiles?.full_name?.charAt(0)}</div>
+          )}
+          <span style={{ fontSize: '12px', color: TEXT_MUTED, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{session.teachers?.profiles?.full_name}</span>
+          {session.avgRating && <span style={{ fontSize: '11px', color: '#854D0E', fontWeight: '700', flexShrink: 0 }}>⭐ {session.avgRating}</span>}
+        </div>
+
+        {isWithin24h && (
+          <div style={{ background: '#FEF9C3', borderRadius: '8px', padding: '5px 10px', fontSize: '11px', color: '#854D0E', fontWeight: '700' }}>
+            ⏱ <CountdownLine session={session} />
+          </div>
+        )}
+
+        <div style={{ fontSize: '12px', color: TEXT_MUTED }}>🕐 {session.start_time?.slice(0, 5)} – {session.end_time?.slice(0, 5)}</div>
+
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+            <span style={{ fontSize: '11px', color: TEXT_MUTED }}>{enrolled} enrolled</span>
+            <span style={{ fontSize: '11px', fontWeight: '700', color: spotsPct >= 70 ? '#DC2626' : TEXT_MUTED }}>{spotsLeft} left {spotsPct >= 70 ? '🔥' : ''}</span>
+          </div>
+          <div style={{ height: '4px', background: '#F1F5F9', borderRadius: '50px', overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${spotsPct}%`, background: barColor, borderRadius: '50px' }} />
+          </div>
+        </div>
+
+        <div style={{ fontFamily: 'Georgia, serif', fontSize: '18px', fontWeight: '700', color: isFree ? '#166534' : BLUE }}>
+          {isFree ? 'Free' : `GH₵ ${session.price}`}
+        </div>
+      </div>
+
+      <div style={{ padding: '9px 1.25rem', borderTop: `1px solid ${GREY_LIGHT}`, background: hovered ? LIGHT_BLUE : GREY_BG, transition: TRANSITION }}>
+        <div style={{ fontSize: '13px', fontWeight: '700', color: BLUE }}>
+          View & enroll <span style={{ display: 'inline-block', transform: hovered ? 'translateX(3px)' : 'translateX(0)', transition: TRANSITION }}>→</span>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+export default function Home() {
+  usePageMeta('Find Verified Teachers', 'Connect with verified, certificate-checked teachers across Ghana for private online sessions and live group classes.')
+
+  const [sessionCount, setSessionCount]       = useState(0)
+  const [teacherCount, setTeacherCount]       = useState(0)
+  const [upcomingSessions, setUpcomingSessions] = useState([])
   const isMobile = useIsMobile()
   const animatedTeachers = useCountUp(teacherCount)
   const animatedSessions = useCountUp(sessionCount)
 
   useEffect(() => {
-    const fetchCounts = async () => {
+    const fetchData = async () => {
       const today = new Date().toISOString().split('T')[0]
-      const [{ count: sessions }, { count: teachers }] = await Promise.all([
+      const [
+        { count: sessions },
+        { count: teachers },
+        { data: liveSessions },
+        { data: enrollData },
+      ] = await Promise.all([
         supabase.from('live_sessions').select('*', { count: 'exact', head: true }).gte('session_date', today),
         supabase.from('teachers').select('*', { count: 'exact', head: true }).eq('is_verified', true),
+        supabase.from('live_sessions')
+          .select('*, teachers (id, profiles (full_name, avatar_url, city), reviews (rating))')
+          .gte('session_date', today)
+          .is('deleted_at', null)
+          .order('session_date', { ascending: true })
+          .order('start_time', { ascending: true })
+          .limit(7),
+        supabase.from('enrollments').select('session_id'),
       ])
       setSessionCount(sessions || 0)
       setTeacherCount(teachers || 0)
+      const counts = {}
+      ;(enrollData || []).forEach(e => { counts[e.session_id] = (counts[e.session_id] || 0) + 1 })
+      setUpcomingSessions((liveSessions || []).map(s => {
+        const reviews = s.teachers?.reviews || []
+        return {
+          ...s,
+          enrolledCount: counts[s.id] || 0,
+          avgRating: reviews.length > 0
+            ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+            : null,
+        }
+      }))
     }
-    fetchCounts()
+    fetchData()
   }, [])
 
   return (
-    <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#fff', minHeight: '100vh', overflowX: 'hidden' }}>
+    <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', background: '#fff', minHeight: '100vh', overflowX: 'hidden' }}>
 
       {/* NAV */}
-      <nav style={{
-        background: GRADIENT_HERO,
-        padding: isMobile ? '0.875rem 1.25rem' : '1rem 2.5rem',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        position: 'sticky', top: 0, zIndex: 100,
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
-      }}>
-        <div style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '20px' : '22px', fontWeight: '700', color: '#fff', letterSpacing: '-0.02em' }}>
-          Teach<span style={{ color: YELLOW }}>Me</span>
-        </div>
+      <nav style={{ background: GRADIENT_HERO, padding: isMobile ? '0.875rem 1.25rem' : '1rem 2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <Logo variant="blue" height={isMobile ? 28 : 32} />
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <Link to="/login" style={{ padding: isMobile ? '8px 14px' : '9px 20px', background: 'rgba(255,255,255,0.1)', color: '#fff', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '600', border: '1px solid rgba(255,255,255,0.2)', transition: TRANSITION }}>
-            Log in
-          </Link>
-          <Link to="/register" style={{ padding: isMobile ? '8px 14px' : '9px 20px', background: YELLOW, color: BLUE, borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_YELLOW, transition: TRANSITION }}>
-            Sign up free
-          </Link>
+          <Link to="/login" style={{ padding: isMobile ? '8px 14px' : '9px 20px', background: 'rgba(255,255,255,0.1)', color: '#fff', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '600', border: '1px solid rgba(255,255,255,0.2)', transition: TRANSITION }}>Log in</Link>
+          <Link to="/register" style={{ padding: isMobile ? '8px 14px' : '9px 20px', background: YELLOW, color: BLUE, borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_YELLOW, transition: TRANSITION }}>Sign up free</Link>
         </div>
       </nav>
 
       {/* HERO */}
       <section style={{ position: 'relative', minHeight: isMobile ? '100svh' : '680px', display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', overflow: 'hidden' }}>
-        <video
-          src={heroVideo}
-          autoPlay
-          muted
-          loop
-          playsInline
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}
-        />
+        <video src={heroVideo} autoPlay muted loop playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
         <div style={{ position: 'absolute', inset: 0, background: isMobile ? 'linear-gradient(180deg, rgba(26,63,160,0.7) 0%, rgba(15,43,107,0.96) 100%)' : 'linear-gradient(100deg, rgba(15,43,107,0.97) 0%, rgba(26,63,160,0.93) 40%, rgba(37,99,235,0.5) 70%, rgba(37,99,235,0.15) 100%)', zIndex: 1 }} />
-
         <div style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: isMobile ? '100%' : '700px', padding: isMobile ? '3rem 1.5rem 3.5rem' : '5rem 5rem' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.3)', borderRadius: '50px', padding: '5px 14px', marginBottom: '1.5rem' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: YELLOW, flexShrink: 0, animation: 'pulse 2s infinite' }} />
             <span style={{ fontSize: '12px', fontWeight: '700', color: YELLOW, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Verified. Trusted. Effective.</span>
           </div>
-
           <h1 style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '36px' : '58px', fontWeight: '700', color: '#fff', lineHeight: '1.1', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
-            Find the{' '}
-            <span style={{ color: YELLOW, fontStyle: 'italic' }}>right teacher</span>
-            {' '}for every learner
+            Find the <span style={{ color: YELLOW, fontStyle: 'italic' }}>right teacher</span> for every learner
           </h1>
-
           <p style={{ fontSize: isMobile ? '15px' : '17px', color: 'rgba(255,255,255,0.8)', lineHeight: '1.75', marginBottom: '2rem', maxWidth: '520px' }}>
-            TeachMe connects verified, certificate-checked teachers with parents and learners across Ghana — for home tuition or live online sessions.
+            TeachMe connects verified, certificate-checked teachers with parents and learners across Ghana — for private online sessions and live group classes.
           </p>
-
           <div style={{ display: 'flex', gap: '10px', flexDirection: isMobile ? 'column' : 'row', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
             {[
-              { to: '/register?role=teacher', label: 'Join as a teacher', bg: YELLOW, color: BLUE, shadow: SHADOW_YELLOW },
-              { to: '/register?role=learner', label: 'Join as a learner', bg: '#fff', color: BLUE, shadow: '0 4px 16px rgba(0,0,0,0.15)' },
-              { to: '/register?role=parent', label: 'Join as a parent', bg: 'rgba(255,255,255,0.1)', color: '#fff', shadow: 'none', border: '1px solid rgba(255,255,255,0.3)' },
+              { to: '/register?role=teacher', label: 'Join as a teacher', bg: YELLOW,                       color: BLUE,   shadow: SHADOW_YELLOW },
+              { to: '/register?role=learner', label: 'Join as a learner', bg: '#fff',                       color: BLUE,   shadow: '0 4px 16px rgba(0,0,0,0.15)' },
+              { to: '/register?role=parent',  label: 'Join as a parent',  bg: 'rgba(255,255,255,0.1)',      color: '#fff', shadow: 'none', border: '1px solid rgba(255,255,255,0.3)' },
             ].map(({ to, label, bg, color, shadow, border }) => (
-              <Link key={to} to={to} style={{ padding: isMobile ? '13px 20px' : '14px 28px', background: bg, color, borderRadius: '50px', fontSize: isMobile ? '14px' : '15px', textDecoration: 'none', fontWeight: '700', textAlign: 'center', boxShadow: shadow, border: border || 'none', transition: TRANSITION, letterSpacing: '0.01em' }}>
+              <Link key={to} to={to} style={{ padding: isMobile ? '13px 20px' : '14px 28px', background: bg, color, borderRadius: '50px', fontSize: isMobile ? '14px' : '15px', textDecoration: 'none', fontWeight: '700', textAlign: 'center', boxShadow: shadow, border: border || 'none', transition: TRANSITION }}>
                 {label}
               </Link>
             ))}
           </div>
-
           <div style={{ display: 'flex', gap: isMobile ? '1.5rem' : '3rem', paddingTop: '1.75rem', borderTop: '1px solid rgba(255,255,255,0.15)' }}>
             {[
               [animatedTeachers > 0 ? `${animatedTeachers}+` : '—', 'Verified teachers', null],
@@ -157,12 +371,11 @@ export default function Home() {
             <h2 style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '28px' : '40px', fontWeight: '700', color: TEXT, marginBottom: '12px', letterSpacing: '-0.02em' }}>How TeachMe works</h2>
             <p style={{ fontSize: isMobile ? '14px' : '16px', color: TEXT_MUTED, maxWidth: '480px', margin: '0 auto', lineHeight: '1.7' }}>From sign-up to first lesson in three simple steps</p>
           </div>
-
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? '1rem' : '1.5rem' }}>
             {[
-              { num: '1', title: 'Create your profile', desc: 'Teachers upload certificates and pitch videos. Parents and learners just need basic details to get started.', icon: '✏️' },
-              { num: '2', title: 'We verify teachers', desc: 'Our team checks every certificate within 24–48 hours. Only approved teachers appear in search results.', icon: '🛡️' },
-              { num: '3', title: 'Book or enroll', desc: 'Book a teacher for home tuition, or enroll in a live online class — all managed on the platform.', icon: '🎓' },
+              { num: '1', title: 'Create your profile',  desc: 'Teachers upload certificates and pitch videos. Parents and learners just need basic details to get started.', icon: '✏️' },
+              { num: '2', title: 'We verify teachers',   desc: 'Our team checks every certificate within 24–48 hours. Only approved teachers appear in search results.', icon: '🛡️' },
+              { num: '3', title: 'Book or enroll',       desc: 'Book a private session with a teacher, or enroll in a live group class — all managed on the platform.', icon: '🎓' },
             ].map(({ num, title, desc, icon }) => (
               <div key={num}
                 style={{ background: '#fff', borderRadius: '20px', padding: isMobile ? '1.5rem' : '2rem', border: `1px solid ${GREY_LIGHT}`, boxShadow: SHADOW_LG, display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: isMobile ? '1rem' : '0', alignItems: isMobile ? 'flex-start' : 'flex-start', position: 'relative', overflow: 'hidden', transition: TRANSITION }}
@@ -181,10 +394,9 @@ export default function Home() {
               </div>
             ))}
           </div>
-
           <div style={{ textAlign: 'center', marginTop: isMobile ? '2rem' : '3rem' }}>
             <Link to="/teachers"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: isMobile ? '13px 28px' : '14px 36px', background: GRADIENT_BLUE, color: '#fff', borderRadius: '50px', fontSize: isMobile ? '14px' : '15px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_BLUE, transition: TRANSITION, letterSpacing: '0.01em' }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: isMobile ? '13px 28px' : '14px 36px', background: GRADIENT_BLUE, color: '#fff', borderRadius: '50px', fontSize: isMobile ? '14px' : '15px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_BLUE, transition: TRANSITION }}
               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 16px 40px rgba(37,99,235,0.35)' }}
               onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = SHADOW_BLUE }}
             >
@@ -194,20 +406,78 @@ export default function Home() {
         </div>
       </section>
 
+      {/* UPCOMING LIVE SESSIONS */}
+      {upcomingSessions.length > 0 && (
+        <section style={{ padding: isMobile ? '4rem 0' : '6rem 0', background: '#fff', overflow: 'hidden' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', marginBottom: isMobile ? '1.75rem' : '2rem', flexDirection: isMobile ? 'column' : 'row', gap: '12px', paddingLeft: isMobile ? '1.25rem' : '2.5rem', paddingRight: isMobile ? '1.25rem' : '2.5rem' }}>
+              <div>
+                <p style={{ fontSize: '12px', fontWeight: '700', color: BLUE, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '8px' }}>Live & upcoming</p>
+                <h2 style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '28px' : '40px', fontWeight: '700', color: TEXT, margin: 0, letterSpacing: '-0.02em' }}>Upcoming live sessions</h2>
+              </div>
+              <Link to="/sessions"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 22px', background: LIGHT_BLUE, color: BLUE, borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', border: '1px solid rgba(37,99,235,0.2)', transition: TRANSITION, flexShrink: 0 }}
+                onMouseEnter={e => { e.currentTarget.style.background = GRADIENT_BLUE; e.currentTarget.style.color = '#fff' }}
+                onMouseLeave={e => { e.currentTarget.style.background = LIGHT_BLUE; e.currentTarget.style.color = BLUE }}
+              >
+                View all sessions →
+              </Link>
+            </div>
+
+            {/* Featured card */}
+            <div style={{ paddingLeft: isMobile ? '1.25rem' : '2.5rem', paddingRight: isMobile ? '1.25rem' : '2.5rem', marginBottom: upcomingSessions.length > 1 ? '1.5rem' : 0 }}>
+              <FeaturedSession session={upcomingSessions[0]} isMobile={isMobile} />
+            </div>
+
+            {/* Supporting sessions */}
+            {upcomingSessions.length > 1 && (
+              isMobile ? (
+                <div style={{ display: 'flex', gap: '14px', overflowX: 'auto', paddingLeft: '1.25rem', paddingRight: '1.25rem', paddingBottom: '12px', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+                  {upcomingSessions.slice(1).map(s => <SessionCard key={s.id} session={s} isMobile={true} />)}
+                  <Link to="/sessions" style={{ flexShrink: 0, width: '160px', borderRadius: '18px', border: `2px dashed ${GREY_LIGHT}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', textDecoration: 'none', padding: '2rem 1rem', background: GREY_BG }}>
+                    <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: LIGHT_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>🎥</div>
+                    <span style={{ fontSize: '13px', fontWeight: '700', color: BLUE, textAlign: 'center' }}>View all</span>
+                  </Link>
+                  <style>{`div::-webkit-scrollbar{display:none}`}</style>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem', paddingLeft: '2.5rem', paddingRight: '2.5rem' }}>
+                  {upcomingSessions.slice(1, 7).map(s => <SessionCard key={s.id} session={s} isMobile={false} />)}
+                </div>
+              )
+            )}
+
+            {/* Bottom CTA */}
+            {!isMobile && (
+              <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
+                <Link to="/sessions"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '14px 36px', background: GRADIENT_BLUE, color: '#fff', borderRadius: '50px', fontSize: '15px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_BLUE, transition: TRANSITION }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 16px 40px rgba(37,99,235,0.35)' }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = SHADOW_BLUE }}
+                >
+                  🎥 View all upcoming live sessions →
+                </Link>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* USER TYPES */}
-      <section style={{ padding: isMobile ? '4rem 1.25rem' : '6rem 2.5rem', background: '#fff' }}>
+      <section style={{ padding: isMobile ? '4rem 1.25rem' : '6rem 2.5rem', background: upcomingSessions.length > 0 ? GREY_BG : '#fff' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: isMobile ? '2.5rem' : '4rem' }}>
             <p style={{ fontSize: '12px', fontWeight: '700', color: BLUE, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '12px' }}>Who it's for</p>
             <h2 style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '28px' : '40px', fontWeight: '700', color: TEXT, marginBottom: '12px', letterSpacing: '-0.02em' }}>Built for everyone</h2>
             <p style={{ fontSize: isMobile ? '14px' : '16px', color: TEXT_MUTED, maxWidth: '400px', margin: '0 auto', lineHeight: '1.7' }}>Three distinct experiences, one trusted platform</p>
           </div>
-
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? '1.25rem' : '1.5rem' }}>
             {[
-              { role: 'Teachers', headerBg: GRADIENT_BLUE, headerColor: '#fff', img: teacherImg, desc: 'Build your profile and grow your student base', features: ['Upload certificates for verification', 'Two 30-second pitch videos', 'Schedule live online sessions', 'Receive home tuition bookings'], ctaBg: GRADIENT_BLUE, ctaColor: '#fff' },
-              { role: 'Parents', headerBg: `linear-gradient(135deg, #0F172A 0%, #1E293B 100%)`, headerColor: '#fff', img: parentImg, desc: 'Find trusted, verified teachers for your children', features: ['Browse verified profiles', 'Watch teaching preview videos', 'Book home tuition for your ward', 'View teacher credentials and reviews'], ctaBg: `linear-gradient(135deg, #0F172A 0%, #1E293B 100%)`, ctaColor: '#fff' },
-              { role: 'Learners', headerBg: GRADIENT_YELLOW, headerColor: BLUE, img: learnerImg, desc: 'Take charge of your own education journey', features: ['Search teachers by subject or level', 'Enroll in live online classes', 'Book private home tuition', 'Watch teacher pitch videos before booking'], ctaBg: GRADIENT_YELLOW, ctaColor: BLUE },
+              { role: 'Teachers', headerBg: GRADIENT_BLUE,                                          headerColor: '#fff',  img: teacherImg, desc: 'Build your profile and grow your student base',         features: ['Upload certificates for verification', 'Two 30-second pitch videos', 'Schedule live online sessions', 'Receive private session bookings'],      ctaBg: GRADIENT_BLUE,                                          ctaColor: '#fff' },
+              { role: 'Parents',  headerBg: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',    headerColor: '#fff',  img: parentImg,  desc: 'Find trusted, verified teachers for your children',     features: ['Browse verified profiles', 'Watch teaching preview videos', 'Book private sessions for your ward', 'View teacher credentials and reviews'],   ctaBg: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',    ctaColor: '#fff' },
+              { role: 'Learners', headerBg: GRADIENT_YELLOW,                                        headerColor: BLUE,    img: learnerImg, desc: 'Take charge of your own education journey',             features: ['Search teachers by subject or level', 'Enroll in live online classes', 'Book private one-on-one sessions', 'Watch teacher pitch videos before booking'], ctaBg: GRADIENT_YELLOW, ctaColor: BLUE },
             ].map(({ role, headerBg, headerColor, img, desc, features, ctaBg, ctaColor }) => (
               <div key={role}
                 style={{ borderRadius: '20px', overflow: 'hidden', display: 'flex', flexDirection: 'column', border: `1px solid ${GREY_LIGHT}`, boxShadow: SHADOW_LG, transition: TRANSITION }}
@@ -221,7 +491,7 @@ export default function Home() {
                   />
                 </div>
                 <div style={{ background: headerBg, padding: '1.25rem 1.5rem' }}>
-                  <h3 style={{ fontSize: '20px', fontWeight: '800', color: headerColor, margin: 0, letterSpacing: '-0.01em' }}>{role}</h3>
+                  <h3 style={{ fontSize: '20px', fontWeight: '800', color: headerColor, margin: 0 }}>{role}</h3>
                   <p style={{ fontSize: '13px', color: headerColor, opacity: 0.8, marginTop: '4px', marginBottom: 0, lineHeight: '1.5' }}>{desc}</p>
                 </div>
                 <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column', background: '#fff' }}>
@@ -234,7 +504,7 @@ export default function Home() {
                     ))}
                   </ul>
                   <Link to={`/register?role=${role.toLowerCase().slice(0, -1)}`}
-                    style={{ display: 'block', marginTop: '1.5rem', padding: '12px 20px', background: ctaBg, color: ctaColor, borderRadius: '50px', fontSize: '14px', textDecoration: 'none', fontWeight: '700', textAlign: 'center', transition: TRANSITION, letterSpacing: '0.01em' }}>
+                    style={{ display: 'block', marginTop: '1.5rem', padding: '12px 20px', background: ctaBg, color: ctaColor, borderRadius: '50px', fontSize: '14px', textDecoration: 'none', fontWeight: '700', textAlign: 'center', transition: TRANSITION }}>
                     Sign up as a {role.toLowerCase().slice(0, -1)} →
                   </Link>
                 </div>
@@ -245,19 +515,19 @@ export default function Home() {
       </section>
 
       {/* TRUST STRIP */}
-      <section style={{ background: GREY_BG, padding: isMobile ? '3rem 1.25rem' : '4rem 2.5rem', borderTop: `1px solid ${GREY_LIGHT}`, borderBottom: `1px solid ${GREY_LIGHT}` }}>
+      <section style={{ background: upcomingSessions.length > 0 ? '#fff' : GREY_BG, padding: isMobile ? '3rem 1.25rem' : '4rem 2.5rem', borderTop: `1px solid ${GREY_LIGHT}`, borderBottom: `1px solid ${GREY_LIGHT}` }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '1.5rem' }}>
             {[
               { icon: '🛡️', title: 'Certificate verified', desc: 'Every teacher certificate is manually checked by our team' },
-              { icon: '⭐', title: 'Rated by parents', desc: 'Read real reviews before you book any teacher' },
-              { icon: '🔒', title: 'Safe & secure', desc: 'Your contact details stay private until you choose to share' },
-              { icon: '⚡', title: 'Fast response', desc: 'Teachers typically respond within 24 hours of a request' },
+              { icon: '⭐', title: 'Rated by parents',      desc: 'Read real reviews before you book any teacher' },
+              { icon: '🔒', title: 'Safe & secure',         desc: 'Your contact details stay private until you choose to share' },
+              { icon: '⚡', title: 'Fast response',         desc: 'Teachers typically respond within 24 hours of a request' },
             ].map(({ icon, title, desc }) => (
               <div key={title} style={{ display: 'flex', flexDirection: 'column', alignItems: isMobile ? 'flex-start' : 'center', textAlign: isMobile ? 'left' : 'center', gap: '10px' }}>
                 <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: LIGHT_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>{icon}</div>
                 <div>
-                  <div style={{ fontSize: '15px', fontWeight: '700', color: TEXT, marginBottom: '4px', letterSpacing: '-0.01em' }}>{title}</div>
+                  <div style={{ fontSize: '15px', fontWeight: '700', color: TEXT, marginBottom: '4px' }}>{title}</div>
                   <div style={{ fontSize: '13px', color: TEXT_MUTED, lineHeight: '1.6' }}>{desc}</div>
                 </div>
               </div>
@@ -281,7 +551,7 @@ export default function Home() {
           </p>
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/register"
-              style={{ padding: isMobile ? '13px 28px' : '15px 40px', background: YELLOW, color: BLUE, borderRadius: '50px', fontSize: isMobile ? '14px' : '16px', textDecoration: 'none', fontWeight: '800', boxShadow: SHADOW_YELLOW, transition: TRANSITION, letterSpacing: '0.01em' }}
+              style={{ padding: isMobile ? '13px 28px' : '15px 40px', background: YELLOW, color: BLUE, borderRadius: '50px', fontSize: isMobile ? '14px' : '16px', textDecoration: 'none', fontWeight: '800', boxShadow: SHADOW_YELLOW, transition: TRANSITION }}
               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(255,215,0,0.45)' }}
               onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = SHADOW_YELLOW }}
             >

@@ -303,8 +303,7 @@ export default function Teachers() {
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '260px 1fr', gap: '1.75rem', alignItems: 'start' }}>
 
           {!isMobile && (
-            <div style={{ background: '#fff', borderRadius: '16px', border: BORDER, padding: '1.5rem', position: 'sticky', top: '80px', boxShadow: SHADOW_LG }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', paddingBottom: '1rem', borderBottom: `1px solid ${GREY_LIGHT}` }}>
+<div style={{ background: '#fff', borderRadius: '16px', border: BORDER, padding: '1.5rem', position: 'sticky', top: '80px', boxShadow: SHADOW_LG, maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', paddingBottom: '1rem', borderBottom: `1px solid ${GREY_LIGHT}` }}>
                 <span style={{ fontSize: '15px', fontWeight: '700', color: TEXT }}>Filters</span>
                 {activeFilterCount > 0 && (
                   <span style={{ fontSize: '11px', background: BLUE, color: '#fff', padding: '2px 8px', borderRadius: '50px', fontWeight: '700' }}>{activeFilterCount}</span>
