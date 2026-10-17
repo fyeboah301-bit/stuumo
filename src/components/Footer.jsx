@@ -84,7 +84,7 @@ export default function Footer({ variant = 'light' }) {
                 { label: 'Privacy', to: '/privacy' },
                 { label: 'Terms', to: '/terms' },
                 { label: 'Refund Policy', to: '/refund-policy' },
-                { label: 'Contact', to: 'mailto:support@teachme.com', external: true },
+                { label: 'Contact', to: 'mailto:support@stuumo.com', external: true },
               ].map(({ label, to, external }) => {
                 const style = { fontSize: '12px', color: 'rgba(0,0,0,0.45)', cursor: 'pointer', fontWeight: '500', transition: TRANSITION, textDecoration: 'none' }
                 const onEnter = e => e.currentTarget.style.color = 'rgba(0,0,0,0.8)'
@@ -189,7 +189,7 @@ export default function Footer({ variant = 'light' }) {
               { label: 'Privacy', to: '/privacy' },
               { label: 'Terms', to: '/terms' },
               { label: 'Refund Policy', to: '/refund-policy' },
-              { label: 'Contact', to: 'mailto:support@teachme.com', external: true },
+              { label: 'Contact', to: 'mailto:support@stuumo.com', external: true },
             ].map(({ label, to, external }) => {
               const style = { fontSize: '12px', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', fontWeight: '500', transition: TRANSITION, textDecoration: 'none' }
               const onEnter = e => e.currentTarget.style.color = '#fff'

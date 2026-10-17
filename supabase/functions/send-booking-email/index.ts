@@ -38,7 +38,7 @@ serve(async (req) => {
       emailSubject = `New booking request — ${subject}`
       emailHtml = `
         <div style="font-family: 'Georgia', serif; max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden;">
-          <div style="background: #1E3A5F; padding: 2rem; text-align: center;">
+          <div style="background: #6D28D9; padding: 2rem; text-align: center;">
             <h1 style="color: #fff; font-size: 24px; margin: 0;">Stuumo</h1>
           </div>
           <div style="padding: 2rem;">
@@ -55,7 +55,7 @@ serve(async (req) => {
             </div>
             <p style="color: #374151; font-size: 15px; line-height: 1.6;">Please log in to Stuumo to confirm or decline this booking.</p>
             <div style="text-align: center; margin: 2rem 0;">
-              <a href="https://teachme.vercel.app/dashboard" style="background: #2563EB; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 15px; font-family: sans-serif; font-weight: 600;">View booking →</a>
+              <a href="https://stuumo.com/dashboard" style="background: #6D28D9; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 15px; font-family: sans-serif; font-weight: 600;">View booking →</a>
             </div>
           </div>
           <div style="background: #F8FAFC; padding: 1rem 2rem; text-align: center; border-top: 1px solid #E2E8F0;">
@@ -69,7 +69,7 @@ serve(async (req) => {
       emailSubject = `Your booking is confirmed — ${subject} with ${teacherName}`
       emailHtml = `
         <div style="font-family: 'Georgia', serif; max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden;">
-          <div style="background: #1E3A5F; padding: 2rem; text-align: center;">
+          <div style="background: #6D28D9; padding: 2rem; text-align: center;">
             <h1 style="color: #fff; font-size: 24px; margin: 0;">Stuumo</h1>
           </div>
           <div style="padding: 2rem;">
@@ -88,7 +88,7 @@ serve(async (req) => {
             </div>
             <p style="color: #374151; font-size: 15px; line-height: 1.6;">Your teacher will be in touch with further details. You can also view your booking in your dashboard.</p>
             <div style="text-align: center; margin: 2rem 0;">
-              <a href="https://teachme.vercel.app/dashboard" style="background: #2563EB; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 15px; font-family: sans-serif; font-weight: 600;">View dashboard →</a>
+              <a href="https://stuumo.com/dashboard" style="background: #6D28D9; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 15px; font-family: sans-serif; font-weight: 600;">View dashboard →</a>
             </div>
           </div>
           <div style="background: #F8FAFC; padding: 1rem 2rem; text-align: center; border-top: 1px solid #E2E8F0;">
@@ -102,7 +102,7 @@ serve(async (req) => {
       emailSubject = `Booking update — ${subject} with ${teacherName}`
       emailHtml = `
         <div style="font-family: 'Georgia', serif; max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden;">
-          <div style="background: #1E3A5F; padding: 2rem; text-align: center;">
+          <div style="background: #6D28D9; padding: 2rem; text-align: center;">
             <h1 style="color: #fff; font-size: 24px; margin: 0;">Stuumo</h1>
           </div>
           <div style="padding: 2rem;">
@@ -111,7 +111,7 @@ serve(async (req) => {
             <p style="color: #374151; font-size: 15px; line-height: 1.6;">Unfortunately <strong>${teacherName}</strong> is unable to take your booking for <strong>${subject}</strong> at this time.</p>
             <p style="color: #374151; font-size: 15px; line-height: 1.6;">Don't worry — there are many other great teachers on Stuumo. Browse and find another teacher who suits your needs.</p>
             <div style="text-align: center; margin: 2rem 0;">
-              <a href="https://teachme.vercel.app/teachers" style="background: #2563EB; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 15px; font-family: sans-serif; font-weight: 600;">Find another teacher →</a>
+              <a href="https://stuumo.com/teachers" style="background: #6D28D9; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 15px; font-family: sans-serif; font-weight: 600;">Find another teacher →</a>
             </div>
           </div>
           <div style="background: #F8FAFC; padding: 1rem 2rem; text-align: center; border-top: 1px solid #E2E8F0;">
@@ -125,7 +125,7 @@ serve(async (req) => {
       emailSubject = 'Your Stuumo application has been approved 🎉'
       emailHtml = `
         <div style="font-family: 'Georgia', serif; max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden;">
-          <div style="background: #1E3A5F; padding: 2rem; text-align: center;">
+          <div style="background: #6D28D9; padding: 2rem; text-align: center;">
             <h1 style="color: #fff; font-size: 24px; margin: 0;">Stuumo</h1>
           </div>
           <div style="padding: 2rem;">
@@ -137,7 +137,7 @@ serve(async (req) => {
             <p style="color: #374151; font-size: 15px; line-height: 1.6;">Great news — your teacher application has been <strong>approved</strong>. Your profile is now live, and learners and parents can discover you and send booking requests.</p>
             <p style="color: #374151; font-size: 15px; line-height: 1.6;">To put your best foot forward, make sure your profile is complete: add a clear photo, your subjects, availability, and a short bio that tells learners why they should book you.</p>
             <div style="text-align: center; margin: 2rem 0;">
-              <a href="https://teachme.vercel.app/dashboard" style="background: #2563EB; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 15px; font-family: sans-serif; font-weight: 600;">Go to your dashboard →</a>
+              <a href="https://stuumo.com/dashboard" style="background: #6D28D9; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 15px; font-family: sans-serif; font-weight: 600;">Go to your dashboard →</a>
             </div>
           </div>
           <div style="background: #F8FAFC; padding: 1rem 2rem; text-align: center; border-top: 1px solid #E2E8F0;">
@@ -151,7 +151,7 @@ serve(async (req) => {
       emailSubject = 'Update on your Stuumo application'
       emailHtml = `
         <div style="font-family: 'Georgia', serif; max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden;">
-          <div style="background: #1E3A5F; padding: 2rem; text-align: center;">
+          <div style="background: #6D28D9; padding: 2rem; text-align: center;">
             <h1 style="color: #fff; font-size: 24px; margin: 0;">Stuumo</h1>
           </div>
           <div style="padding: 2rem;">
@@ -161,7 +161,7 @@ serve(async (req) => {
             ${notes ? `<div style="background: #FEF9C3; border: 1px solid #FDE68A; border-radius: 8px; padding: 1rem 1.25rem; margin: 1.5rem 0;"><p style="color: #854D0E; font-size: 14px; line-height: 1.6; margin: 0; font-family: sans-serif;"><strong>Reason:</strong> ${notes}</p></div>` : ''}
             <p style="color: #374151; font-size: 15px; line-height: 1.6;">You're welcome to address the points above and apply again. We review every application carefully and would be glad to take another look.</p>
             <div style="text-align: center; margin: 2rem 0;">
-              <a href="https://teachme.vercel.app/apply" style="background: #2563EB; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 15px; font-family: sans-serif; font-weight: 600;">Reapply →</a>
+              <a href="https://stuumo.com/apply" style="background: #6D28D9; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 15px; font-family: sans-serif; font-weight: 600;">Reapply →</a>
             </div>
           </div>
           <div style="background: #F8FAFC; padding: 1rem 2rem; text-align: center; border-top: 1px solid #E2E8F0;">

@@ -60,8 +60,8 @@ export default function LegalLayout({ title, subtitle, lastUpdated, metaTitle, c
           <div style={{ marginTop: '40px', paddingTop: '24px', borderTop: BORDER }}>
             <p style={{ fontSize: '14px', color: TEXT_MUTED, lineHeight: '1.6', margin: 0 }}>
               Questions about this policy? Contact us at{' '}
-              <a href="mailto:support@teachme.com" style={{ color: BLUE, fontWeight: '600', textDecoration: 'none' }}>
-                support@teachme.com
+              <a href="mailto:support@stuumo.com" style={{ color: BLUE, fontWeight: '600', textDecoration: 'none' }}>
+                support@stuumo.com
               </a>.
             </p>
           </div>

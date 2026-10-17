@@ -71,7 +71,7 @@ export default function RefundPolicy() {
       <LegalSection heading="7. How to request a refund">
         <LegalParagraph>
           Request a refund from your bookings dashboard, or email us at{' '}
-          support@teachme.com with your booking reference and a short description of the issue. We aim to
+          support@stuumo.com with your booking reference and a short description of the issue. We aim to
           respond within a few business days.
         </LegalParagraph>
       </LegalSection>
