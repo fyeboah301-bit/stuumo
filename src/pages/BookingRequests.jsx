@@ -80,7 +80,7 @@ export default function BookingRequests() {
     try {
       const updateData = { status }
       if (status === 'confirmed') {
-        updateData.room_id = 'teachme-' + bookingId.slice(0, 8) + '-' + Date.now()
+        updateData.room_id = 'stuumo-' + bookingId.slice(0, 8) + '-' + Date.now()
       }
       const { error } = await supabase.from('bookings').update(updateData).eq('id', bookingId)
       if (error) throw error

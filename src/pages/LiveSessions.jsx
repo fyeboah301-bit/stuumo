@@ -156,7 +156,7 @@ export default function LiveSessions() {
       const bookingConflict = (bookingsSame || []).find(b => { const bs = toMin(b.start_time); return start < bs + 60 && bs < end })
       if (bookingConflict) { setMessage(`You cannot hold this session at this time — you have a Private Session with ${bookingConflict.profiles?.full_name || 'a learner'}.`); window.scrollTo({ top: 0, behavior: 'smooth' }); return }
 
-      const roomId = 'teachme-session-' + user.id.slice(0, 8) + '-' + Date.now()
+      const roomId = 'stuumo-session-' + user.id.slice(0, 8) + '-' + Date.now()
       const { error } = await supabase.from('live_sessions').insert({
         ...form, teacher_id: user.id,
         max_spots: parseInt(form.max_spots), price: parseFloat(form.price) || 0, room_id: roomId

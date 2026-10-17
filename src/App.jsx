@@ -59,7 +59,7 @@ function ReferralCapture() {
   const [searchParams] = useSearchParams()
   useEffect(() => {
     const ref = searchParams.get('ref')
-    if (ref) localStorage.setItem('teachme_referral', ref)
+    if (ref) localStorage.setItem('stuumo_referral', ref)
   }, [searchParams])
   return null
 }

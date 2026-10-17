@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
     await new Promise(resolve => setTimeout(resolve, 1000))
 
     const referralCode = 'TM' + data.user.id.slice(0, 6).toUpperCase()
-    const referredBy = localStorage.getItem('teachme_referral')
+    const referredBy = localStorage.getItem('stuumo_referral')
 
     const { error: profileError } = await supabase.from('profiles').upsert({
       id: data.user.id,
@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
           reward_status: 'pending'
         })
       }
-      localStorage.removeItem('teachme_referral')
+      localStorage.removeItem('stuumo_referral')
     }
 
     if (userData.role === 'teacher') {
