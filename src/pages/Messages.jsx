@@ -91,13 +91,42 @@ export default function Messages() {
         event: 'INSERT', schema: 'public', table: 'messages',
         filter: `booking_id=eq.${activeBooking.id}`
       }, payload => {
-        setMessages(prev => [...prev, payload.new])
+        setMessages(prev => prev.some(m => m.id === payload.new.id) ? prev : [...prev, payload.new])
         if (payload.new.receiver_id === user.id) {
           supabase.from('messages').update({ read: true }).eq('id', payload.new.id)
         }
       }).subscribe()
     return () => { supabase.removeChannel(channel) }
   }, [activeBooking])
+
+  // Track the open conversation so the inbox subscription reads a fresh value.
+  const activeBookingRef = useRef(null)
+  useEffect(() => { activeBookingRef.current = activeBooking }, [activeBooking])
+
+  // Keep the conversation list live for messages arriving in ANY conversation,
+  // not just the one that's currently open.
+  useEffect(() => {
+    if (!user) return
+    const channel = supabase.channel(`inbox-${user.id}`)
+      .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'messages',
+        filter: `receiver_id=eq.${user.id}`
+      }, payload => {
+        const msg = payload.new
+        const isOpen = activeBookingRef.current?.id === msg.booking_id
+        setConversationMeta(prev => {
+          const existing = prev[msg.booking_id] || { unread: 0, lastMessage: null }
+          return {
+            ...prev,
+            [msg.booking_id]: {
+              lastMessage: msg,
+              unread: isOpen ? 0 : (existing.unread || 0) + 1,
+            },
+          }
+        })
+      }).subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [user])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -152,14 +181,14 @@ export default function Messages() {
         booking_id: activeBooking.id, sender_id: user.id, receiver_id: receiverId, content: messageText
       }).select().single()
       if (error) throw error
-      setMessages(prev => [...prev, data])
+      setMessages(prev => prev.some(m => m.id === data.id) ? prev : [...prev, data])
       await supabase.from('notifications').insert({
         user_id: receiverId, title: 'New message',
         message: `${profile?.full_name}: ${messageText.slice(0, 60)}`,
         type: 'message', link: `/messages?booking=${activeBooking.id}`
       })
       setConversationMeta(prev => ({ ...prev, [activeBooking.id]: { ...prev[activeBooking.id], lastMessage: data } }))
-    } catch (err) { console.log(err) }
+    } catch (err) { console.log(err); setNewMessage(messageText) }
     finally { setSending(false) }
   }
 
@@ -181,7 +210,7 @@ export default function Messages() {
     return url ? (
       <img src={url} alt="" style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
     ) : (
-      <div style={{ width: size, height: size, borderRadius: '50%', background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: Math.round(size * 0.36), fontWeight: '800', color: '#fff', flexShrink: 0 }}>
+      <div style={{ width: size, height: size, borderRadius: '50%', background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: Math.round(size * 0.36), fontWeight: '800', color: '#0B0B0B', flexShrink: 0 }}>
         {name?.charAt(0)}
       </div>
     )
@@ -191,22 +220,22 @@ export default function Messages() {
     <div style={{ background: '#fff', borderRadius: isMobile ? 0 : '20px', border: isMobile ? 'none' : BORDER, overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', boxShadow: isMobile ? 'none' : SHADOW_LG }}>
       <div style={{ background: GRADIENT_HERO, padding: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: '18px', color: '#fff', margin: 0, fontWeight: '700', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h2 style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '18px', color: '#0B0B0B', margin: 0, fontWeight: '700', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: '8px' }}>
             Messages
             {totalUnread > 0 && (
-              <span style={{ fontSize: '12px', background: YELLOW, color: BLUE, padding: '2px 10px', borderRadius: '50px', fontWeight: '800' }}>{totalUnread}</span>
+              <span style={{ fontSize: '12px', background: YELLOW, color: '#FFFFFF', padding: '2px 10px', borderRadius: '50px', fontWeight: '800' }}>{totalUnread}</span>
             )}
           </h2>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.12)', borderRadius: '50px', padding: '0 14px', border: '1px solid rgba(255,255,255,0.2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.12)', borderRadius: '50px', padding: '0 14px', border: '1px solid rgba(0,0,0,0.2)' }}>
           <span style={{ fontSize: '14px', marginRight: '8px', opacity: 0.7 }}>🔍</span>
           <input
-            style={{ flex: 1, padding: '9px 0', border: 'none', fontSize: '13px', fontFamily: 'inherit', outline: 'none', background: 'transparent', color: '#fff' }}
+            style={{ flex: 1, padding: '9px 0', border: 'none', fontSize: '13px', fontFamily: 'inherit', outline: 'none', background: 'transparent', color: '#0B0B0B' }}
             placeholder="Search conversations..."
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          {search && <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: '16px', padding: 0 }}>×</button>}
+          {search && <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', color: 'rgba(0,0,0,0.7)', cursor: 'pointer', fontSize: '16px', padding: 0 }}>×</button>}
         </div>
       </div>
 
@@ -265,9 +294,9 @@ export default function Messages() {
               onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = '#fff' }}
             >
               <div style={{ position: 'relative', flexShrink: 0 }}>
-                <Avatar url={avatar} name={name} size={46} color={isActive ? GRADIENT_BLUE : `linear-gradient(135deg, ${DARK_BLUE}, ${BLUE})`} />
+                <Avatar url={avatar} name={name} size={46} color={isActive ? GRADIENT_BLUE : '#6D28D9'} />
                 {unread > 0 && (
-                  <div style={{ position: 'absolute', top: '-2px', right: '-2px', background: '#EF4444', color: '#fff', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '800', border: '2px solid #fff' }}>
+                  <div style={{ position: 'absolute', top: '-2px', right: '-2px', background: '#6D28D9', color: '#FFFFFF', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '800', border: '2px solid #fff' }}>
                     {unread > 9 ? '9+' : unread}
                   </div>
                 )}
@@ -284,12 +313,12 @@ export default function Messages() {
                     <span style={{ fontStyle: 'italic', color: TEXT_MUTED }}>No messages yet — say hello!</span>
                   )}
                 </div>
-                <span style={{ fontSize: '11px', background: isActive ? 'rgba(37,99,235,0.15)' : GREY_BG, color: isActive ? BLUE : TEXT_MUTED, padding: '2px 9px', borderRadius: '50px', fontWeight: '600' }}>
+                <span style={{ fontSize: '11px', background: isActive ? 'rgba(0,0,0,0.15)' : GREY_BG, color: isActive ? BLUE : TEXT_MUTED, padding: '2px 9px', borderRadius: '50px', fontWeight: '600' }}>
                   {conv.subject}
                 </span>
               </div>
               {unread > 0 && !isActive && (
-                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: BLUE, flexShrink: 0 }} />
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#6D28D9', flexShrink: 0 }} />
               )}
             </div>
           )
@@ -304,22 +333,22 @@ export default function Messages() {
         <>
           <div style={{ background: GRADIENT_HERO, padding: '0.875rem 1.25rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
             {isMobile && (
-              <button onClick={() => setShowList(true)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '16px', padding: '6px 10px', borderRadius: '50px', flexShrink: 0, fontFamily: 'inherit' }}>←</button>
+              <button onClick={() => setShowList(true)} style={{ background: 'rgba(0,0,0,0.1)', border: 'none', color: '#0B0B0B', cursor: 'pointer', fontSize: '16px', padding: '6px 10px', borderRadius: '50px', flexShrink: 0, fontFamily: 'inherit' }}>←</button>
             )}
             <Avatar url={getOtherPersonAvatar(activeBooking)} name={getOtherPersonName(activeBooking)} size={40} />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: '15px', fontWeight: '700', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>
+              <div style={{ fontSize: '15px', fontWeight: '700', color: '#0B0B0B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>
                 {getOtherPersonName(activeBooking)}
               </div>
-              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)', marginTop: '1px' }}>📚 {activeBooking.subject}</div>
+              <div style={{ fontSize: '12px', color: 'rgba(0,0,0,0.65)', marginTop: '1px' }}>📚 {activeBooking.subject}</div>
             </div>
             <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
               {activeBooking.room_id && (
-                <Link to={`/call/${activeBooking.room_id}`} style={{ padding: '7px 14px', background: '#16A34A', color: '#fff', borderRadius: '50px', fontSize: '12px', textDecoration: 'none', fontWeight: '700', boxShadow: '0 2px 8px rgba(22,163,74,0.3)' }}>
+                <Link to={`/call/${activeBooking.room_id}`} style={{ padding: '7px 14px', background: '#6D28D9', color: '#FFFFFF', borderRadius: '50px', fontSize: '12px', textDecoration: 'none', fontWeight: '700', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
                   🎥 Call
                 </Link>
               )}
-              <Link to="/booking" style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.12)', color: '#fff', borderRadius: '50px', fontSize: '12px', textDecoration: 'none', fontWeight: '600', border: '1px solid rgba(255,255,255,0.2)' }}>
+              <Link to="/booking" style={{ padding: '7px 14px', background: 'rgba(0,0,0,0.12)', color: '#0B0B0B', borderRadius: '50px', fontSize: '12px', textDecoration: 'none', fontWeight: '600', border: '1px solid rgba(0,0,0,0.2)' }}>
                 📋 Booking
               </Link>
             </div>
@@ -340,7 +369,7 @@ export default function Messages() {
               if (item.type === 'date') {
                 return (
                   <div key={item.key} style={{ textAlign: 'center', margin: '14px 0 10px' }}>
-                    <span style={{ fontSize: '11px', background: '#E2E8F0', color: '#64748B', padding: '4px 14px', borderRadius: '50px', fontWeight: '600', letterSpacing: '0.03em' }}>{item.label}</span>
+                    <span style={{ fontSize: '11px', background: '#E2E8F0', color: '#6B7280', padding: '4px 14px', borderRadius: '50px', fontWeight: '600', letterSpacing: '0.03em' }}>{item.label}</span>
                   </div>
                 )
               }
@@ -368,7 +397,7 @@ export default function Messages() {
                     </div>
                     <div style={{ fontSize: '10px', color: TEXT_MUTED, display: 'flex', alignItems: 'center', gap: '4px', paddingLeft: isMe ? 0 : '4px', paddingRight: isMe ? '4px' : 0 }}>
                       {formatTime(item.created_at)}
-                      {isMe && <span style={{ color: item.read ? '#60A5FA' : '#94A3B8', fontSize: '11px' }}>{item.read ? '✓✓' : '✓'}</span>}
+                      {isMe && <span style={{ color: item.read ? '#0B0B0B' : '#9CA3AF', fontSize: '11px' }}>{item.read ? '✓✓' : '✓'}</span>}
                     </div>
                   </div>
                   {isMe && (
@@ -382,10 +411,10 @@ export default function Messages() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div style={{ padding: '6px 1.25rem', background: '#FFFBEB', borderTop: '1px solid #FDE68A', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ padding: '6px 1.25rem', background: '#F5F5F5', borderTop: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ fontSize: '12px', flexShrink: 0 }}>🔒</span>
-            <p style={{ fontSize: '11px', color: '#854D0E', margin: 0, fontWeight: '500' }}>
-              Never share personal contact details. Keep all communication on TeachMe.
+            <p style={{ fontSize: '11px', color: '#0B0B0B', margin: 0, fontWeight: '500' }}>
+              Never share personal contact details. Keep all communication on Stuumo.
             </p>
           </div>
 
@@ -437,17 +466,17 @@ export default function Messages() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'DM Sans, sans-serif', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'Tahoma, Geneva, sans-serif', display: 'flex', flexDirection: 'column' }}>
       <NavBar />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: isMobile ? 0 : '1.25rem 1.5rem', boxSizing: 'border-box' }}>
         {isMobile ? (
           <div style={{ flex: 1, height: 'calc(100vh - 60px)' }}>
-            {showList ? <ConversationList /> : <ChatWindow />}
+            {showList ? ConversationList() : ChatWindow()}
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '1.25rem', height: 'calc(100vh - 110px)', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
-            <ConversationList />
-            <ChatWindow />
+            {ConversationList()}
+            {ChatWindow()}
           </div>
         )}
       </div>

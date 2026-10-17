@@ -13,7 +13,20 @@ serve(async (req) => {
   }
 
   try {
-    const { type, booking, clientEmail, clientName, teacherName, teacherEmail, subject, amount, message } = await req.json()
+    const { type, booking, clientEmail, clientName, teacherName, teacherEmail, teacherId, clientId, subject, amount, message, notes } = await req.json()
+
+    const SB_URL = Deno.env.get('SUPABASE_URL')
+    const SB_SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    const lookupEmail = async (id) => {
+      if (!id || !SB_URL || !SB_SERVICE) return ''
+      try {
+        const r = await fetch(`${SB_URL}/rest/v1/profiles?id=eq.${id}&select=email`, { headers: { apikey: SB_SERVICE, Authorization: `Bearer ${SB_SERVICE}` } })
+        const rows = await r.json()
+        return rows?.[0]?.email || ''
+      } catch (_e) { return '' }
+    }
+    const _teacherEmail = teacherEmail || await lookupEmail(teacherId)
+    const _clientEmail = clientEmail || await lookupEmail(clientId)
 
     let emailTo = ''
     let emailSubject = ''
@@ -21,12 +34,12 @@ serve(async (req) => {
 
     if (type === 'new_booking_teacher') {
       // Email to teacher when new booking request comes in
-      emailTo = teacherEmail
+      emailTo = _teacherEmail
       emailSubject = `New booking request — ${subject}`
       emailHtml = `
         <div style="font-family: 'Georgia', serif; max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden;">
           <div style="background: #1E3A5F; padding: 2rem; text-align: center;">
-            <h1 style="color: #fff; font-size: 24px; margin: 0;">Teach<span style="color: #FFD700;">Me</span></h1>
+            <h1 style="color: #fff; font-size: 24px; margin: 0;">Stuumo</h1>
           </div>
           <div style="padding: 2rem;">
             <h2 style="color: #111; font-size: 20px; margin-bottom: 1rem;">New booking request 📅</h2>
@@ -40,24 +53,24 @@ serve(async (req) => {
                 ${message ? `<tr><td style="padding: 6px 0; color: #64748B; font-size: 14px; font-family: sans-serif; vertical-align: top;">Message</td><td style="padding: 6px 0; color: #111; font-size: 14px; font-family: sans-serif;">${message}</td></tr>` : ''}
               </table>
             </div>
-            <p style="color: #374151; font-size: 15px; line-height: 1.6;">Please log in to TeachMe to confirm or decline this booking.</p>
+            <p style="color: #374151; font-size: 15px; line-height: 1.6;">Please log in to Stuumo to confirm or decline this booking.</p>
             <div style="text-align: center; margin: 2rem 0;">
               <a href="https://teachme.vercel.app/dashboard" style="background: #2563EB; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 15px; font-family: sans-serif; font-weight: 600;">View booking →</a>
             </div>
           </div>
           <div style="background: #F8FAFC; padding: 1rem 2rem; text-align: center; border-top: 1px solid #E2E8F0;">
-            <p style="color: #94A3B8; font-size: 12px; font-family: sans-serif; margin: 0;">© TeachMe · You received this because you are registered as a teacher.</p>
+            <p style="color: #94A3B8; font-size: 12px; font-family: sans-serif; margin: 0;">© Stuumo · You received this because you are registered as a teacher.</p>
           </div>
         </div>
       `
     } else if (type === 'booking_confirmed') {
       // Email to client when teacher confirms
-      emailTo = clientEmail
+      emailTo = _clientEmail
       emailSubject = `Your booking is confirmed — ${subject} with ${teacherName}`
       emailHtml = `
         <div style="font-family: 'Georgia', serif; max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden;">
           <div style="background: #1E3A5F; padding: 2rem; text-align: center;">
-            <h1 style="color: #fff; font-size: 24px; margin: 0;">Teach<span style="color: #FFD700;">Me</span></h1>
+            <h1 style="color: #fff; font-size: 24px; margin: 0;">Stuumo</h1>
           </div>
           <div style="padding: 2rem;">
             <div style="text-align: center; margin-bottom: 1.5rem;">
@@ -79,35 +92,84 @@ serve(async (req) => {
             </div>
           </div>
           <div style="background: #F8FAFC; padding: 1rem 2rem; text-align: center; border-top: 1px solid #E2E8F0;">
-            <p style="color: #94A3B8; font-size: 12px; font-family: sans-serif; margin: 0;">© TeachMe · You received this because you made a booking on TeachMe.</p>
+            <p style="color: #94A3B8; font-size: 12px; font-family: sans-serif; margin: 0;">© Stuumo · You received this because you made a booking on Stuumo.</p>
           </div>
         </div>
       `
     } else if (type === 'booking_declined') {
       // Email to client when teacher declines
-      emailTo = clientEmail
+      emailTo = _clientEmail
       emailSubject = `Booking update — ${subject} with ${teacherName}`
       emailHtml = `
         <div style="font-family: 'Georgia', serif; max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden;">
           <div style="background: #1E3A5F; padding: 2rem; text-align: center;">
-            <h1 style="color: #fff; font-size: 24px; margin: 0;">Teach<span style="color: #FFD700;">Me</span></h1>
+            <h1 style="color: #fff; font-size: 24px; margin: 0;">Stuumo</h1>
           </div>
           <div style="padding: 2rem;">
             <h2 style="color: #111; font-size: 20px; margin-bottom: 1rem;">Booking update</h2>
             <p style="color: #374151; font-size: 15px; line-height: 1.6;">Hi <strong>${clientName}</strong>,</p>
             <p style="color: #374151; font-size: 15px; line-height: 1.6;">Unfortunately <strong>${teacherName}</strong> is unable to take your booking for <strong>${subject}</strong> at this time.</p>
-            <p style="color: #374151; font-size: 15px; line-height: 1.6;">Don't worry — there are many other great teachers on TeachMe. Browse and find another teacher who suits your needs.</p>
+            <p style="color: #374151; font-size: 15px; line-height: 1.6;">Don't worry — there are many other great teachers on Stuumo. Browse and find another teacher who suits your needs.</p>
             <div style="text-align: center; margin: 2rem 0;">
               <a href="https://teachme.vercel.app/teachers" style="background: #2563EB; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 15px; font-family: sans-serif; font-weight: 600;">Find another teacher →</a>
             </div>
           </div>
           <div style="background: #F8FAFC; padding: 1rem 2rem; text-align: center; border-top: 1px solid #E2E8F0;">
-            <p style="color: #94A3B8; font-size: 12px; font-family: sans-serif; margin: 0;">© TeachMe · You received this because you made a booking on TeachMe.</p>
+            <p style="color: #94A3B8; font-size: 12px; font-family: sans-serif; margin: 0;">© Stuumo · You received this because you made a booking on Stuumo.</p>
+          </div>
+        </div>
+      `
+    } else if (type === 'application_approved') {
+      // Email to teacher when their application is approved
+      emailTo = _teacherEmail
+      emailSubject = 'Your Stuumo application has been approved 🎉'
+      emailHtml = `
+        <div style="font-family: 'Georgia', serif; max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden;">
+          <div style="background: #1E3A5F; padding: 2rem; text-align: center;">
+            <h1 style="color: #fff; font-size: 24px; margin: 0;">Stuumo</h1>
+          </div>
+          <div style="padding: 2rem;">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+              <div style="background: #DCFCE7; border-radius: 50%; width: 64px; height: 64px; display: inline-flex; align-items: center; justify-content: center; font-size: 28px;">🎉</div>
+            </div>
+            <h2 style="color: #111; font-size: 20px; margin-bottom: 1rem; text-align: center;">Welcome to Stuumo!</h2>
+            <p style="color: #374151; font-size: 15px; line-height: 1.6;">Hi <strong>${teacherName}</strong>,</p>
+            <p style="color: #374151; font-size: 15px; line-height: 1.6;">Great news — your teacher application has been <strong>approved</strong>. Your profile is now live, and learners and parents can discover you and send booking requests.</p>
+            <p style="color: #374151; font-size: 15px; line-height: 1.6;">To put your best foot forward, make sure your profile is complete: add a clear photo, your subjects, availability, and a short bio that tells learners why they should book you.</p>
+            <div style="text-align: center; margin: 2rem 0;">
+              <a href="https://teachme.vercel.app/dashboard" style="background: #2563EB; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 15px; font-family: sans-serif; font-weight: 600;">Go to your dashboard →</a>
+            </div>
+          </div>
+          <div style="background: #F8FAFC; padding: 1rem 2rem; text-align: center; border-top: 1px solid #E2E8F0;">
+            <p style="color: #94A3B8; font-size: 12px; font-family: sans-serif; margin: 0;">© Stuumo · You received this because you applied to teach on Stuumo.</p>
+          </div>
+        </div>
+      `
+    } else if (type === 'application_rejected') {
+      // Email to teacher when their application is not approved
+      emailTo = _teacherEmail
+      emailSubject = 'Update on your Stuumo application'
+      emailHtml = `
+        <div style="font-family: 'Georgia', serif; max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden;">
+          <div style="background: #1E3A5F; padding: 2rem; text-align: center;">
+            <h1 style="color: #fff; font-size: 24px; margin: 0;">Stuumo</h1>
+          </div>
+          <div style="padding: 2rem;">
+            <h2 style="color: #111; font-size: 20px; margin-bottom: 1rem;">About your application</h2>
+            <p style="color: #374151; font-size: 15px; line-height: 1.6;">Hi <strong>${teacherName}</strong>,</p>
+            <p style="color: #374151; font-size: 15px; line-height: 1.6;">Thank you for your interest in teaching on Stuumo. After reviewing your application, we're not able to approve it at this time.</p>
+            ${notes ? `<div style="background: #FEF9C3; border: 1px solid #FDE68A; border-radius: 8px; padding: 1rem 1.25rem; margin: 1.5rem 0;"><p style="color: #854D0E; font-size: 14px; line-height: 1.6; margin: 0; font-family: sans-serif;"><strong>Reason:</strong> ${notes}</p></div>` : ''}
+            <p style="color: #374151; font-size: 15px; line-height: 1.6;">You're welcome to address the points above and apply again. We review every application carefully and would be glad to take another look.</p>
+            <div style="text-align: center; margin: 2rem 0;">
+              <a href="https://teachme.vercel.app/apply" style="background: #2563EB; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 15px; font-family: sans-serif; font-weight: 600;">Reapply →</a>
+            </div>
+          </div>
+          <div style="background: #F8FAFC; padding: 1rem 2rem; text-align: center; border-top: 1px solid #E2E8F0;">
+            <p style="color: #94A3B8; font-size: 12px; font-family: sans-serif; margin: 0;">© Stuumo · You received this because you applied to teach on Stuumo.</p>
           </div>
         </div>
       `
     }
-
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -115,7 +177,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'TeachMe <onboarding@resend.dev>',
+        from: 'Stuumo <onboarding@resend.dev>',
         to: emailTo,
         subject: emailSubject,
         html: emailHtml,

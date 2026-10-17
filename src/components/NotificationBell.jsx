@@ -17,7 +17,7 @@ export default function NotificationBell() {
 
     // Real-time subscription
     const channel = supabase
-      .channel('notifications')
+      .channel(`notifications:${user.id}`)
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
@@ -64,11 +64,26 @@ export default function NotificationBell() {
   const unreadCount = notifications.filter(n => !n.read).length
 
   const typeIcon = (type) => {
-    if (type === 'booking_new') return '📅'
+    if (type === 'booking_new' || type === 'new_booking_teacher') return '📅'
     if (type === 'booking_confirmed') return '✅'
     if (type === 'booking_declined') return '❌'
     if (type === 'enrollment') return '🎥'
+    if (type === 'message') return '💬'
+    if (type === 'application') return '🚀'
+    if (type === 'profile') return '🖼️'
     return '🔔'
+  }
+
+  const timeAgo = (dateStr) => {
+    const secs = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
+    if (secs < 60) return 'just now'
+    const mins = Math.floor(secs / 60)
+    if (mins < 60) return `${mins}m ago`
+    const hrs = Math.floor(mins / 60)
+    if (hrs < 24) return `${hrs}h ago`
+    const days = Math.floor(hrs / 24)
+    if (days < 7) return `${days}d ago`
+    return new Date(dateStr).toLocaleDateString()
   }
 
   return (
@@ -79,17 +94,17 @@ export default function NotificationBell() {
       >
         <span style={{ fontSize: '22px' }}>🔔</span>
         {unreadCount > 0 && (
-          <span style={{ position: 'absolute', top: '0px', right: '0px', background: '#EF4444', color: '#fff', borderRadius: '50%', width: '18px', height: '18px', fontSize: '10px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff' }}>
+          <span style={{ position: 'absolute', top: '0px', right: '0px', background: '#6D28D9', color: '#FFFFFF', borderRadius: '50%', width: '18px', height: '18px', fontSize: '10px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff' }}>
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 8px)', width: '340px', background: '#fff', borderRadius: '12px', boxShadow: '0 8px 30px rgba(0,0,0,0.12)', border: `1px solid ${GREY_LIGHT}`, zIndex: 1000, overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 8px)', width: 'min(340px, calc(100vw - 24px))', background: '#fff', borderRadius: '12px', boxShadow: '0 8px 30px rgba(0,0,0,0.12)', border: `1px solid ${GREY_LIGHT}`, zIndex: 1000, overflow: 'hidden' }}>
           {/* HEADER */}
           <div style={{ padding: '1rem 1.25rem', borderBottom: `1px solid ${GREY_LIGHT}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: GREY_BG }}>
-            <span style={{ fontSize: '14px', fontWeight: '700', color: '#111' }}>Notifications {unreadCount > 0 && <span style={{ fontSize: '12px', background: '#EF4444', color: '#fff', padding: '1px 7px', borderRadius: '20px', marginLeft: '6px' }}>{unreadCount}</span>}</span>
+            <span style={{ fontSize: '14px', fontWeight: '700', color: '#0B0B0B' }}>Notifications {unreadCount > 0 && <span style={{ fontSize: '12px', background: '#6D28D9', color: '#FFFFFF', padding: '1px 7px', borderRadius: '20px', marginLeft: '6px' }}>{unreadCount}</span>}</span>
             {unreadCount > 0 && (
               <button onClick={markAllRead} style={{ fontSize: '12px', color: BLUE, background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600' }}>Mark all read</button>
             )}
@@ -106,15 +121,15 @@ export default function NotificationBell() {
               <div
                 key={n.id}
                 onClick={() => handleClick(n)}
-                style={{ padding: '12px 16px', borderBottom: `1px solid ${GREY_LIGHT}`, cursor: n.link ? 'pointer' : 'default', background: n.read ? '#fff' : '#EFF6FF', display: 'flex', gap: '12px', alignItems: 'flex-start' }}
+                style={{ padding: '12px 16px', borderBottom: `1px solid ${GREY_LIGHT}`, cursor: n.link ? 'pointer' : 'default', background: n.read ? '#fff' : '#F5F5F5', display: 'flex', gap: '12px', alignItems: 'flex-start' }}
               >
                 <span style={{ fontSize: '20px', flexShrink: 0, marginTop: '2px' }}>{typeIcon(n.type)}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '13px', fontWeight: n.read ? '500' : '700', color: '#111', marginBottom: '2px' }}>{n.title}</div>
+                  <div style={{ fontSize: '13px', fontWeight: n.read ? '500' : '700', color: '#0B0B0B', marginBottom: '2px' }}>{n.title}</div>
                   <div style={{ fontSize: '12px', color: TEXT_MUTED, lineHeight: '1.4' }}>{n.message}</div>
-                  <div style={{ fontSize: '11px', color: '#aaa', marginTop: '4px' }}>{new Date(n.created_at).toLocaleString()}</div>
+                  <div style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '4px' }}>{timeAgo(n.created_at)}</div>
                 </div>
-                {!n.read && <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: BLUE, flexShrink: 0, marginTop: '6px' }} />}
+                {!n.read && <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#6D28D9', flexShrink: 0, marginTop: '6px' }} />}
               </div>
             ))}
           </div>

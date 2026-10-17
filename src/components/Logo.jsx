@@ -1,16 +1,21 @@
+// Stuumo wordmark — text only. Royal purple on light, white on dark. Roboto Serif Bold.
 export default function Logo({ variant = 'blue', height = 32 }) {
-  if (variant === 'yellow') {
-    return (
-      <svg height={height} viewBox="0 0 294 76" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
-        <rect width="294" height="76" rx="10" fill="#FFD700"/>
-        <text x="14" y="56" fontFamily="Tahoma, Geneva, sans-serif" fontSize="50" fontWeight="700" fill="#2563EB">TeachMe</text>
-      </svg>
-    )
-  }
+  const onDark = variant === 'blue' || variant === 'dark'
+  const c = onDark ? '#FFFFFF' : '#6D28D9'  // white on dark, royal purple on light
   return (
-    <svg height={height} viewBox="0 0 294 76" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
-      <rect width="294" height="76" rx="10" fill="#2563EB"/>
-      <text x="14" y="56" fontFamily="Tahoma, Geneva, sans-serif" fontSize="50" fontWeight="700" fill="#FFD700">TeachMe</text>
-    </svg>
+    <span
+      style={{
+        fontFamily: "'Roboto Serif', Georgia, 'Times New Roman', serif",
+        fontWeight: 700,
+        fontSize: Math.round(height * 1.05),
+        lineHeight: 1,
+        letterSpacing: '-0.01em',
+        whiteSpace: 'nowrap',
+        display: 'inline-block',
+        color: c,
+      }}
+    >
+      Stuumo
+    </span>
   )
 }

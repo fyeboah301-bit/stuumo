@@ -30,10 +30,10 @@ export default function AnnouncementBanner() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '1.5rem' }}>
       {visible.map(a => (
-        <div key={a.id} style={{ background: '#FFF9E6', border: '1px solid #FFD700', borderRadius: '10px', padding: '12px 16px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem' }}>
+        <div key={a.id} style={{ background: '#F5F5F5', border: '1px solid #6D28D9', borderRadius: '10px', padding: '12px 16px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem' }}>
           <div>
-            <div style={{ fontWeight: '700', fontSize: '14px', color: '#1A3FA0', marginBottom: '2px' }}>📢 {a.title}</div>
-            <div style={{ fontSize: '13px', color: '#374151', lineHeight: '1.5' }}>{a.message}</div>
+            <div style={{ fontWeight: '700', fontSize: '14px', color: '#0B0B0B', marginBottom: '2px' }}>📢 {a.title}</div>
+            <div style={{ fontSize: '13px', color: '#0B0B0B', lineHeight: '1.5' }}>{a.message}</div>
           </div>
           <button
             onClick={() => setDismissed(prev => [...prev, a.id])}

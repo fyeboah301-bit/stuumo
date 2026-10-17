@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Logo from '../components/Logo'
 import { useAuth } from '../context/AuthContext'
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
@@ -26,7 +27,7 @@ function useIsMobile() {
 }
 
 export default function Teachers() {
-  usePageMeta('Find Teachers', 'Browse verified, certificate-checked teachers across Ghana. Filter by subject, level, location and rating.')
+  usePageMeta('Find Teachers', 'Browse verified, certificate-checked teachers worldwide. Filter by subject, level, location and rating.')
 
   const { user, profile } = useAuth()
   const navigate = useNavigate()
@@ -146,7 +147,7 @@ export default function Teachers() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {[['default', 'Recommended'], ['rating', 'Highest rated'], ['reviews', 'Most reviewed'], ['price_asc', 'Price: low → high'], ['price_desc', 'Price: high → low']].map(([val, label]) => (
             <label key={val} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '8px 10px', borderRadius: '8px', background: filters.sortBy === val ? LIGHT_BLUE : 'transparent', transition: TRANSITION }}>
-              <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: `2px solid ${filters.sortBy === val ? BLUE : GREY_LIGHT}`, background: filters.sortBy === val ? BLUE : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: TRANSITION }}>
+              <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: `2px solid ${filters.sortBy === val ? BLUE : GREY_LIGHT}`, background: filters.sortBy === val ? '#6D28D9' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: TRANSITION }}>
                 {filters.sortBy === val && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#fff' }} />}
               </div>
               <span style={{ fontSize: '14px', color: filters.sortBy === val ? BLUE : TEXT_MUTED, fontWeight: filters.sortBy === val ? '600' : '400' }}>{label}</span>
@@ -163,7 +164,7 @@ export default function Teachers() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {[['', 'Any rating'], ['4.5', '⭐ 4.5 and above'], ['4', '⭐ 4.0 and above'], ['3', '⭐ 3.0 and above']].map(([val, label]) => (
             <label key={val} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '8px 10px', borderRadius: '8px', background: filters.minRating === val ? LIGHT_BLUE : 'transparent', transition: TRANSITION }}>
-              <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: `2px solid ${filters.minRating === val ? BLUE : GREY_LIGHT}`, background: filters.minRating === val ? BLUE : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: TRANSITION }}>
+              <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: `2px solid ${filters.minRating === val ? BLUE : GREY_LIGHT}`, background: filters.minRating === val ? '#6D28D9' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: TRANSITION }}>
                 {filters.minRating === val && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#fff' }} />}
               </div>
               <span style={{ fontSize: '14px', color: filters.minRating === val ? BLUE : TEXT_MUTED, fontWeight: filters.minRating === val ? '600' : '400' }}>{label}</span>
@@ -191,7 +192,7 @@ export default function Teachers() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {[['', 'All levels'], ...LEVELS.map(l => [l, l])].map(([val, label]) => (
             <label key={val} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '8px 10px', borderRadius: '8px', background: filters.teachingLevel === val ? LIGHT_BLUE : 'transparent', transition: TRANSITION }}>
-              <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: `2px solid ${filters.teachingLevel === val ? BLUE : GREY_LIGHT}`, background: filters.teachingLevel === val ? BLUE : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: TRANSITION }}>
+              <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: `2px solid ${filters.teachingLevel === val ? BLUE : GREY_LIGHT}`, background: filters.teachingLevel === val ? '#6D28D9' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: TRANSITION }}>
                 {filters.teachingLevel === val && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#fff' }} />}
               </div>
               <span style={{ fontSize: '14px', color: filters.teachingLevel === val ? BLUE : TEXT_MUTED, fontWeight: filters.teachingLevel === val ? '600' : '400' }}>{label}</span>
@@ -224,8 +225,8 @@ export default function Teachers() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {[['verifiedOnly', 'Verified teachers only'], ['hasCerts', 'Has teaching certificate'], ['hasVideos', 'Has pitch video']].map(([key, label]) => (
             <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '8px 10px', borderRadius: '8px', background: filters[key] ? LIGHT_BLUE : 'transparent', transition: TRANSITION }}>
-              <div style={{ width: '18px', height: '18px', borderRadius: '5px', border: `2px solid ${filters[key] ? BLUE : GREY_LIGHT}`, background: filters[key] ? BLUE : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: TRANSITION }}>
-                {filters[key] && <span style={{ color: '#fff', fontSize: '11px', fontWeight: '800', lineHeight: 1 }}>✓</span>}
+              <div style={{ width: '18px', height: '18px', borderRadius: '5px', border: `2px solid ${filters[key] ? BLUE : GREY_LIGHT}`, background: filters[key] ? '#6D28D9' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: TRANSITION }}>
+                {filters[key] && <span style={{ color: '#0B0B0B', fontSize: '11px', fontWeight: '800', lineHeight: 1 }}>✓</span>}
               </div>
               <span style={{ fontSize: '14px', color: filters[key] ? BLUE : TEXT_MUTED, fontWeight: filters[key] ? '600' : '400' }}>{label}</span>
               <input type="checkbox" checked={filters[key]} onChange={e => setFilter(key, e.target.checked)} style={{ display: 'none' }} />
@@ -237,7 +238,7 @@ export default function Teachers() {
       {activeFilterCount > 0 && (
         <>
           <div style={{ height: '1px', background: GREY_LIGHT }} />
-          <button onClick={clearFilters} style={{ padding: '10px', background: '#FEE2E2', color: '#991B1B', border: '1px solid #FECACA', borderRadius: '10px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}>
+          <button onClick={clearFilters} style={{ padding: '10px', background: '#F5F5F5', color: '#6D28D9', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}>
             Clear all filters
           </button>
         </>
@@ -246,30 +247,28 @@ export default function Teachers() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'DM Sans, sans-serif', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'Tahoma, Geneva, sans-serif', display: 'flex', flexDirection: 'column' }}>
 
       {user ? <NavBar /> : (
-        <nav style={{ background: GRADIENT_BLUE, padding: '0.875rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
-          <Link to="/" style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: '700', color: '#fff', textDecoration: 'none', letterSpacing: '-0.02em' }}>
-            Teach<span style={{ color: YELLOW }}>Me</span>
-          </Link>
+        <nav style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '0.875rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
+          <Link to="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
+          <Logo variant="yellow" height={30} />
+        </Link>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <Link to="/login" style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.1)', color: '#fff', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.2)', fontWeight: '600' }}>Log in</Link>
-            <Link to="/register" style={{ padding: '8px 16px', background: YELLOW, color: BLUE, borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_YELLOW }}>Sign up</Link>
+            <Link to="/login" style={{ padding: '8px 16px', background: 'rgba(0,0,0,0.1)', color: '#0B0B0B', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', border: '1px solid rgba(0,0,0,0.2)', fontWeight: '600' }}>Log in</Link>
+            <Link to="/register" style={{ padding: '8px 16px', background: YELLOW, color: '#FFFFFF', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_YELLOW }}>Sign up</Link>
           </div>
         </nav>
       )}
 
-      <div style={{ position: 'relative', overflow: 'hidden' }}>
-        <img src={teacherImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', zIndex: 0 }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(15,43,107,0.97) 0%, rgba(26,63,160,0.92) 50%, rgba(37,99,235,0.5) 100%)', zIndex: 1 }} />
-        <div style={{ position: 'relative', zIndex: 2, padding: isMobile ? '2.5rem 1.25rem' : '3.5rem 2.5rem', maxWidth: '960px', margin: '0 auto' }}>
+      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>
+        <div style={{ position: 'relative', zIndex: 2, padding: isMobile ? '2.5rem 1.25rem' : '3.5rem 2.5rem', maxWidth: '1100px', margin: '0 auto' }}>
           <p style={{ fontSize: '12px', fontWeight: '700', color: YELLOW, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>Verified teachers</p>
-          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '28px' : '44px', fontWeight: '700', color: '#fff', marginBottom: '8px', letterSpacing: '-0.02em', lineHeight: '1.15' }}>
+          <h1 style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: isMobile ? '28px' : '44px', fontWeight: '700', color: '#0B0B0B', marginBottom: '8px', letterSpacing: '-0.02em', lineHeight: '1.15' }}>
             Find your perfect teacher
           </h1>
-          <p style={{ fontSize: isMobile ? '14px' : '16px', color: 'rgba(255,255,255,0.75)', marginBottom: '1.75rem', maxWidth: '480px', lineHeight: '1.6' }}>
-            Search from verified, certificate-checked teachers across Ghana
+          <p style={{ fontSize: isMobile ? '14px' : '16px', color: 'rgba(0,0,0,0.75)', marginBottom: '1.75rem', maxWidth: '480px', lineHeight: '1.6' }}>
+            Search from verified, certificate-checked teachers worldwide
           </p>
           <div style={{ background: '#fff', borderRadius: '16px', display: 'flex', alignItems: 'center', boxShadow: SHADOW_XL, overflow: 'hidden', maxWidth: '600px' }}>
             <div style={{ padding: '0 16px', fontSize: '18px', color: TEXT_MUTED, flexShrink: 0 }}>🔍</div>
@@ -287,11 +286,11 @@ export default function Teachers() {
       </div>
 
       <div style={{ background: '#fff', borderBottom: `1px solid ${GREY_LIGHT}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.25rem' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 1.25rem' }}>
           <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', scrollbarWidth: 'none', padding: '12px 0' }}>
             {['All', ...SUBJECTS].map(s => (
               <button key={s} onClick={() => setSelectedSubject(s)}
-                style={{ padding: '7px 18px', borderRadius: '50px', border: 'none', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', background: selectedSubject === s ? BLUE : GREY_BG, color: selectedSubject === s ? '#fff' : TEXT_MUTED, fontWeight: selectedSubject === s ? '700' : '400', whiteSpace: 'nowrap', flexShrink: 0, boxShadow: selectedSubject === s ? SHADOW_BLUE : 'none', transition: TRANSITION }}>
+                style={{ padding: '7px 18px', borderRadius: '50px', border: 'none', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', background: selectedSubject === s ? '#6D28D9' : GREY_BG, color: selectedSubject === s ? '#fff' : TEXT_MUTED, fontWeight: selectedSubject === s ? '700' : '400', whiteSpace: 'nowrap', flexShrink: 0, boxShadow: selectedSubject === s ? SHADOW_BLUE : 'none', transition: TRANSITION }}>
                 {s}
               </button>
             ))}
@@ -299,14 +298,14 @@ export default function Teachers() {
         </div>
       </div>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: isMobile ? '1.25rem' : '1.75rem 2rem', flex: 1, width: '100%', boxSizing: 'border-box' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: isMobile ? '1.25rem' : '1.75rem 2rem', flex: 1, width: '100%', boxSizing: 'border-box' }}>
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '260px 1fr', gap: '1.75rem', alignItems: 'start' }}>
 
           {!isMobile && (
 <div style={{ background: '#fff', borderRadius: '16px', border: BORDER, padding: '1.5rem', position: 'sticky', top: '80px', boxShadow: SHADOW_LG, maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', paddingBottom: '1rem', borderBottom: `1px solid ${GREY_LIGHT}` }}>
                 <span style={{ fontSize: '15px', fontWeight: '700', color: TEXT }}>Filters</span>
                 {activeFilterCount > 0 && (
-                  <span style={{ fontSize: '11px', background: BLUE, color: '#fff', padding: '2px 8px', borderRadius: '50px', fontWeight: '700' }}>{activeFilterCount}</span>
+                  <span style={{ fontSize: '11px', background: '#6D28D9', color: '#fff', padding: '2px 8px', borderRadius: '50px', fontWeight: '700' }}>{activeFilterCount}</span>
                 )}
               </div>
               <FilterPanel />
@@ -322,7 +321,7 @@ export default function Teachers() {
               {isMobile && (
                 <button onClick={() => setShowMobileFilters(true)}
                   style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 16px', background: '#fff', border: BORDER, borderRadius: '50px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '600', color: TEXT, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                  ⚙ Filters {activeFilterCount > 0 && <span style={{ background: BLUE, color: '#fff', borderRadius: '50%', width: '18px', height: '18px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '800' }}>{activeFilterCount}</span>}
+                  ⚙ Filters {activeFilterCount > 0 && <span style={{ background: '#6D28D9', color: '#fff', borderRadius: '50%', width: '18px', height: '18px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '800' }}>{activeFilterCount}</span>}
                 </button>
               )}
             </div>
@@ -389,7 +388,7 @@ export default function Teachers() {
 
 function FilterChip({ label, onRemove }) {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', background: LIGHT_BLUE, color: BLUE, padding: '4px 12px', borderRadius: '50px', fontWeight: '700', border: '1px solid rgba(37,99,235,0.15)' }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', background: LIGHT_BLUE, color: BLUE, padding: '4px 12px', borderRadius: '50px', fontWeight: '700', border: '1px solid rgba(0,0,0,0.15)' }}>
       {label}
       <button onClick={onRemove} style={{ background: 'none', border: 'none', cursor: 'pointer', color: BLUE, fontSize: '14px', lineHeight: 1, padding: 0, display: 'flex', alignItems: 'center', marginLeft: '2px', opacity: 0.7 }}>×</button>
     </span>
@@ -426,33 +425,33 @@ function TeacherCard({ teacher, selectedSubject, setSelectedSubject }) {
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{ background: '#fff', borderRadius: '20px', border: `1px solid ${hovered ? 'rgba(37,99,235,0.25)' : GREY_LIGHT}`, overflow: 'hidden', boxShadow: hovered ? SHADOW_BLUE : SHADOW_LG, transform: hovered ? 'translateY(-3px)' : 'translateY(0)', transition: TRANSITION }}
+      style={{ background: '#fff', borderRadius: '20px', border: `1px solid ${hovered ? 'rgba(0,0,0,0.25)' : GREY_LIGHT}`, overflow: 'hidden', boxShadow: hovered ? SHADOW_BLUE : SHADOW_LG, transform: hovered ? 'translateY(-3px)' : 'translateY(0)', transition: TRANSITION }}
     >
       {(isVerifiedPro || isTopRated) && (
-        <div style={{ height: '3px', background: isTopRated ? 'linear-gradient(90deg, #FFD700, #F59E0B)' : GRADIENT_BLUE }} />
+        <div style={{ height: '3px', background: isTopRated ? 'linear-gradient(90deg, #6D28D9, #0B0B0B)' : GRADIENT_BLUE }} />
       )}
       <div style={{ padding: '1.5rem' }}>
         {(isVerifiedPro || isTopRated || isNew) && (
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px' }}>
-            {isVerifiedPro && <span style={{ fontSize: '11px', background: '#DBEAFE', color: '#1E40AF', padding: '3px 10px', borderRadius: '50px', fontWeight: '800' }}>🏅 Verified Pro</span>}
-            {isTopRated && <span style={{ fontSize: '11px', background: '#FEF9C3', color: '#854D0E', padding: '3px 10px', borderRadius: '50px', fontWeight: '800' }}>⭐ Top Rated</span>}
-            {isNew && <span style={{ fontSize: '11px', background: '#F3E8FF', color: '#6B21A8', padding: '3px 10px', borderRadius: '50px', fontWeight: '800' }}>✨ New</span>}
+            {isVerifiedPro && <span style={{ fontSize: '11px', background: '#F5F5F5', color: '#0B0B0B', padding: '3px 10px', borderRadius: '50px', fontWeight: '800' }}>🏅 Verified Pro</span>}
+            {isTopRated && <span style={{ fontSize: '11px', background: '#F5F5F5', color: '#0B0B0B', padding: '3px 10px', borderRadius: '50px', fontWeight: '800' }}>⭐ Top Rated</span>}
+            {isNew && <span style={{ fontSize: '11px', background: '#F5F5F5', color: '#0B0B0B', padding: '3px 10px', borderRadius: '50px', fontWeight: '800' }}>✨ New</span>}
           </div>
         )}
         <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', marginBottom: '14px' }}>
           <div style={{ position: 'relative', flexShrink: 0 }}>
             {teacher.profiles?.avatar_url ? (
-              <img src={teacher.profiles.avatar_url} alt="" style={{ width: '88px', height: '88px', borderRadius: '50%', objectFit: 'cover', border: `3px solid ${teacher.is_verified ? '#22C55E' : GREY_LIGHT}`, display: 'block' }} />
+              <img src={teacher.profiles.avatar_url} alt="" style={{ width: '88px', height: '88px', borderRadius: '50%', objectFit: 'cover', border: `3px solid ${teacher.is_verified ? '#6D28D9' : GREY_LIGHT}`, display: 'block' }} />
             ) : (
-              <div style={{ width: '88px', height: '88px', borderRadius: '50%', background: GRADIENT_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', fontWeight: '800', color: '#fff', border: `3px solid ${teacher.is_verified ? '#22C55E' : GREY_LIGHT}` }}>
+              <div style={{ width: '88px', height: '88px', borderRadius: '50%', background: GRADIENT_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', fontWeight: '800', color: '#fff', border: `3px solid ${teacher.is_verified ? '#6D28D9' : GREY_LIGHT}` }}>
                 {teacher.profiles?.full_name?.charAt(0)}
               </div>
             )}
             {teacher.is_verified && (
-              <div style={{ position: 'absolute', bottom: '2px', right: '2px', background: '#22C55E', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', border: '2px solid #fff', color: '#fff', fontWeight: '800' }}>✓</div>
+              <div style={{ position: 'absolute', bottom: '2px', right: '2px', background: '#6D28D9', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', border: '2px solid #fff', color: '#FFFFFF', fontWeight: '800' }}>✓</div>
             )}
             {teacher.years_experience > 0 && (
-              <div style={{ position: 'absolute', top: '-4px', right: '-4px', background: YELLOW, borderRadius: '50px', padding: '2px 7px', fontSize: '10px', fontWeight: '800', color: BLUE, border: '2px solid #fff', whiteSpace: 'nowrap' }}>
+              <div style={{ position: 'absolute', top: '-4px', right: '-4px', background: YELLOW, borderRadius: '50px', padding: '2px 7px', fontSize: '10px', fontWeight: '800', color: '#FFFFFF', border: '2px solid #fff', whiteSpace: 'nowrap' }}>
                 {teacher.years_experience}yr
               </div>
             )}
@@ -462,20 +461,20 @@ function TeacherCard({ teacher, selectedSubject, setSelectedSubject }) {
               <h3 style={{ fontSize: '18px', fontWeight: '800', color: TEXT, margin: 0, letterSpacing: '-0.01em' }}>{teacher.profiles?.full_name}</h3>
               {teacher.hourly_rate > 0 ? (
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                  <div style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: '700', color: BLUE, letterSpacing: '-0.02em' }}>GH₵ {teacher.hourly_rate}</div>
+                  <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '20px', fontWeight: '700', color: BLUE, letterSpacing: '-0.02em' }}>GH₵ {teacher.hourly_rate}</div>
                   <div style={{ fontSize: '11px', color: TEXT_MUTED, fontWeight: '500' }}>per hour</div>
                 </div>
               ) : (
-                <span style={{ fontSize: '12px', color: '#166534', background: '#DCFCE7', padding: '3px 10px', borderRadius: '50px', fontWeight: '700', flexShrink: 0 }}>Free first lesson</span>
+                <span style={{ fontSize: '12px', color: '#0B0B0B', background: '#F5F5F5', padding: '3px 10px', borderRadius: '50px', fontWeight: '700', flexShrink: 0 }}>Free first lesson</span>
               )}
             </div>
             <div style={{ fontSize: '13px', color: TEXT_MUTED, marginBottom: '8px' }}>📍 {teacher.profiles?.city}, {teacher.profiles?.country}</div>
             {avgRating && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#FEF9C3', padding: '3px 10px', borderRadius: '50px', border: '1px solid #FDE68A' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#F5F5F5', padding: '3px 10px', borderRadius: '50px', border: '1px solid #E2E8F0' }}>
                   <span style={{ fontSize: '13px' }}>⭐</span>
-                  <span style={{ fontSize: '13px', fontWeight: '800', color: '#854D0E' }}>{avgRating}</span>
-                  <span style={{ fontSize: '12px', color: '#A16207' }}>({teacher.reviews.length})</span>
+                  <span style={{ fontSize: '13px', fontWeight: '800', color: '#0B0B0B' }}>{avgRating}</span>
+                  <span style={{ fontSize: '12px', color: '#0B0B0B' }}>({teacher.reviews.length})</span>
                 </div>
                 {approvedCerts.length > 0 && <span style={{ fontSize: '12px', color: TEXT_MUTED }}>📋 {approvedCerts.length} cert{approvedCerts.length !== 1 ? 's' : ''}</span>}
                 {teacher.pitch_videos?.length > 0 && <span style={{ fontSize: '12px', color: TEXT_MUTED }}>🎬 Video</span>}
@@ -493,7 +492,7 @@ function TeacherCard({ teacher, selectedSubject, setSelectedSubject }) {
           <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '8px' }}>
             {teacher.subjects.slice(0, 5).map(s => (
               <span key={s} onClick={() => setSelectedSubject(s)}
-                style={{ fontSize: '12px', background: selectedSubject === s ? BLUE : GREY_BG, color: selectedSubject === s ? '#fff' : TEXT_MUTED, padding: '4px 11px', borderRadius: '50px', cursor: 'pointer', fontWeight: selectedSubject === s ? '700' : '500', border: `1px solid ${selectedSubject === s ? BLUE : GREY_LIGHT}`, transition: TRANSITION }}>
+                style={{ fontSize: '12px', background: selectedSubject === s ? '#6D28D9' : GREY_BG, color: selectedSubject === s ? '#fff' : TEXT_MUTED, padding: '4px 11px', borderRadius: '50px', cursor: 'pointer', fontWeight: selectedSubject === s ? '700' : '500', border: `1px solid ${selectedSubject === s ? '#6D28D9' : GREY_LIGHT}`, transition: TRANSITION }}>
                 {s}
               </span>
             ))}
@@ -510,12 +509,12 @@ function TeacherCard({ teacher, selectedSubject, setSelectedSubject }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '4px' }}>
           <Link to={`/teachers/${teacher.id}`}
             style={{ padding: '11px', background: GREY_BG, color: BLUE, border: `1px solid ${GREY_LIGHT}`, borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', textAlign: 'center', transition: TRANSITION }}
-            onMouseEnter={e => { e.currentTarget.style.background = LIGHT_BLUE; e.currentTarget.style.borderColor = 'rgba(37,99,235,0.3)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = LIGHT_BLUE; e.currentTarget.style.borderColor = 'rgba(0,0,0,0.3)' }}
             onMouseLeave={e => { e.currentTarget.style.background = GREY_BG; e.currentTarget.style.borderColor = GREY_LIGHT }}>
             View profile
           </Link>
           <Link to={`/booking?teacher=${teacher.id}`}
-            style={{ padding: '11px', background: YELLOW, color: BLUE, borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '800', textAlign: 'center', boxShadow: hovered ? SHADOW_YELLOW : 'none', transition: TRANSITION }}>
+            style={{ padding: '11px', background: YELLOW, color: '#FFFFFF', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '800', textAlign: 'center', boxShadow: hovered ? SHADOW_YELLOW : 'none', transition: TRANSITION }}>
             Book now →
           </Link>
         </div>

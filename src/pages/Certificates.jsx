@@ -31,10 +31,10 @@ const gradeLabel = (avg) => {
 }
 
 const gradeColor = (label) => {
-  if (label === 'Distinction') return { bg: '#FEF9C3', color: '#854D0E', accent: '#F59E0B' }
-  if (label === 'Merit') return { bg: '#DBEAFE', color: '#1E40AF', accent: BLUE }
-  if (label === 'Pass') return { bg: '#DCFCE7', color: '#166534', accent: '#22C55E' }
-  return { bg: GREY_BG, color: TEXT_MUTED, accent: '#94A3B8' }
+  if (label === 'Distinction') return { bg: '#F5F5F5', color: '#0B0B0B', accent: '#0B0B0B' }
+  if (label === 'Merit') return { bg: '#F5F5F5', color: '#0B0B0B', accent: BLUE }
+  if (label === 'Pass') return { bg: '#F5F5F5', color: '#0B0B0B', accent: '#6D28D9' }
+  return { bg: GREY_BG, color: TEXT_MUTED, accent: '#9CA3AF' }
 }
 
 function generateCode() {
@@ -135,39 +135,37 @@ export default function Certificates() {
   const isTeacher = profile?.role === 'teacher'
 
   return (
-    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'DM Sans, sans-serif', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'Tahoma, Geneva, sans-serif', display: 'flex', flexDirection: 'column' }}>
       <NavBar />
 
-      <div style={{ position: 'relative', overflow: 'hidden' }}>
-        <img src={certificatesImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(15,43,107,0.97) 0%, rgba(26,63,160,0.92) 50%, rgba(37,99,235,0.55) 100%)', zIndex: 1 }} />
+      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>
         <div style={{ position: 'relative', zIndex: 2, padding: isMobile ? '2.5rem 1.25rem' : '3.5rem 2.5rem', maxWidth: '1100px', margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.75rem', flexWrap: 'wrap' }}>
             <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.3)', color: YELLOW, fontSize: '11px', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 14px', borderRadius: '50px', marginBottom: '12px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F5F5F5', border: '1px solid #E2E8F0', color: YELLOW, fontSize: '11px', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 14px', borderRadius: '50px', marginBottom: '12px' }}>
                 🏆 {isTeacher ? 'Certificate management' : 'My certificates'}
               </div>
-              <h1 style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '28px' : '42px', color: '#fff', marginBottom: '8px', fontWeight: '700', letterSpacing: '-0.02em', lineHeight: '1.15' }}>
+              <h1 style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: isMobile ? '28px' : '42px', color: '#0B0B0B', marginBottom: '8px', fontWeight: '700', letterSpacing: '-0.02em', lineHeight: '1.15' }}>
                 Certificates of Completion
               </h1>
-              <p style={{ fontSize: isMobile ? '14px' : '16px', color: 'rgba(255,255,255,0.75)', margin: 0, lineHeight: '1.6', maxWidth: '480px' }}>
-                {isTeacher ? 'Issue verified certificates to students who have earned them through graded assignments' : 'Your verified certificates earned through TeachMe courses'}
+              <p style={{ fontSize: isMobile ? '14px' : '16px', color: 'rgba(0,0,0,0.75)', margin: 0, lineHeight: '1.6', maxWidth: '480px' }}>
+                {isTeacher ? 'Issue verified certificates to students who have earned them through graded assignments' : 'Your verified certificates earned through Stuumo courses'}
               </p>
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: isTeacher ? 'repeat(2, 1fr)' : '200px', gap: '10px' }}>
             {isTeacher && (
-              <div style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(4px)', borderRadius: '14px', padding: isMobile ? '1rem' : '1.25rem', textAlign: 'center', border: '1px solid rgba(255,255,255,0.15)' }}>
+              <div style={{ background: '#F5F5F5', borderRadius: '14px', padding: isMobile ? '1rem' : '1.25rem', textAlign: 'center', border: '1px solid #E2E8F0' }}>
                 <div style={{ fontSize: isMobile ? '22px' : '26px', marginBottom: '6px' }}>🎯</div>
-                <div style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '28px' : '36px', fontWeight: '700', color: YELLOW, lineHeight: 1 }}>{eligible.length}</div>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', marginTop: '5px', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: '600' }}>Eligible</div>
+                <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: isMobile ? '28px' : '36px', fontWeight: '700', color: '#0B0B0B', lineHeight: 1 }}>{eligible.length}</div>
+                <div style={{ fontSize: '11px', color: 'rgba(0,0,0,0.65)', marginTop: '5px', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: '600' }}>Eligible</div>
               </div>
             )}
-            <div style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(4px)', borderRadius: '14px', padding: isMobile ? '1rem' : '1.25rem', textAlign: 'center', border: '1px solid rgba(255,255,255,0.15)' }}>
+            <div style={{ background: '#F5F5F5', borderRadius: '14px', padding: isMobile ? '1rem' : '1.25rem', textAlign: 'center', border: '1px solid #E2E8F0' }}>
               <div style={{ fontSize: isMobile ? '22px' : '26px', marginBottom: '6px' }}>🏆</div>
-              <div style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '28px' : '36px', fontWeight: '700', color: YELLOW, lineHeight: 1 }}>{certificates.length}</div>
-              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', marginTop: '5px', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: '600' }}>
+              <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: isMobile ? '28px' : '36px', fontWeight: '700', color: '#0B0B0B', lineHeight: 1 }}>{certificates.length}</div>
+              <div style={{ fontSize: '11px', color: 'rgba(0,0,0,0.65)', marginTop: '5px', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: '600' }}>
                 {isTeacher ? 'Issued' : 'Earned'}
               </div>
             </div>
@@ -178,7 +176,7 @@ export default function Certificates() {
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: isMobile ? '1.25rem' : '2rem', flex: 1, width: '100%', boxSizing: 'border-box' }}>
 
         {message && (
-          <div style={{ background: message.startsWith('✅') ? '#DCFCE7' : '#FEE2E2', color: message.startsWith('✅') ? '#166534' : '#991B1B', padding: '12px 16px', borderRadius: '12px', fontSize: '14px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600' }}>
+          <div style={{ background: message.startsWith('✅') ? '#F5F5F5' : '#F5F5F5', color: message.startsWith('✅') ? '#0B0B0B' : '#DC2626', padding: '12px 16px', borderRadius: '12px', fontSize: '14px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600' }}>
             <span style={{ flex: 1 }}>{message}</span>
             <button onClick={() => setMessage('')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: 'inherit', opacity: 0.6, padding: 0 }}>×</button>
           </div>
@@ -216,7 +214,7 @@ export default function Certificates() {
                   const key = `${item.learner_id}|${item.subject}`
                   return (
                     <div key={key} style={{ background: '#fff', borderRadius: '16px', border: BORDER, padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', boxShadow: SHADOW_LG, transition: TRANSITION }}
-                      onMouseEnter={e => { e.currentTarget.style.boxShadow = SHADOW_BLUE; e.currentTarget.style.borderColor = 'rgba(37,99,235,0.2)' }}
+                      onMouseEnter={e => { e.currentTarget.style.boxShadow = SHADOW_BLUE; e.currentTarget.style.borderColor = 'rgba(0,0,0,0.2)' }}
                       onMouseLeave={e => { e.currentTarget.style.boxShadow = SHADOW_LG; e.currentTarget.style.borderColor = GREY_LIGHT }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1, minWidth: 0 }}>
                         <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: gc.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', flexShrink: 0 }}>🏆</div>
@@ -279,20 +277,20 @@ export default function Certificates() {
                 const gc = gradeColor(cert.grade_label)
                 return (
                   <div key={cert.id}
-                    style={{ background: '#fff', borderRadius: '20px', border: `2px solid ${YELLOW}`, overflow: 'hidden', boxShadow: `0 4px 20px rgba(255,215,0,0.12)`, transition: TRANSITION }}
-                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 12px 32px rgba(255,215,0,0.2)` }}
-                    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 4px 20px rgba(255,215,0,0.12)` }}
+                    style={{ background: '#fff', borderRadius: '20px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: `0 4px 20px rgba(0,0,0,0.06)`, transition: TRANSITION }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 12px 32px rgba(0,0,0,0.1)` }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 4px 20px rgba(0,0,0,0.06)` }}
                   >
-                    <div style={{ background: GRADIENT_BLUE, padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div style={{ background: '#F5F5F5', padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
-                        <div style={{ fontFamily: 'Georgia, serif', fontSize: '17px', fontWeight: '700', color: '#fff', marginBottom: '4px', letterSpacing: '-0.01em' }}>
+                        <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '17px', fontWeight: '700', color: '#0B0B0B', marginBottom: '4px', letterSpacing: '-0.01em' }}>
                           Certificate of Completion
                         </div>
-                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', fontWeight: '500', letterSpacing: '0.04em' }}>
-                          TeachMe · Verified. Trusted. Effective.
+                        <div style={{ fontSize: '11px', color: 'rgba(0,0,0,0.6)', fontWeight: '500', letterSpacing: '0.04em' }}>
+                          Stuumo · Verified. Trusted. Effective.
                         </div>
                       </div>
-                      <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(255,215,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px', flexShrink: 0, border: '1px solid rgba(255,215,0,0.3)' }}>
+                      <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(109,40,217,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px', flexShrink: 0, border: '1px solid rgba(109,40,217,0.3)' }}>
                         🏆
                       </div>
                     </div>
@@ -337,7 +335,7 @@ export default function Certificates() {
                           </div>
                         </div>
                         <Link to={`/verify/${cert.certificate_code}`}
-                          style={{ fontSize: '13px', color: BLUE, fontWeight: '700', textDecoration: 'none', background: LIGHT_BLUE, padding: '7px 16px', borderRadius: '50px', border: '1px solid rgba(37,99,235,0.2)', transition: TRANSITION }}>
+                          style={{ fontSize: '13px', color: BLUE, fontWeight: '700', textDecoration: 'none', background: LIGHT_BLUE, padding: '7px 16px', borderRadius: '50px', border: '1px solid rgba(0,0,0,0.2)', transition: TRANSITION }}>
                           Verify online ↗
                         </Link>
                       </div>

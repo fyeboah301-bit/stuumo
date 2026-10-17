@@ -4,11 +4,11 @@ export default function usePageMeta(title, description) {
   useEffect(() => {
     // Title
     document.title = title
-      ? `${title} | TeachMe Ghana`
-      : 'TeachMe Ghana — Find Verified Home Tutors'
+      ? `${title} | Stuumo`
+      : 'Stuumo — Find Verified Tutors Worldwide'
 
     // Description
-    const desc = description || 'TeachMe connects verified, certificate-checked teachers with parents and learners across Ghana for home tuition and live online sessions.'
+    const desc = description || 'Stuumo connects verified, certificate-checked teachers with parents and learners worldwide for private tutoring and live online sessions.'
     let meta = document.querySelector('meta[name="description"]')
     if (!meta) {
       meta = document.createElement('meta')
@@ -18,7 +18,7 @@ export default function usePageMeta(title, description) {
     meta.content = desc
 
     // OG tags
-    const og = { 'og:title': document.title, 'og:description': desc, 'og:type': 'website', 'og:site_name': 'TeachMe Ghana' }
+    const og = { 'og:title': document.title, 'og:description': desc, 'og:type': 'website', 'og:site_name': 'Stuumo' }
     Object.entries(og).forEach(([property, content]) => {
       let tag = document.querySelector(`meta[property="${property}"]`)
       if (!tag) {
@@ -29,6 +29,6 @@ export default function usePageMeta(title, description) {
       tag.content = content
     })
 
-    return () => { document.title = 'TeachMe Ghana — Find Verified Home Tutors' }
+    return () => { document.title = 'Stuumo — Find Verified Tutors Worldwide' }
   }, [title, description])
 }

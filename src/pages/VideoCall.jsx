@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Logo from '../components/Logo'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { YELLOW, GRADIENT_BLUE, TRANSITION } from '../styles/colors'
@@ -35,36 +36,36 @@ export default function VideoCall() {
   }
 
   return (
-    <div style={{ height: '100vh', background: '#0F172A', fontFamily: 'DM Sans, sans-serif', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div style={{ height: '100vh', background: '#0B0B0B', fontFamily: 'Tahoma, Geneva, sans-serif', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
       {/* HEADER */}
-      <div style={{ background: '#1E293B', borderBottom: '1px solid #334155', padding: '0 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '56px', flexShrink: 0, zIndex: 10 }}>
+      <div style={{ background: '#0B0B0B', borderBottom: '1px solid #0B0B0B', padding: '0 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '56px', flexShrink: 0, zIndex: 10 }}>
 
         {/* LEFT — LOGO + STATUS */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <Link to="/dashboard" style={{ fontFamily: 'Georgia, serif', fontSize: '18px', fontWeight: '700', color: '#fff', textDecoration: 'none', letterSpacing: '-0.02em', flexShrink: 0 }}>
-            Teach<span style={{ color: YELLOW }}>Me</span>
+          <Link to="/dashboard" style={{ display: 'inline-block', textDecoration: 'none', flexShrink: 0 }}>
+            <Logo variant="blue" height={28} />
           </Link>
 
           {/* LIVE INDICATOR */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '7px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '50px', padding: '4px 12px' }}>
-            <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#EF4444', animation: 'blink 1s ease-in-out infinite', flexShrink: 0 }} />
-            <span style={{ fontSize: '11px', fontWeight: '800', color: '#EF4444', letterSpacing: '0.07em', textTransform: 'uppercase' }}>Live</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '7px', background: 'rgba(109,40,217,0.15)', border: '1px solid rgba(109,40,217,0.3)', borderRadius: '50px', padding: '4px 12px' }}>
+            <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#6D28D9', animation: 'blink 1s ease-in-out infinite', flexShrink: 0 }} />
+            <span style={{ fontSize: '11px', fontWeight: '800', color: '#6D28D9', letterSpacing: '0.07em', textTransform: 'uppercase' }}>Live</span>
           </div>
 
           {/* TIMER */}
           {iframeLoaded && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50px', padding: '4px 12px' }}>
-              <span style={{ fontSize: '11px', color: '#64748B', fontWeight: '600' }}>⏱</span>
-              <span style={{ fontSize: '12px', fontFamily: 'monospace', color: '#94A3B8', fontWeight: '600', letterSpacing: '0.05em' }}>{formatTime(elapsed)}</span>
+              <span style={{ fontSize: '11px', color: '#6B7280', fontWeight: '600' }}>⏱</span>
+              <span style={{ fontSize: '12px', fontFamily: 'monospace', color: '#9CA3AF', fontWeight: '600', letterSpacing: '0.05em' }}>{formatTime(elapsed)}</span>
             </div>
           )}
         </div>
 
         {/* CENTER — ROOM INFO */}
         <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', textAlign: 'center' }}>
-          <div style={{ fontSize: '12px', color: '#475569', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '1px' }}>Video Session</div>
-          <div style={{ fontSize: '11px', color: '#334155', fontFamily: 'monospace', letterSpacing: '0.04em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>
+          <div style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '1px' }}>Video Session</div>
+          <div style={{ fontSize: '11px', color: '#FFFFFF', fontFamily: 'monospace', letterSpacing: '0.04em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>
             {roomId}
           </div>
         </div>
@@ -73,13 +74,13 @@ export default function VideoCall() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #334155' }} />
+              <img src={profile.avatar_url} alt="" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #0B0B0B' }} />
             ) : (
-              <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #2563EB, #1A3FA0)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '800', color: '#fff' }}>
+              <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #0B0B0B, #0B0B0B)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '800', color: '#FFFFFF' }}>
                 {profile?.full_name?.charAt(0)}
               </div>
             )}
-            <span style={{ fontSize: '13px', color: '#94A3B8', fontWeight: '500', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '13px', color: '#9CA3AF', fontWeight: '500', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {profile?.full_name?.split(' ')[0]}
             </span>
           </div>
@@ -90,9 +91,9 @@ export default function VideoCall() {
                 navigate(-1)
               }
             }}
-            style={{ padding: '8px 18px', background: '#EF4444', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700', transition: TRANSITION, boxShadow: '0 2px 8px rgba(239,68,68,0.35)' }}
-            onMouseEnter={e => e.currentTarget.style.background = '#DC2626'}
-            onMouseLeave={e => e.currentTarget.style.background = '#EF4444'}
+            style={{ padding: '8px 18px', background: '#6D28D9', color: '#FFFFFF', border: 'none', borderRadius: '50px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700', transition: TRANSITION, boxShadow: '0 2px 8px rgba(0,0,0,0.17)' }}
+            onMouseEnter={e => e.currentTarget.style.background = '#6D28D9'}
+            onMouseLeave={e => e.currentTarget.style.background = '#6D28D9'}
           >
             Leave call
           </button>
@@ -101,38 +102,38 @@ export default function VideoCall() {
 
       {/* LOADING STATE */}
       {!iframeLoaded && (
-        <div style={{ position: 'absolute', inset: 0, top: '56px', background: '#0F172A', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 5, gap: '1.5rem' }}>
-          <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(37,99,235,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', border: '1px solid rgba(37,99,235,0.2)' }}>
+        <div style={{ position: 'absolute', inset: 0, top: '56px', background: '#0B0B0B', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 5, gap: '1.5rem' }}>
+          <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', border: '1px solid rgba(255,255,255,0.2)' }}>
             🎥
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '16px', fontWeight: '700', color: '#fff', marginBottom: '6px', letterSpacing: '-0.01em' }}>Connecting to session...</div>
-            <div style={{ fontSize: '13px', color: '#475569' }}>Please allow camera and microphone access when prompted</div>
+            <div style={{ fontSize: '16px', fontWeight: '700', color: '#FFFFFF', marginBottom: '6px', letterSpacing: '-0.01em' }}>Connecting to session...</div>
+            <div style={{ fontSize: '13px', color: '#6B7280' }}>Please allow camera and microphone access when prompted</div>
           </div>
           <div style={{ display: 'flex', gap: '6px' }}>
             {[0, 1, 2].map(i => (
-              <div key={i} style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#2563EB', animation: `dot 1.4s ease-in-out ${i * 0.2}s infinite` }} />
+              <div key={i} style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#0B0B0B', animation: `dot 1.4s ease-in-out ${i * 0.2}s infinite` }} />
             ))}
           </div>
         </div>
       )}
 
       {/* IFRAME */}
-      <div style={{ flex: 1, position: 'relative', background: '#0F172A' }}>
+      <div style={{ flex: 1, position: 'relative', background: '#0B0B0B' }}>
         <iframe
           src={src}
           allow="camera; microphone; fullscreen; display-capture; autoplay"
           style={{ width: '100%', height: '100%', border: 'none', position: 'absolute', inset: 0, opacity: iframeLoaded ? 1 : 0, transition: 'opacity 0.5s ease' }}
-          title="TeachMe Video Call"
+          title="Stuumo Video Call"
           onLoad={() => setIframeLoaded(true)}
         />
       </div>
 
       {/* PRIVACY BAR */}
-      <div style={{ background: '#1E293B', borderTop: '1px solid #334155', padding: '6px 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flexShrink: 0 }}>
+      <div style={{ background: '#0B0B0B', borderTop: '1px solid #0B0B0B', padding: '6px 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flexShrink: 0 }}>
         <span style={{ fontSize: '12px' }}>🔒</span>
-        <span style={{ fontSize: '11px', color: '#475569', fontWeight: '500' }}>
-          End-to-end encrypted · Never share personal contact details · Keep all communication on TeachMe
+        <span style={{ fontSize: '11px', color: '#6B7280', fontWeight: '500' }}>
+          End-to-end encrypted · Never share personal contact details · Keep all communication on Stuumo
         </span>
       </div>
 

@@ -19,10 +19,10 @@ function useIsMobile() {
 }
 
 const STATUS_CONFIG = {
-  graded:    { bg: '#DCFCE7', color: '#166534', icon: '✅', label: 'Graded' },
-  submitted: { bg: '#FEF9C3', color: '#854D0E', icon: '📨', label: 'Submitted' },
-  pending:   { bg: '#DBEAFE', color: '#1E40AF', icon: '⏳', label: 'Pending' },
-  overdue:   { bg: '#FEE2E2', color: '#991B1B', icon: '🔴', label: 'Overdue' },
+  graded:    { bg: '#F5F5F5', color: '#0B0B0B', icon: '✅', label: 'Graded' },
+  submitted: { bg: '#F5F5F5', color: '#0B0B0B', icon: '📨', label: 'Submitted' },
+  pending:   { bg: '#F5F5F5', color: '#0B0B0B', icon: '⏳', label: 'Pending' },
+  overdue:   { bg: '#F5F5F5', color: '#6D28D9', icon: '🔴', label: 'Overdue' },
 }
 
 export default function Assignments() {
@@ -147,23 +147,23 @@ export default function Assignments() {
   const displayed = tab === 'all' ? assignments : assignments.filter(a => getStatus(a) === tab)
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC', fontFamily: 'DM Sans, sans-serif', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: '#F5F5F5', fontFamily: 'Tahoma, Geneva, sans-serif', display: 'flex', flexDirection: 'column' }}>
       <NavBar />
 
-      <div style={{ background: `linear-gradient(rgba(37,99,235,0.82), rgba(26,63,160,0.92)), url(${assignmentsImg})`, backgroundSize: 'cover', backgroundPosition: 'center', padding: isMobile ? '2rem 1rem' : '2.5rem 2rem' }}>
+      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: isMobile ? '1.5rem 1rem' : '2rem 2rem' }}>
         <div style={{ maxWidth: '960px', margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
             <div>
-              <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.15)', color: YELLOW, fontSize: '11px', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 12px', borderRadius: '20px', marginBottom: '10px' }}>
+              <div style={{ display: 'inline-block', background: '#F5F5F5', color: YELLOW, fontSize: '11px', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 12px', borderRadius: '20px', marginBottom: '10px' }}>
                 📝 {isTeacher ? 'Teacher view' : 'My assignments'}
               </div>
-              <h1 style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '24px' : '32px', color: '#fff', marginBottom: '6px', fontWeight: '700' }}>Assignments</h1>
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.75)', margin: 0 }}>
+              <h1 style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: isMobile ? '24px' : '32px', color: '#0B0B0B', marginBottom: '6px', fontWeight: '700' }}>Assignments</h1>
+              <p style={{ fontSize: '14px', color: 'rgba(0,0,0,0.75)', margin: 0 }}>
                 {isTeacher ? 'Create, assign, and grade work for your students' : 'View and submit your assigned work'}
               </p>
             </div>
             {isTeacher && (
-              <button onClick={() => setShowForm(!showForm)} style={{ padding: '12px 22px', background: showForm ? 'rgba(255,255,255,0.2)' : YELLOW, color: showForm ? '#fff' : BLUE, border: showForm ? '1px solid rgba(255,255,255,0.4)' : 'none', borderRadius: '10px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700', flexShrink: 0 }}>
+              <button onClick={() => setShowForm(!showForm)} style={{ padding: '12px 22px', background: showForm ? '#F5F5F5' : YELLOW, color: showForm ? '#0B0B0B' : '#fff', border: showForm ? '1px solid #E2E8F0' : 'none', borderRadius: '10px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700', flexShrink: 0 }}>
                 {showForm ? '✕ Cancel' : '+ New assignment'}
               </button>
             )}
@@ -177,10 +177,10 @@ export default function Assignments() {
               ['Graded', counts.graded, '✅', 'graded'],
             ].map(([label, value, icon, key]) => (
               <button key={label} onClick={() => setTab(key)}
-                style={{ background: tab === key ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.1)', border: tab === key ? '2px solid rgba(255,255,255,0.6)' : '2px solid transparent', borderRadius: '12px', padding: '1rem', textAlign: 'center', cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit' }}>
+                style={{ background: tab === key ? '#FFFFFF' : '#F5F5F5', border: tab === key ? '2px solid #6D28D9' : '2px solid #E2E8F0', borderRadius: '12px', padding: '1rem', textAlign: 'center', cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit' }}>
                 <div style={{ fontSize: '22px', marginBottom: '4px' }}>{icon}</div>
-                <div style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '22px' : '28px', fontWeight: '700', color: YELLOW, lineHeight: 1 }}>{value}</div>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>{label}</div>
+                <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: isMobile ? '22px' : '28px', fontWeight: '700', color: '#0B0B0B', lineHeight: 1 }}>{value}</div>
+                <div style={{ fontSize: '11px', color: 'rgba(0,0,0,0.7)', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>{label}</div>
               </button>
             ))}
           </div>
@@ -190,7 +190,7 @@ export default function Assignments() {
       <div style={{ maxWidth: '960px', margin: '0 auto', padding: isMobile ? '1rem' : '1.5rem 2rem', flex: 1, width: '100%', boxSizing: 'border-box' }}>
 
         {message && (
-          <div style={{ background: message.startsWith('✅') ? '#DCFCE7' : '#FEE2E2', color: message.startsWith('✅') ? '#166534' : '#991B1B', padding: '12px 16px', borderRadius: '10px', fontSize: '14px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ background: message.startsWith('✅') ? '#F5F5F5' : '#F5F5F5', color: message.startsWith('✅') ? '#0B0B0B' : '#DC2626', padding: '12px 16px', borderRadius: '10px', fontSize: '14px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ flex: 1 }}>{message}</span>
             <button onClick={() => setMessage('')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: 'inherit', opacity: 0.6, padding: 0 }}>×</button>
           </div>
@@ -198,11 +198,11 @@ export default function Assignments() {
 
         {showForm && (
           <div style={{ background: '#fff', borderRadius: '14px', border: `1px solid ${GREY_LIGHT}`, overflow: 'hidden', marginBottom: '1.5rem', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
-            <div style={{ background: `linear-gradient(135deg, ${BLUE} 0%, ${DARK_BLUE} 100%)`, padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ background: '#F5F5F5', padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ fontSize: '20px' }}>📝</span>
               <div>
-                <h3 style={{ color: '#fff', fontSize: '15px', fontWeight: '700', margin: 0 }}>Create new assignment</h3>
-                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '12px', margin: 0 }}>Fill in the details and assign to a student</p>
+                <h3 style={{ color: '#0B0B0B', fontSize: '15px', fontWeight: '700', margin: 0 }}>Create new assignment</h3>
+                <p style={{ color: 'rgba(0,0,0,0.7)', fontSize: '12px', margin: 0 }}>Fill in the details and assign to a student</p>
               </div>
             </div>
             <form onSubmit={createAssignment} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -238,7 +238,7 @@ export default function Assignments() {
                   <input style={inp} type="number" min="1" value={form.max_score} onChange={e => setForm({ ...form, max_score: e.target.value })} required />
                 </div>
               </div>
-              <button type="submit" style={{ padding: '13px', background: YELLOW, color: BLUE, border: 'none', borderRadius: '10px', fontSize: '15px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}>
+              <button type="submit" style={{ padding: '13px', background: YELLOW, color: '#FFFFFF', border: 'none', borderRadius: '10px', fontSize: '15px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}>
                 Create assignment
               </button>
             </form>
@@ -253,9 +253,9 @@ export default function Assignments() {
             ['graded', 'Graded', counts.graded],
             ...(counts.overdue > 0 ? [['overdue', 'Overdue', counts.overdue]] : []),
           ].map(([key, label, count]) => (
-            <button key={key} onClick={() => setTab(key)} style={{ padding: '8px 16px', border: 'none', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', background: tab === key ? BLUE : 'transparent', color: tab === key ? '#fff' : TEXT_MUTED, fontWeight: tab === key ? '700' : '400', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <button key={key} onClick={() => setTab(key)} style={{ padding: '8px 16px', border: 'none', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', background: tab === key ? '#6D28D9' : 'transparent', color: tab === key ? '#fff' : TEXT_MUTED, fontWeight: tab === key ? '700' : '400', display: 'flex', alignItems: 'center', gap: '5px' }}>
               {label}
-              <span style={{ background: tab === key ? 'rgba(255,255,255,0.25)' : GREY_LIGHT, color: tab === key ? '#fff' : TEXT_MUTED, borderRadius: '20px', padding: '1px 7px', fontSize: '11px', fontWeight: '700' }}>{count}</span>
+              <span style={{ background: tab === key ? 'rgba(0,0,0,0.25)' : GREY_LIGHT, color: tab === key ? '#fff' : TEXT_MUTED, borderRadius: '20px', padding: '1px 7px', fontSize: '11px', fontWeight: '700' }}>{count}</span>
             </button>
           ))}
         </div>
@@ -274,14 +274,14 @@ export default function Assignments() {
         ) : displayed.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '4rem 2rem', background: '#fff', borderRadius: '14px', border: `1px solid ${GREY_LIGHT}` }}>
             <div style={{ fontSize: '52px', marginBottom: '1rem' }}>📝</div>
-            <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#111', marginBottom: '8px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#0B0B0B', marginBottom: '8px' }}>
               {tab === 'all' ? 'No assignments yet' : `No ${tab} assignments`}
             </h3>
             <p style={{ fontSize: '14px', color: TEXT_MUTED, marginBottom: '1.5rem' }}>
               {isTeacher ? 'Create your first assignment for a student.' : "Your teacher hasn't assigned anything yet."}
             </p>
             {isTeacher && tab === 'all' && (
-              <button onClick={() => setShowForm(true)} style={{ padding: '12px 28px', background: YELLOW, color: BLUE, border: 'none', borderRadius: '10px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}>
+              <button onClick={() => setShowForm(true)} style={{ padding: '12px 28px', background: YELLOW, color: '#FFFFFF', border: 'none', borderRadius: '10px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}>
                 + Create first assignment
               </button>
             )}
@@ -296,15 +296,15 @@ export default function Assignments() {
               const isOverdue = status === 'overdue'
               const daysUntilDue = a.due_date ? Math.ceil((new Date(a.due_date) - new Date()) / (1000 * 60 * 60 * 24)) : null
               const scorePercent = sub?.score != null ? Math.round((sub.score / a.max_score) * 100) : null
-              const scoreColor = scorePercent >= 70 ? '#166534' : scorePercent >= 50 ? '#854D0E' : '#991B1B'
+              const scoreColor = scorePercent >= 70 ? '#0B0B0B' : scorePercent >= 50 ? '#0B0B0B' : '#DC2626'
 
               return (
-                <div key={a.id} style={{ background: '#fff', borderRadius: '14px', border: `1px solid ${isOverdue ? '#FECACA' : GREY_LIGHT}`, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'box-shadow 0.2s' }}
+                <div key={a.id} style={{ background: '#fff', borderRadius: '14px', border: `1px solid ${isOverdue ? '#E2E8F0' : GREY_LIGHT}`, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'box-shadow 0.2s' }}
                   onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)'}
                   onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'}
                 >
                   {(isOverdue || status === 'graded') && (
-                    <div style={{ background: isOverdue ? '#FEE2E2' : '#DCFCE7', padding: '5px 16px', fontSize: '12px', fontWeight: '700', color: isOverdue ? '#991B1B' : '#166534' }}>
+                    <div style={{ background: isOverdue ? '#F5F5F5' : '#F5F5F5', padding: '5px 16px', fontSize: '12px', fontWeight: '700', color: isOverdue ? '#6D28D9' : '#0B0B0B' }}>
                       {isOverdue ? '🔴 This assignment is overdue' : `✅ Graded — ${sub?.score} / ${a.max_score} (${scorePercent}%)`}
                     </div>
                   )}
@@ -312,12 +312,12 @@ export default function Assignments() {
                   <div style={{ padding: '1.25rem 1.5rem', cursor: 'pointer' }} onClick={() => setExpandedId(isExpanded ? null : a.id)}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <h4 style={{ fontSize: '16px', fontWeight: '700', color: '#111', margin: '0 0 6px 0', lineHeight: '1.3' }}>{a.title}</h4>
+                        <h4 style={{ fontSize: '16px', fontWeight: '700', color: '#0B0B0B', margin: '0 0 6px 0', lineHeight: '1.3' }}>{a.title}</h4>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                           {a.subject && <span style={{ fontSize: '12px', background: LIGHT_BLUE, color: BLUE, padding: '3px 10px', borderRadius: '20px', fontWeight: '600' }}>{a.subject}</span>}
                           {isTeacher && a.profiles?.full_name && <span style={{ fontSize: '12px', color: TEXT_MUTED }}>👤 {a.profiles.full_name}</span>}
                           {a.due_date && (
-                            <span style={{ fontSize: '12px', color: isOverdue ? '#991B1B' : daysUntilDue <= 2 ? '#854D0E' : TEXT_MUTED, fontWeight: isOverdue || daysUntilDue <= 2 ? '600' : '400' }}>
+                            <span style={{ fontSize: '12px', color: isOverdue ? '#6D28D9' : daysUntilDue <= 2 ? '#0B0B0B' : TEXT_MUTED, fontWeight: isOverdue || daysUntilDue <= 2 ? '600' : '400' }}>
                               📅 {isOverdue ? 'Was due' : daysUntilDue === 0 ? 'Due today' : daysUntilDue === 1 ? 'Due tomorrow' : 'Due'} {new Date(a.due_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
                             </span>
                           )}
@@ -327,7 +327,7 @@ export default function Assignments() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
                         {status === 'graded' && scorePercent != null && (
                           <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: '700', color: scoreColor }}>{sub.score}</div>
+                            <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '20px', fontWeight: '700', color: scoreColor }}>{sub.score}</div>
                             <div style={{ fontSize: '10px', color: TEXT_MUTED, textTransform: 'uppercase' }}>/{a.max_score}</div>
                           </div>
                         )}
@@ -350,12 +350,12 @@ export default function Assignments() {
                     <div style={{ borderTop: `1px solid ${GREY_LIGHT}` }}>
                       <div style={{ padding: '1.25rem 1.5rem', borderBottom: `1px solid ${GREY_LIGHT}` }}>
                         <div style={{ fontSize: '12px', fontWeight: '700', color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Instructions</div>
-                        <p style={{ fontSize: '14px', color: '#374151', lineHeight: '1.7', margin: 0 }}>{a.description}</p>
+                        <p style={{ fontSize: '14px', color: '#0B0B0B', lineHeight: '1.7', margin: 0 }}>{a.description}</p>
                       </div>
 
                       {!isTeacher && !sub && (
                         <div style={{ padding: '1.25rem 1.5rem', background: GREY_BG }}>
-                          <div style={{ fontSize: '13px', fontWeight: '700', color: '#111', marginBottom: '12px' }}>📤 Submit your work</div>
+                          <div style={{ fontSize: '13px', fontWeight: '700', color: '#0B0B0B', marginBottom: '12px' }}>📤 Submit your work</div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <div>
                               <label style={lbl}>Your answer</label>
@@ -365,11 +365,11 @@ export default function Assignments() {
                               <label style={lbl}>Or attach a file</label>
                               <div style={{ border: `2px dashed ${GREY_LIGHT}`, borderRadius: '10px', padding: '1rem', textAlign: 'center', background: '#fff' }}>
                                 <input type="file" style={{ fontSize: '13px', cursor: 'pointer' }} onChange={e => setSubmitForm({ ...submitForm, [a.id]: { ...submitForm[a.id], file: e.target.files[0] } })} />
-                                {submitForm[a.id]?.file && <p style={{ fontSize: '12px', color: '#166534', marginTop: '6px', fontWeight: '600' }}>📎 {submitForm[a.id].file.name}</p>}
+                                {submitForm[a.id]?.file && <p style={{ fontSize: '12px', color: '#0B0B0B', marginTop: '6px', fontWeight: '600' }}>📎 {submitForm[a.id].file.name}</p>}
                               </div>
                             </div>
                             <button onClick={() => submitAssignment(a.id)} disabled={submittingId === a.id}
-                              style={{ padding: '12px', background: YELLOW, color: BLUE, border: 'none', borderRadius: '10px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}>
+                              style={{ padding: '12px', background: YELLOW, color: '#FFFFFF', border: 'none', borderRadius: '10px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}>
                               {submittingId === a.id ? '⏳ Submitting...' : '📤 Submit assignment'}
                             </button>
                           </div>
@@ -378,7 +378,7 @@ export default function Assignments() {
 
                       {sub && (
                         <div style={{ padding: '1.25rem 1.5rem', background: GREY_BG }}>
-                          <div style={{ fontSize: '13px', fontWeight: '700', color: '#111', marginBottom: '12px' }}>
+                          <div style={{ fontSize: '13px', fontWeight: '700', color: '#0B0B0B', marginBottom: '12px' }}>
                             📨 Submission
                             <span style={{ fontSize: '12px', color: TEXT_MUTED, fontWeight: '400', marginLeft: '4px' }}>
                               — {new Date(sub.submitted_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
@@ -386,7 +386,7 @@ export default function Assignments() {
                           </div>
                           {sub.content && (
                             <div style={{ background: '#fff', borderRadius: '10px', padding: '1rem', border: `1px solid ${GREY_LIGHT}`, marginBottom: '10px' }}>
-                              <p style={{ fontSize: '14px', color: '#374151', lineHeight: '1.6', margin: 0 }}>{sub.content}</p>
+                              <p style={{ fontSize: '14px', color: '#0B0B0B', lineHeight: '1.6', margin: 0 }}>{sub.content}</p>
                             </div>
                           )}
                           {sub.file_url && (
@@ -397,7 +397,7 @@ export default function Assignments() {
                           {sub.feedback && (
                             <div style={{ background: '#fff', borderRadius: '10px', padding: '1rem', border: `1px solid ${GREY_LIGHT}`, marginTop: '8px' }}>
                               <div style={{ fontSize: '12px', fontWeight: '700', color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Teacher feedback</div>
-                              <p style={{ fontSize: '14px', color: '#374151', lineHeight: '1.6', margin: 0 }}>{sub.feedback}</p>
+                              <p style={{ fontSize: '14px', color: '#0B0B0B', lineHeight: '1.6', margin: 0 }}>{sub.feedback}</p>
                             </div>
                           )}
 
@@ -405,7 +405,7 @@ export default function Assignments() {
                             <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: `1px solid ${GREY_LIGHT}` }}>
                               {gradingId === sub.id ? (
                                 <div>
-                                  <div style={{ fontSize: '13px', fontWeight: '700', color: '#111', marginBottom: '10px' }}>✏️ Grade this submission</div>
+                                  <div style={{ fontSize: '13px', fontWeight: '700', color: '#0B0B0B', marginBottom: '10px' }}>✏️ Grade this submission</div>
                                   <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: '10px', marginBottom: '10px' }}>
                                     <div>
                                       <label style={lbl}>Score (max {a.max_score})</label>
@@ -417,7 +417,7 @@ export default function Assignments() {
                                     </div>
                                   </div>
                                   <div style={{ display: 'flex', gap: '8px' }}>
-                                    <button onClick={() => submitGrade(sub.id)} style={{ padding: '10px 22px', background: '#166534', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}>
+                                    <button onClick={() => submitGrade(sub.id)} style={{ padding: '10px 22px', background: '#6D28D9', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}>
                                       ✅ Submit grade
                                     </button>
                                     <button onClick={() => setGradingId(null)} style={{ padding: '10px 18px', background: '#fff', color: TEXT_MUTED, border: `1px solid ${GREY_LIGHT}`, borderRadius: '8px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -426,7 +426,7 @@ export default function Assignments() {
                                   </div>
                                 </div>
                               ) : (
-                                <button onClick={() => setGradingId(sub.id)} style={{ padding: '10px 22px', background: BLUE, color: '#fff', border: 'none', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}>
+                                <button onClick={() => setGradingId(sub.id)} style={{ padding: '10px 22px', background: '#6D28D9', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}>
                                   ✏️ Grade this submission
                                 </button>
                               )}
@@ -436,11 +436,11 @@ export default function Assignments() {
                           {sub.score != null && (
                             <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: `1px solid ${GREY_LIGHT}`, display: 'flex', alignItems: 'center', gap: '14px' }}>
                               <div style={{ textAlign: 'center', background: '#fff', borderRadius: '12px', padding: '12px 20px', border: `1px solid ${GREY_LIGHT}` }}>
-                                <div style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '700', color: scoreColor }}>{sub.score}</div>
+                                <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '28px', fontWeight: '700', color: scoreColor }}>{sub.score}</div>
                                 <div style={{ fontSize: '11px', color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.5px' }}>out of {a.max_score}</div>
                               </div>
                               <div>
-                                <div style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: '700', color: scoreColor }}>{scorePercent}%</div>
+                                <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '20px', fontWeight: '700', color: scoreColor }}>{scorePercent}%</div>
                                 <div style={{ fontSize: '12px', color: TEXT_MUTED }}>Graded {new Date(sub.graded_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</div>
                               </div>
                             </div>
@@ -461,4 +461,4 @@ export default function Assignments() {
 }
 
 const lbl = { fontSize: '11px', fontWeight: '700', color: TEXT_MUTED, display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }
-const inp = { width: '100%', padding: '11px 14px', border: `1px solid #E2E8F0`, borderRadius: '10px', fontSize: '14px', fontFamily: 'inherit', outline: 'none', background: '#fff', color: '#111', boxSizing: 'border-box' }
+const inp = { width: '100%', padding: '11px 14px', border: `1px solid #E2E8F0`, borderRadius: '10px', fontSize: '14px', fontFamily: 'inherit', outline: 'none', background: '#fff', color: '#0B0B0B', boxSizing: 'border-box' }

@@ -28,9 +28,20 @@ function useIsMobile() {
 }
 
 const STATUS = {
-  pending:   { bg: '#FEF9C3', color: '#854D0E', label: '⏳ Pending',   border: '#FDE68A' },
-  confirmed: { bg: '#DCFCE7', color: '#166534', label: '✅ Confirmed', border: '#BBF7D0' },
-  declined:  { bg: '#FEE2E2', color: '#991B1B', label: '✗ Declined',  border: '#FECACA' },
+  pending:   { bg: '#F5F5F5', color: '#0B0B0B', label: '⏳ Pending',   border: '#E2E8F0' },
+  confirmed: { bg: '#F5F5F5', color: '#0B0B0B', label: '✅ Confirmed', border: '#E2E8F0' },
+  declined:  { bg: '#F5F5F5', color: '#6D28D9', label: '✗ Declined',  border: '#E2E8F0' },
+  cancelled: { bg: '#F5F5F5', color: '#6B7280', label: '⊘ Cancelled', border: '#E2E8F0' },
+}
+
+// Past / resolved (vs upcoming) — mirrors the learner bookings page
+const bookingIsPast = (b) => {
+  if (b.status === 'declined' || b.status === 'cancelled' || b.status === 'completed') return true
+  if (b.status === 'confirmed') {
+    if (b.session_date) { const start = new Date(`${b.session_date}T${b.start_time || '00:00'}`); return start.getTime() + 60 * 60 * 1000 < Date.now() }
+    const d = new Date(b.created_at); d.setHours(0, 0, 0, 0); const t = new Date(); t.setHours(0, 0, 0, 0); return d < t
+  }
+  return false
 }
 
 export default function BookingRequests() {
@@ -45,6 +56,8 @@ export default function BookingRequests() {
   const [updating, setUpdating] = useState(null)
   const [tab, setTab] = useState('pending')
   const [expandedId, setExpandedId] = useState(null)
+  const [cancelTarget, setCancelTarget] = useState(null)
+  const [cancelReason, setCancelReason] = useState('')
 
   useEffect(() => {
     if (!user) navigate('/login')
@@ -55,7 +68,7 @@ export default function BookingRequests() {
   const fetchBookings = async () => {
     const { data } = await supabase
       .from('bookings')
-      .select('*, profiles:client_id (full_name, city, country, phone, email, avatar_url)')
+      .select('*, profiles:client_id (full_name, city, country, avatar_url)')
       .eq('teacher_id', user.id)
       .order('created_at', { ascending: false })
     setBookings(data || [])
@@ -75,7 +88,7 @@ export default function BookingRequests() {
       const booking = bookings.find(b => b.id === bookingId)
       await sendEmail({
         type: status === 'confirmed' ? 'booking_confirmed' : 'booking_declined',
-        clientEmail: booking.profiles?.email,
+        clientId: booking.client_id,
         clientName: booking.profiles?.full_name,
         teacherName: profile?.full_name,
         subject: booking.subject,
@@ -84,11 +97,35 @@ export default function BookingRequests() {
       await supabase.from('notifications').insert({
         user_id: booking.client_id,
         title: status === 'confirmed' ? '🎉 Booking confirmed!' : 'Booking update',
-       message: status === 'confirmed'
-  ? `${profile?.full_name} accepted your ${booking.subject} session. Go to My Bookings to pay and unlock your call room.`
-  : `${profile?.full_name} is unable to take your ${booking.subject} session.`,
+        message: status === 'confirmed'
+          ? `${profile?.full_name} accepted your ${booking.subject} session. Go to My Bookings to pay and unlock your call room.`
+          : `${profile?.full_name} is unable to take your ${booking.subject} session.`,
+        type: status === 'confirmed' ? 'booking_confirmed' : 'booking_declined',
+        link: '/booking',
       })
       setMessage(`✅ Booking ${status}.`)
+      fetchBookings()
+    } catch (err) {
+      setMessage('Error: ' + err.message)
+    } finally {
+      setUpdating(null)
+    }
+  }
+
+  const cancelSession = async (booking, reason) => {
+    setUpdating(booking.id)
+    try {
+      const { error } = await supabase.from('bookings').update({ status: 'cancelled', ...(booking.payment_status === 'paid' && booking.amount > 0 ? { refund_status: 'pending' } : {}) }).eq('id', booking.id)
+      if (error) throw error
+      await supabase.from('notifications').insert({
+        user_id: booking.client_id,
+        title: 'Session cancelled',
+        message: `${profile?.full_name} had to cancel your ${booking.subject || 'private'} session${reason ? `. Reason: ${reason}` : '.'}${booking.payment_status === 'paid' ? ' Any payment will be refunded — our team will be in touch.' : ''}`,
+        type: 'booking_declined',
+        link: '/booking',
+      })
+      setMessage('✅ Session cancelled. The learner has been notified.')
+      setCancelTarget(null); setCancelReason('')
       fetchBookings()
     } catch (err) {
       setMessage('Error: ' + err.message)
@@ -100,24 +137,25 @@ export default function BookingRequests() {
   const pending   = bookings.filter(b => b.status === 'pending')
   const confirmed = bookings.filter(b => b.status === 'confirmed')
   const declined  = bookings.filter(b => b.status === 'declined')
-  const responded = bookings.filter(b => b.status !== 'pending')
-  const displayed = tab === 'pending' ? pending : responded
+  const upcomingList = bookings.filter(b => b.status === 'confirmed' && !bookingIsPast(b))
+  const pastList     = bookings.filter(b => b.status !== 'pending' && bookingIsPast(b))
+  const displayed = tab === 'pending' ? pending : tab === 'upcoming' ? upcomingList : pastList
 
   return (
-    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'DM Sans, sans-serif', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'Tahoma, Geneva, sans-serif', display: 'flex', flexDirection: 'column' }}>
       <NavBar />
 
       <div style={{ background: GRADIENT_HERO, padding: isMobile ? '2rem 1.25rem' : '2.5rem 2rem', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '220px', height: '220px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '220px', height: '220px', borderRadius: '50%', border: '1px solid rgba(0,0,0,0.06)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: '960px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <div style={{ marginBottom: '1.75rem' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.3)', color: YELLOW, fontSize: '11px', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 14px', borderRadius: '50px', marginBottom: '12px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F5F5F5', border: '1px solid #E2E8F0', color: YELLOW, fontSize: '11px', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 14px', borderRadius: '50px', marginBottom: '12px' }}>
               📋 Teacher dashboard
             </div>
-            <h1 style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '26px' : '36px', color: '#fff', marginBottom: '8px', fontWeight: '700', letterSpacing: '-0.02em', lineHeight: '1.15' }}>
+            <h1 style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: isMobile ? '26px' : '36px', color: '#0B0B0B', marginBottom: '8px', fontWeight: '700', letterSpacing: '-0.02em', lineHeight: '1.15' }}>
               Booking Requests
             </h1>
-            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', margin: 0, lineHeight: '1.6' }}>
+            <p style={{ fontSize: '14px', color: 'rgba(0,0,0,0.7)', margin: 0, lineHeight: '1.6' }}>
               Review and respond to private session requests from parents and learners
             </p>
           </div>
@@ -128,10 +166,10 @@ export default function BookingRequests() {
               ['✅', confirmed.length, 'Confirmed'],
               ['✗', declined.length, 'Declined'],
             ].map(([icon, count, label]) => (
-              <div key={label} style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(4px)', borderRadius: '14px', padding: isMobile ? '1rem' : '1.25rem', textAlign: 'center', border: '1px solid rgba(255,255,255,0.15)' }}>
+              <div key={label} style={{ background: 'rgba(0,0,0,0.1)', backdropFilter: 'blur(4px)', borderRadius: '14px', padding: isMobile ? '1rem' : '1.25rem', textAlign: 'center', border: '1px solid rgba(0,0,0,0.15)' }}>
                 <div style={{ fontSize: isMobile ? '20px' : '24px', marginBottom: '6px' }}>{icon}</div>
-                <div style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '26px' : '34px', fontWeight: '700', color: YELLOW, lineHeight: 1 }}>{count}</div>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', marginTop: '5px', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: '600' }}>{label}</div>
+                <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: isMobile ? '26px' : '34px', fontWeight: '700', color: YELLOW, lineHeight: 1 }}>{count}</div>
+                <div style={{ fontSize: '11px', color: 'rgba(0,0,0,0.65)', marginTop: '5px', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: '600' }}>{label}</div>
               </div>
             ))}
           </div>
@@ -141,7 +179,7 @@ export default function BookingRequests() {
       <div style={{ maxWidth: '960px', margin: '0 auto', padding: isMobile ? '1.25rem' : '1.75rem 2rem', flex: 1, width: '100%', boxSizing: 'border-box' }}>
 
         {message && (
-          <div style={{ background: message.startsWith('✅') ? '#DCFCE7' : '#FEE2E2', color: message.startsWith('✅') ? '#166534' : '#991B1B', padding: '12px 16px', borderRadius: '12px', fontSize: '14px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600' }}>
+          <div style={{ background: message.startsWith('✅') ? '#F5F5F5' : '#F5F5F5', color: message.startsWith('✅') ? '#0B0B0B' : '#DC2626', padding: '12px 16px', borderRadius: '12px', fontSize: '14px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600' }}>
             <span style={{ flex: 1 }}>{message}</span>
             <button onClick={() => setMessage('')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: 'inherit', opacity: 0.6, padding: 0 }}>×</button>
           </div>
@@ -150,20 +188,21 @@ export default function BookingRequests() {
         <div style={{ display: 'flex', gap: '4px', marginBottom: '1.5rem', background: '#fff', padding: '4px', borderRadius: '50px', border: BORDER, width: 'fit-content', boxShadow: SHADOW_LG }}>
           {[
             ['pending', '⏳ Pending', pending.length],
-            ['responded', '📋 Responded', responded.length],
+            ['upcoming', '📅 Upcoming', upcomingList.length],
+            ['past', '✓ Past', pastList.length],
           ].map(([key, label, count]) => (
             <button key={key} onClick={() => setTab(key)}
-              style={{ padding: '9px 22px', border: 'none', borderRadius: '50px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', background: tab === key ? BLUE : 'transparent', color: tab === key ? '#fff' : TEXT_MUTED, fontWeight: tab === key ? '700' : '400', display: 'flex', alignItems: 'center', gap: '7px', boxShadow: tab === key ? SHADOW_BLUE : 'none', transition: TRANSITION }}>
+              style={{ padding: '9px 22px', border: 'none', borderRadius: '50px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', background: tab === key ? '#6D28D9' : 'transparent', color: tab === key ? '#fff' : TEXT_MUTED, fontWeight: tab === key ? '700' : '400', display: 'flex', alignItems: 'center', gap: '7px', boxShadow: tab === key ? SHADOW_BLUE : 'none', transition: TRANSITION }}>
               {label}
-              <span style={{ background: tab === key ? 'rgba(255,255,255,0.25)' : GREY_LIGHT, color: tab === key ? '#fff' : TEXT_MUTED, borderRadius: '50px', padding: '1px 8px', fontSize: '11px', fontWeight: '800' }}>{count}</span>
+              <span style={{ background: tab === key ? 'rgba(0,0,0,0.25)' : GREY_LIGHT, color: tab === key ? '#fff' : TEXT_MUTED, borderRadius: '50px', padding: '1px 8px', fontSize: '11px', fontWeight: '800' }}>{count}</span>
             </button>
           ))}
         </div>
 
         {tab === 'pending' && pending.length > 0 && (
-          <div style={{ background: '#FFFBEB', borderRadius: '14px', padding: '12px 16px', marginBottom: '1.25rem', border: '1px solid #FDE68A', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ background: '#F5F5F5', borderRadius: '14px', padding: '12px 16px', marginBottom: '1.25rem', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ fontSize: '20px', flexShrink: 0 }}>⚡</span>
-            <p style={{ fontSize: '13px', color: '#854D0E', margin: 0, fontWeight: '600', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '13px', color: '#0B0B0B', margin: 0, fontWeight: '600', lineHeight: '1.6' }}>
               You have <strong>{pending.length}</strong> pending request{pending.length !== 1 ? 's' : ''}. Respond promptly — parents appreciate quick replies.
             </p>
           </div>
@@ -186,9 +225,9 @@ export default function BookingRequests() {
         ) : displayed.length === 0 ? (
           <div style={{ background: '#fff', borderRadius: '20px', border: BORDER, padding: '5rem 2rem', textAlign: 'center', boxShadow: SHADOW_LG }}>
             <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: LIGHT_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', margin: '0 auto 1rem' }}>📭</div>
-            <h3 style={{ fontSize: '18px', fontWeight: '700', color: TEXT, marginBottom: '8px', letterSpacing: '-0.01em' }}>No {tab} requests</h3>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', color: TEXT, marginBottom: '8px', letterSpacing: '-0.01em' }}>No {tab === 'pending' ? 'pending requests' : tab === 'upcoming' ? 'upcoming sessions' : 'past sessions'}</h3>
             <p style={{ fontSize: '14px', color: TEXT_MUTED, lineHeight: '1.6' }}>
-              {tab === 'pending' ? 'New booking requests will appear here when parents and learners reach out.' : 'Accepted and declined requests will appear here.'}
+              {tab === 'pending' ? 'New booking requests will appear here when parents and learners reach out.' : tab === 'upcoming' ? 'Accepted sessions that are still to come will appear here.' : 'Completed, declined and cancelled sessions will appear here.'}
             </p>
           </div>
         ) : (
@@ -198,21 +237,33 @@ export default function BookingRequests() {
               const isExpanded = expandedId === booking.id
               const isPending = booking.status === 'pending'
               const isConfirmed = booking.status === 'confirmed'
+              let isPast
+              if (booking.session_date) {
+                const start = new Date(`${booking.session_date}T${booking.start_time || '00:00'}`)
+                isPast = start.getTime() + 60 * 60 * 1000 < Date.now()
+              } else {
+                const d = new Date(booking.created_at); d.setHours(0, 0, 0, 0)
+                const t = new Date(); t.setHours(0, 0, 0, 0)
+                isPast = d < t
+              }
+              const sessionWhen = booking.session_date
+                ? `${new Date(booking.session_date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })}${booking.start_time ? ` · ${booking.start_time.slice(0, 5)}` : ''}`
+                : null
 
               return (
                 <div key={booking.id}
-                  style={{ background: '#fff', borderRadius: '20px', border: `1px solid ${isPending ? '#FDE68A' : GREY_LIGHT}`, overflow: 'hidden', boxShadow: isPending ? '0 4px 16px rgba(255,215,0,0.08)' : SHADOW_LG, transition: TRANSITION }}
-                  onMouseEnter={e => { e.currentTarget.style.boxShadow = isPending ? '0 8px 24px rgba(255,215,0,0.15)' : SHADOW_BLUE; e.currentTarget.style.transform = 'translateY(-2px)' }}
-                  onMouseLeave={e => { e.currentTarget.style.boxShadow = isPending ? '0 4px 16px rgba(255,215,0,0.08)' : SHADOW_LG; e.currentTarget.style.transform = 'translateY(0)' }}
+                  style={{ background: '#fff', borderRadius: '20px', border: `1px solid ${isPending ? '#E2E8F0' : GREY_LIGHT}`, overflow: 'hidden', boxShadow: isPending ? '0 4px 16px rgba(0,0,0,0.06)' : SHADOW_LG, transition: TRANSITION }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = isPending ? '0 8px 24px rgba(0,0,0,0.07)' : SHADOW_BLUE; e.currentTarget.style.transform = 'translateY(-2px)' }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = isPending ? '0 4px 16px rgba(0,0,0,0.06)' : SHADOW_LG; e.currentTarget.style.transform = 'translateY(0)' }}
                 >
                   {isPending && (
-                    <div style={{ background: '#FFFBEB', padding: '6px 18px', fontSize: '12px', fontWeight: '800', color: '#854D0E', borderBottom: '1px solid #FDE68A' }}>
+                    <div style={{ background: '#F5F5F5', padding: '6px 18px', fontSize: '12px', fontWeight: '800', color: '#0B0B0B', borderBottom: '1px solid #E2E8F0' }}>
                       ⏳ Awaiting your response
                     </div>
                   )}
                   {isConfirmed && (
-                    <div style={{ background: '#DCFCE7', padding: '6px 18px', fontSize: '12px', fontWeight: '800', color: '#166534', borderBottom: '1px solid #BBF7D0' }}>
-                      ✅ Confirmed — session in progress
+                    <div style={{ background: '#F5F5F5', padding: '6px 18px', fontSize: '12px', fontWeight: '800', color: '#0B0B0B', borderBottom: '1px solid #E2E8F0' }}>
+                      {isPast ? '✅ Confirmed · Completed' : '✅ Confirmed · Upcoming'}
                     </div>
                   )}
 
@@ -246,14 +297,17 @@ export default function BookingRequests() {
                           {booking.subject && (
                             <span style={{ fontSize: '12px', background: LIGHT_BLUE, color: BLUE, padding: '3px 11px', borderRadius: '50px', fontWeight: '700' }}>{booking.subject}</span>
                           )}
+                          {sessionWhen && (
+                            <span style={{ fontSize: '12px', fontWeight: '700', color: BLUE, background: LIGHT_BLUE, padding: '3px 11px', borderRadius: '50px', border: '1px solid #E2E8F0' }}>🗓️ {sessionWhen}</span>
+                          )}
                           <span style={{ fontSize: '12px', color: TEXT_MUTED }}>
                             📅 {new Date(booking.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
                           </span>
                           {booking.amount > 0 && (
-                            <span style={{ fontSize: '13px', fontWeight: '700', color: BLUE, fontFamily: 'Georgia, serif' }}>GH₵ {booking.amount}</span>
+                            <span style={{ fontSize: '13px', fontWeight: '700', color: BLUE, fontFamily: 'Tahoma, Geneva, sans-serif' }}>GH₵ {booking.amount}</span>
                           )}
                           {booking.payment_status === 'paid' && (
-                            <span style={{ fontSize: '12px', background: '#DCFCE7', color: '#166534', padding: '3px 10px', borderRadius: '50px', fontWeight: '700' }}>💳 Paid</span>
+                            <span style={{ fontSize: '12px', background: '#F5F5F5', color: '#0B0B0B', padding: '3px 10px', borderRadius: '50px', fontWeight: '700' }}>💳 Paid</span>
                           )}
                         </div>
                       </div>
@@ -265,18 +319,17 @@ export default function BookingRequests() {
                       <div style={{ padding: '1.25rem 1.5rem', borderBottom: BORDER }}>
                         <div style={{ fontSize: '11px', fontWeight: '800', color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px' }}>Their message</div>
                         <div style={{ background: GREY_BG, borderRadius: '14px', padding: '1rem 1.25rem', border: BORDER }}>
-                          <p style={{ fontSize: '14px', color: '#374151', lineHeight: '1.75', margin: 0 }}>
+                          <p style={{ fontSize: '14px', color: '#0B0B0B', lineHeight: '1.75', margin: 0 }}>
                             {booking.message || <em style={{ color: TEXT_MUTED }}>No message provided.</em>}
                           </p>
                         </div>
                       </div>
 
                       <div style={{ padding: '1.25rem 1.5rem', borderBottom: isPending || isConfirmed ? BORDER : 'none' }}>
-                        <div style={{ fontSize: '11px', fontWeight: '800', color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px' }}>Client details</div>
+                        <div style={{ fontSize: '11px', fontWeight: '800', color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px' }}>Session details</div>
                         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '8px' }}>
                           {[
-                            ['📧', 'Email', booking.profiles?.email],
-                            ['📱', 'Phone', booking.profiles?.phone],
+                            ...(booking.session_date ? [['🗓️', 'Scheduled', new Date(booking.session_date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + (booking.start_time ? ` at ${booking.start_time.slice(0, 5)}` : '')]] : []),
                             ['📍', 'Location', [booking.profiles?.city, booking.profiles?.country].filter(Boolean).join(', ')],
                             ['📅', 'Requested', new Date(booking.created_at).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })],
                           ].map(([icon, label, value]) => (
@@ -293,11 +346,11 @@ export default function BookingRequests() {
                           <div style={{ fontSize: '11px', fontWeight: '800', color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '12px' }}>Respond to request</div>
                           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                             <button onClick={() => updateStatus(booking.id, 'confirmed')} disabled={updating === booking.id}
-                              style={{ flex: 1, padding: '13px 24px', background: '#DCFCE7', color: '#166534', border: '2px solid #BBF7D0', borderRadius: '50px', fontSize: '14px', cursor: updating === booking.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: '800', transition: TRANSITION, minWidth: '140px' }}>
+                              style={{ flex: 1, padding: '13px 24px', background: '#F5F5F5', color: '#0B0B0B', border: '2px solid #E2E8F0', borderRadius: '50px', fontSize: '14px', cursor: updating === booking.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: '800', transition: TRANSITION, minWidth: '140px' }}>
                               {updating === booking.id ? '⏳ Updating...' : '✓ Accept session'}
                             </button>
                             <button onClick={() => updateStatus(booking.id, 'declined')} disabled={updating === booking.id}
-                              style={{ flex: 1, padding: '13px 24px', background: '#FEE2E2', color: '#991B1B', border: '2px solid #FECACA', borderRadius: '50px', fontSize: '14px', cursor: updating === booking.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: '800', transition: TRANSITION, minWidth: '140px' }}>
+                              style={{ flex: 1, padding: '13px 24px', background: '#F5F5F5', color: '#6D28D9', border: '2px solid #E2E8F0', borderRadius: '50px', fontSize: '14px', cursor: updating === booking.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: '800', transition: TRANSITION, minWidth: '140px' }}>
                               {updating === booking.id ? '⏳ Updating...' : '✗ Decline'}
                             </button>
                           </div>
@@ -315,9 +368,9 @@ export default function BookingRequests() {
                               style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '11px 20px', background: '#fff', color: BLUE, border: BORDER, borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', transition: TRANSITION }}>
                               💬 Message {booking.profiles?.full_name?.split(' ')[0]}
                             </Link>
-                            {booking.room_id && (
+                            {booking.room_id && !isPast && (
                               <Link to={`/call/${booking.room_id}`}
-                                style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '11px 20px', background: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)', color: '#fff', borderRadius: '50px', fontSize: '13px', fontWeight: '800', textDecoration: 'none', boxShadow: '0 4px 12px rgba(34,197,94,0.3)' }}>
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '11px 20px', background: 'linear-gradient(135deg, #6D28D9 0%, #6D28D9 100%)', color: '#fff', borderRadius: '50px', fontSize: '13px', fontWeight: '800', textDecoration: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
                                 🎥 Join session
                               </Link>
                             )}
@@ -325,6 +378,12 @@ export default function BookingRequests() {
                               style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '11px 20px', background: '#fff', color: TEXT_MUTED, border: BORDER, borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '600' }}>
                               📝 Set assignment
                             </Link>
+                            {!isPast && (
+                              <button onClick={() => { setCancelReason(''); setCancelTarget(booking) }}
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '11px 20px', background: '#fff', color: '#6D28D9', border: '1px solid #E2E8F0', borderRadius: '50px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}>
+                                ⊘ Cancel session
+                              </button>
+                            )}
                           </div>
                         </div>
                       )}
@@ -337,6 +396,41 @@ export default function BookingRequests() {
         )}
       </div>
       <Footer />
+
+      {cancelTarget && (
+        <div onClick={() => updating ? null : setCancelTarget(null)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '1rem' }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ background: '#fff', borderRadius: '20px', padding: '1.75rem', maxWidth: '400px', width: '100%', boxShadow: SHADOW_XL }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>⊘</div>
+              <h3 style={{ fontSize: '19px', fontWeight: '700', color: TEXT, margin: 0, fontFamily: 'Tahoma, Geneva, sans-serif' }}>Cancel this session?</h3>
+            </div>
+            <p style={{ fontSize: '14px', color: TEXT_MUTED, lineHeight: '1.65', margin: '0 0 1rem' }}>
+              Your {cancelTarget.subject ? `${cancelTarget.subject} ` : ''}session with <strong style={{ color: TEXT }}>{cancelTarget.profiles?.full_name || 'this learner'}</strong> will be cancelled and they'll be notified. This can't be undone.
+            </p>
+            {cancelTarget.payment_status === 'paid' && (
+              <div style={{ background: '#F5F5F5', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '11px 14px', marginBottom: '1rem', fontSize: '13px', color: '#0B0B0B', lineHeight: '1.6' }}>
+                💳 This session was paid for. The learner will be refunded — your team handles the refund.
+              </div>
+            )}
+            <label style={{ fontSize: '12px', fontWeight: '700', color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '6px' }}>Reason (optional)</label>
+            <textarea value={cancelReason} onChange={e => setCancelReason(e.target.value)}
+              placeholder="Let the learner know why, e.g. I'm unwell that day."
+              style={{ width: '100%', minHeight: '70px', padding: '11px 14px', border: BORDER, borderRadius: '12px', fontSize: '14px', fontFamily: 'inherit', outline: 'none', resize: 'vertical', boxSizing: 'border-box', color: TEXT, marginBottom: '1.25rem' }} />
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button onClick={() => setCancelTarget(null)} disabled={!!updating}
+                style={{ flex: 1, padding: '12px', background: '#fff', color: TEXT, border: BORDER, borderRadius: '50px', fontSize: '14px', fontWeight: '700', cursor: updating ? 'default' : 'pointer', fontFamily: 'inherit' }}>
+                Keep it
+              </button>
+              <button onClick={() => cancelSession(cancelTarget, cancelReason.trim())} disabled={!!updating}
+                style={{ flex: 1, padding: '12px', background: '#6D28D9', color: '#FFFFFF', border: 'none', borderRadius: '50px', fontSize: '14px', fontWeight: '800', cursor: updating ? 'default' : 'pointer', fontFamily: 'inherit', opacity: updating ? 0.7 : 1 }}>
+                {updating ? 'Cancelling…' : 'Yes, cancel session'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

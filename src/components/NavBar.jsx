@@ -47,11 +47,11 @@ export default function NavBar() {
     gap: '10px',
     padding: '14px 16px',
     fontSize: '15px',
-    color: isActive(path) ? YELLOW : '#fff',
+    color: isActive(path) ? YELLOW : '#0B0B0B',
     textDecoration: 'none',
     fontWeight: isActive(path) ? '700' : '400',
     borderRadius: '10px',
-    background: isActive(path) ? 'rgba(255,215,0,0.08)' : 'transparent',
+    background: isActive(path) ? 'rgba(109,40,217,0.08)' : 'transparent',
     transition: TRANSITION,
     margin: '1px 0',
   })
@@ -85,8 +85,8 @@ export default function NavBar() {
     <>
       <nav style={{
         background: scrolled
-          ? 'rgba(37,99,235,0.97)'
-          : `linear-gradient(135deg, ${BLUE} 0%, ${DARK_BLUE} 100%)`,
+          ? 'rgba(255,255,255,0.97)'
+          : '#FFFFFF',
         backdropFilter: scrolled ? 'blur(12px)' : 'none',
         WebkitBackdropFilter: scrolled ? 'blur(12px)' : 'none',
         padding: isMobile ? '0.75rem 1rem' : '0',
@@ -98,14 +98,14 @@ export default function NavBar() {
         zIndex: 200,
         boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.15)' : 'none',
         transition: 'box-shadow 0.3s ease, background 0.3s ease',
-        borderBottom: scrolled ? '1px solid rgba(255,255,255,0.08)' : '1px solid transparent',
+        borderBottom: '1px solid #E2E8F0',
         paddingLeft: isMobile ? '1rem' : '0',
         paddingRight: isMobile ? '1rem' : '0',
       }}>
 
         {/* LOGO */}
         <Link to="/dashboard" style={{ padding: isMobile ? '0' : '0.75rem 2rem', flexShrink: 0, display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-          <Logo variant="blue" height={isMobile ? 30 : 34} />
+          <Logo variant="yellow" height={isMobile ? 30 : 34} />
         </Link>
 
         {/* DESKTOP NAV */}
@@ -137,24 +137,24 @@ export default function NavBar() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
               <NotificationBell />
 
-              <Link to="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', padding: '6px 10px', borderRadius: '50px', background: isActive('/dashboard') ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', transition: TRANSITION }}>
+              <Link to="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', padding: '6px 10px', borderRadius: '50px', background: isActive('/dashboard') ? 'rgba(0,0,0,0.06)' : 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.1)', transition: TRANSITION }}>
                 {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: `2px solid ${YELLOW}`, flexShrink: 0 }} />
+                  <img src={profile.avatar_url} alt="" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #E2E8F0', flexShrink: 0 }} />
                 ) : (
-                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: YELLOW, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '800', color: BLUE, flexShrink: 0 }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '800', color: '#FFFFFF', flexShrink: 0 }}>
                     {profile?.full_name?.charAt(0)}
                   </div>
                 )}
-                <span style={{ fontSize: '13px', color: '#fff', fontWeight: '600', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: '13px', color: '#0B0B0B', fontWeight: '600', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {profile?.full_name?.split(' ')[0]}
                 </span>
               </Link>
 
               <button
                 onClick={handleSignOut}
-                style={{ padding: '7px 16px', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.8)', background: 'transparent', borderRadius: '50px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '500', transition: TRANSITION }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#fff' }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)' }}
+                style={{ padding: '7px 16px', border: '1px solid rgba(0,0,0,0.15)', color: '#6B7280', background: 'transparent', borderRadius: '50px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '500', transition: TRANSITION }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = '#0B0B0B' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6B7280' }}
               >
                 Log out
               </button>
@@ -167,20 +167,20 @@ export default function NavBar() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <NotificationBell />
             {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: `2px solid ${YELLOW}` }} />
+              <img src={profile.avatar_url} alt="" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #E2E8F0' }} />
             ) : (
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: YELLOW, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '800', color: BLUE }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '800', color: '#FFFFFF' }}>
                 {profile?.full_name?.charAt(0)}
               </div>
             )}
             <button
               onClick={() => setMenuOpen(o => !o)}
-              style={{ background: menuOpen ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', cursor: 'pointer', padding: '7px 9px', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center', justifyContent: 'center', transition: TRANSITION }}
+              style={{ background: menuOpen ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.12)', borderRadius: '8px', cursor: 'pointer', padding: '7px 9px', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center', justifyContent: 'center', transition: TRANSITION }}
               aria-label="Menu"
             >
-              <div style={{ width: '18px', height: '2px', background: '#fff', borderRadius: '2px', transform: menuOpen ? 'rotate(45deg) translate(0px, 6px)' : 'none', transition: 'all 0.2s ease' }} />
-              <div style={{ width: '18px', height: '2px', background: '#fff', borderRadius: '2px', opacity: menuOpen ? 0 : 1, transition: 'all 0.2s ease' }} />
-              <div style={{ width: '18px', height: '2px', background: '#fff', borderRadius: '2px', transform: menuOpen ? 'rotate(-45deg) translate(0px, -6px)' : 'none', transition: 'all 0.2s ease' }} />
+              <div style={{ width: '18px', height: '2px', background: '#6B7280', borderRadius: '2px', transform: menuOpen ? 'rotate(45deg) translate(0px, 6px)' : 'none', transition: 'all 0.2s ease' }} />
+              <div style={{ width: '18px', height: '2px', background: '#6B7280', borderRadius: '2px', opacity: menuOpen ? 0 : 1, transition: 'all 0.2s ease' }} />
+              <div style={{ width: '18px', height: '2px', background: '#6B7280', borderRadius: '2px', transform: menuOpen ? 'rotate(-45deg) translate(0px, -6px)' : 'none', transition: 'all 0.2s ease' }} />
             </button>
           </div>
         )}
@@ -210,7 +210,7 @@ export default function NavBar() {
             top: 0,
             left: 0,
             right: 0,
-            background: `linear-gradient(160deg, ${BLUE} 0%, ${DARK_BLUE} 100%)`,
+            background: '#FFFFFF',
             borderRadius: '0 0 20px 20px',
             padding: '1rem',
             boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
@@ -222,17 +222,17 @@ export default function NavBar() {
           }}>
 
             {/* USER INFO */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', background: 'rgba(255,255,255,0.08)', borderRadius: '12px', marginBottom: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', background: 'rgba(0,0,0,0.08)', borderRadius: '12px', marginBottom: '12px', border: '1px solid rgba(0,0,0,0.1)' }}>
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="" style={{ width: '44px', height: '44px', borderRadius: '50%', objectFit: 'cover', border: `2px solid ${YELLOW}`, flexShrink: 0 }} />
+                <img src={profile.avatar_url} alt="" style={{ width: '44px', height: '44px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #E2E8F0', flexShrink: 0 }} />
               ) : (
-                <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: YELLOW, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: '800', color: BLUE, flexShrink: 0 }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: '800', color: '#FFFFFF', flexShrink: 0 }}>
                   {profile?.full_name?.charAt(0)}
                 </div>
               )}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: '15px', fontWeight: '700', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{profile?.full_name}</div>
-                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', textTransform: 'capitalize', marginTop: '2px' }}>{profile?.role}</div>
+                <div style={{ fontSize: '15px', fontWeight: '700', color: '#0B0B0B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{profile?.full_name}</div>
+                <div style={{ fontSize: '12px', color: 'rgba(0,0,0,0.6)', textTransform: 'capitalize', marginTop: '2px' }}>{profile?.role}</div>
               </div>
             </div>
 
@@ -249,7 +249,7 @@ export default function NavBar() {
 
             <button
               onClick={handleSignOut}
-              style={{ width: '100%', padding: '13px', background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.8)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '600', transition: TRANSITION }}
+              style={{ width: '100%', padding: '13px', background: 'rgba(0,0,0,0.08)', color: 'rgba(0,0,0,0.8)', border: '1px solid rgba(0,0,0,0.15)', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '600', transition: TRANSITION }}
             >
               Log out
             </button>
@@ -269,11 +269,11 @@ function NavLink({ to, label, isActive }) {
       onMouseLeave={() => setHovered(false)}
       style={{
         fontSize: '13.5px',
-        color: isActive ? '#fff' : hovered ? '#fff' : 'rgba(255,255,255,0.7)',
+        color: isActive ? '#6D28D9' : hovered ? '#0B0B0B' : '#6B7280',
         textDecoration: 'none',
         fontWeight: isActive ? '700' : '400',
         padding: '1.1rem 14px',
-        borderBottom: isActive ? `3px solid ${YELLOW}` : hovered ? '3px solid rgba(255,255,255,0.2)' : '3px solid transparent',
+        borderBottom: isActive ? `3px solid ${YELLOW}` : hovered ? '3px solid rgba(0,0,0,0.12)' : '3px solid transparent',
         transition: 'all 0.15s ease',
         whiteSpace: 'nowrap',
         letterSpacing: '0.01em',

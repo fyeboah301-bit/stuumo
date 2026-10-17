@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
+import Logo from '../components/Logo'
 import { useAuth } from '../context/AuthContext'
 import {
   BLUE, YELLOW, DARK_BLUE, LIGHT_BLUE, GREY_BG,
@@ -11,21 +12,21 @@ export default function NotFound() {
   const navigate = useNavigate()
 
   return (
-    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'DM Sans, sans-serif', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'Tahoma, Geneva, sans-serif', display: 'flex', flexDirection: 'column' }}>
 
       {/* NAV */}
       <nav style={{ background: GRADIENT_HERO, padding: '0.875rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
-        <Link to="/" style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: '700', color: '#fff', textDecoration: 'none', letterSpacing: '-0.02em' }}>
-          Teach<span style={{ color: YELLOW }}>Me</span>
+        <Link to="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
+          <Logo variant="yellow" height={30} />
         </Link>
         {user ? (
-          <Link to="/dashboard" style={{ padding: '7px 16px', background: YELLOW, color: BLUE, borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_YELLOW }}>
+          <Link to="/dashboard" style={{ padding: '7px 16px', background: YELLOW, color: '#FFFFFF', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_YELLOW }}>
             Dashboard
           </Link>
         ) : (
           <div style={{ display: 'flex', gap: '8px' }}>
-            <Link to="/login" style={{ padding: '7px 16px', background: 'rgba(255,255,255,0.1)', color: '#fff', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.2)', fontWeight: '600' }}>Log in</Link>
-            <Link to="/register" style={{ padding: '7px 16px', background: YELLOW, color: BLUE, borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_YELLOW }}>Sign up</Link>
+            <Link to="/login" style={{ padding: '7px 16px', background: 'rgba(0,0,0,0.1)', color: '#0B0B0B', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', border: '1px solid rgba(0,0,0,0.2)', fontWeight: '600' }}>Log in</Link>
+            <Link to="/register" style={{ padding: '7px 16px', background: YELLOW, color: '#FFFFFF', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_YELLOW }}>Sign up</Link>
           </div>
         )}
       </nav>
@@ -36,7 +37,7 @@ export default function NotFound() {
 
           {/* 404 DISPLAY */}
           <div style={{ position: 'relative', marginBottom: '2rem' }}>
-            <div style={{ fontFamily: 'Georgia, serif', fontSize: '120px', fontWeight: '700', color: LIGHT_BLUE, lineHeight: 1, letterSpacing: '-0.04em', userSelect: 'none' }}>
+            <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '120px', fontWeight: '700', color: LIGHT_BLUE, lineHeight: 1, letterSpacing: '-0.04em', userSelect: 'none' }}>
               404
             </div>
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80px', height: '80px', borderRadius: '50%', background: GRADIENT_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', boxShadow: SHADOW_BLUE }}>
@@ -45,7 +46,7 @@ export default function NotFound() {
           </div>
 
           {/* MESSAGE */}
-          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '700', color: TEXT, marginBottom: '12px', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '28px', fontWeight: '700', color: TEXT, marginBottom: '12px', letterSpacing: '-0.02em' }}>
             Page not found
           </h1>
           <p style={{ fontSize: '15px', color: TEXT_MUTED, lineHeight: '1.7', marginBottom: '2rem', maxWidth: '360px', margin: '0 auto 2rem' }}>
@@ -78,7 +79,7 @@ export default function NotFound() {
               ].map(({ to, icon, label }) => (
                 <Link key={to} to={to}
                   style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', background: GREY_BG, borderRadius: '12px', border: BORDER, textDecoration: 'none', transition: TRANSITION, color: TEXT }}
-                  onMouseEnter={e => { e.currentTarget.style.background = LIGHT_BLUE; e.currentTarget.style.borderColor = 'rgba(37,99,235,0.2)' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = LIGHT_BLUE; e.currentTarget.style.borderColor = 'rgba(0,0,0,0.2)' }}
                   onMouseLeave={e => { e.currentTarget.style.background = GREY_BG; e.currentTarget.style.borderColor = GREY_BG }}>
                   <span style={{ fontSize: '20px' }}>{icon}</span>
                   <span style={{ fontSize: '13px', fontWeight: '700', color: BLUE }}>{label}</span>

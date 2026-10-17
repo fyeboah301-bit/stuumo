@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Logo from '../components/Logo'
 import { supabase } from '../lib/supabase'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -42,7 +43,7 @@ function useCountdown(targetDate) {
 
 function SessionCountdown({ session }) {
   const t = useCountdown(`${session.session_date}T${session.start_time}`)
-  if (!t) return <span style={{ fontSize: '11px', color: '#166534', fontWeight: '700', background: '#DCFCE7', padding: '2px 8px', borderRadius: '20px' }}>Starting soon</span>
+  if (!t) return <span style={{ fontSize: '11px', color: '#0B0B0B', fontWeight: '700', background: '#F5F5F5', padding: '2px 8px', borderRadius: '20px' }}>Starting soon</span>
   if (t.days > 0) return <span style={{ fontSize: '11px', color: TEXT_MUTED }}>in {t.days}d {t.hours}h</span>
   return <span style={{ fontSize: '11px', color: BLUE, fontWeight: '700', background: LIGHT_BLUE, padding: '2px 8px', borderRadius: '20px' }}>in {t.hours}h {t.minutes}m</span>
 }
@@ -52,7 +53,7 @@ function Section({ title, icon, gradient, children }) {
     <div style={{ background: '#fff', borderRadius: '20px', border: BORDER, overflow: 'hidden', boxShadow: SHADOW_LG }}>
       <div style={{ background: gradient || GRADIENT_BLUE, padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <span style={{ fontSize: '18px' }}>{icon}</span>
-        <h3 style={{ color: '#fff', fontSize: '15px', fontWeight: '700', margin: 0, letterSpacing: '-0.01em' }}>{title}</h3>
+        <h3 style={{ color: '#0B0B0B', fontSize: '15px', fontWeight: '700', margin: 0, letterSpacing: '-0.01em' }}>{title}</h3>
       </div>
       <div style={{ padding: '1.5rem' }}>{children}</div>
     </div>
@@ -85,7 +86,7 @@ export default function TeacherProfile() {
     const [{ data: avail }, { data: port }, { data: docs }, { data: sessions }] = await Promise.all([
       supabase.from('teacher_availability').select('*').eq('teacher_id', id).order('day_of_week').order('start_time'),
       supabase.from('teacher_portfolio').select('*').eq('teacher_id', id).order('uploaded_at', { ascending: false }),
-      supabase.from('teacher_documents').select('*').eq('teacher_id', id).eq('status', 'approved'),
+      supabase.from('teacher_background_checked').select('teacher_id').eq('teacher_id', id),
       supabase.from('live_sessions').select('*').eq('teacher_id', id).gte('session_date', new Date().toISOString().split('T')[0]).is('deleted_at', null).order('session_date', { ascending: true }).limit(3),
     ])
     setAvailability(avail || [])
@@ -96,7 +97,7 @@ export default function TeacherProfile() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'DM Sans, sans-serif', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'Tahoma, Geneva, sans-serif', display: 'flex', flexDirection: 'column' }}>
       {user ? <NavBar /> : <PublicNav />}
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4rem' }}>
         <div style={{ textAlign: 'center' }}>
@@ -109,7 +110,7 @@ export default function TeacherProfile() {
   )
 
   if (!teacher) return (
-    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'DM Sans, sans-serif', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'Tahoma, Geneva, sans-serif', display: 'flex', flexDirection: 'column' }}>
       {user ? <NavBar /> : <PublicNav />}
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4rem', textAlign: 'center' }}>
         <div>
@@ -151,76 +152,76 @@ export default function TeacherProfile() {
   }
 
   const shareWhatsApp = () => {
-    const text = `Check out ${teacher.profiles?.full_name} on TeachMe — a verified teacher offering online private sessions in ${teacher.subjects?.slice(0, 2).join(' and ')}. ${window.location.href}`
+    const text = `Check out ${teacher.profiles?.full_name} on Stuumo — a verified teacher offering online private sessions in ${teacher.subjects?.slice(0, 2).join(' and ')}. ${window.location.href}`
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'DM Sans, sans-serif', display: 'flex', flexDirection: 'column', paddingBottom: isMobile && canBook ? '88px' : 0 }}>
+    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'Tahoma, Geneva, sans-serif', display: 'flex', flexDirection: 'column', paddingBottom: isMobile && canBook ? '88px' : 0 }}>
       {user ? <NavBar /> : <PublicNav />}
 
       <div style={{ background: GRADIENT_HERO, position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '240px', height: '240px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: '-40px', left: '-40px', width: '180px', height: '180px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '240px', height: '240px', borderRadius: '50%', border: '1px solid rgba(0,0,0,0.06)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-40px', left: '-40px', width: '180px', height: '180px', borderRadius: '50%', border: '1px solid rgba(0,0,0,0.06)', pointerEvents: 'none' }} />
 
         <div style={{ maxWidth: '900px', margin: '0 auto', padding: isMobile ? '2rem 1.25rem' : '2.5rem 2rem', position: 'relative', zIndex: 1 }}>
-          <Link to="/teachers" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '1.5rem', fontWeight: '500', transition: TRANSITION }}>
+          <Link to="/teachers" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'rgba(0,0,0,0.7)', textDecoration: 'none', marginBottom: '1.5rem', fontWeight: '500', transition: TRANSITION }}>
             ← Back to teachers
           </Link>
 
           {(isVerifiedPro || isTopRated || isBackgroundChecked || isNewTeacher) && (
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
-              {isVerifiedPro && <Badge label="Verified Pro" icon="🏅" bg="#DBEAFE" color="#1E40AF" />}
-              {isTopRated && <Badge label="Top Rated" icon="⭐" bg="#FEF9C3" color="#854D0E" />}
-              {isBackgroundChecked && <Badge label="Background Checked" icon="🛡️" bg="#DCFCE7" color="#166534" />}
-              {isNewTeacher && <Badge label="New Teacher" icon="✨" bg="#F3E8FF" color="#6B21A8" />}
+              {isVerifiedPro && <Badge label="Verified Pro" icon="🏅" bg="#F5F5F5" color="#0B0B0B" />}
+              {isTopRated && <Badge label="Top Rated" icon="⭐" bg="#F5F5F5" color="#0B0B0B" />}
+              {isBackgroundChecked && <Badge label="Background Checked" icon="🛡️" bg="#F5F5F5" color="#0B0B0B" />}
+              {isNewTeacher && <Badge label="New Teacher" icon="✨" bg="#F5F5F5" color="#0B0B0B" />}
             </div>
           )}
 
           <div style={{ display: 'flex', gap: isMobile ? '1rem' : '1.5rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative', flexShrink: 0 }}>
               {teacher.profiles?.avatar_url ? (
-                <img src={teacher.profiles.avatar_url} alt="" style={{ width: isMobile ? '88px' : '110px', height: isMobile ? '88px' : '110px', borderRadius: '50%', objectFit: 'cover', border: `4px solid ${teacher.is_verified ? '#22C55E' : 'rgba(255,255,255,0.3)'}`, display: 'block' }} />
+                <img src={teacher.profiles.avatar_url} alt="" style={{ width: isMobile ? '88px' : '110px', height: isMobile ? '88px' : '110px', borderRadius: '50%', objectFit: 'cover', border: '4px solid #E2E8F0', display: 'block' }} />
               ) : (
-                <div style={{ width: isMobile ? '88px' : '110px', height: isMobile ? '88px' : '110px', borderRadius: '50%', background: YELLOW, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isMobile ? '34px' : '44px', fontWeight: '800', color: BLUE, border: `4px solid ${teacher.is_verified ? '#22C55E' : 'rgba(255,255,255,0.3)'}` }}>
+                <div style={{ width: isMobile ? '88px' : '110px', height: isMobile ? '88px' : '110px', borderRadius: '50%', background: 'linear-gradient(135deg, #4B5563 0%, #6B7280 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isMobile ? '34px' : '44px', fontWeight: '800', color: '#FFFFFF', border: '4px solid rgba(0,0,0,0.08)' }}>
                   {teacher.profiles?.full_name?.charAt(0)}
                 </div>
               )}
               {teacher.is_verified && (
-                <div style={{ position: 'absolute', bottom: '4px', right: '4px', background: '#22C55E', borderRadius: '50%', width: '26px', height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', border: '3px solid #fff', color: '#fff', fontWeight: '800' }}>✓</div>
+                <div style={{ position: 'absolute', bottom: '4px', right: '4px', background: '#6D28D9', borderRadius: '50%', width: '26px', height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', border: '3px solid #fff', color: '#FFFFFF', fontWeight: '800' }}>✓</div>
               )}
               {teacher.years_experience > 0 && (
-                <div style={{ position: 'absolute', top: '-4px', right: '-8px', background: YELLOW, borderRadius: '50px', padding: '3px 8px', fontSize: '10px', fontWeight: '800', color: BLUE, border: '2px solid #fff', whiteSpace: 'nowrap' }}>
+                <div style={{ position: 'absolute', top: '-4px', right: '-8px', background: YELLOW, borderRadius: '50px', padding: '3px 8px', fontSize: '10px', fontWeight: '800', color: '#FFFFFF', border: '2px solid #fff', whiteSpace: 'nowrap' }}>
                   {teacher.years_experience}yr{teacher.years_experience !== 1 ? 's' : ''}
                 </div>
               )}
             </div>
 
             <div style={{ flex: 1, minWidth: 0 }}>
-              <h1 style={{ fontFamily: 'Georgia, serif', fontSize: isMobile ? '24px' : '32px', fontWeight: '700', color: '#fff', margin: '0 0 6px', letterSpacing: '-0.02em', lineHeight: '1.15' }}>
+              <h1 style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: isMobile ? '24px' : '32px', fontWeight: '700', color: '#0B0B0B', margin: '0 0 6px', letterSpacing: '-0.02em', lineHeight: '1.15' }}>
                 {teacher.profiles?.full_name}
               </h1>
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', margin: '0 0 10px' }}>
+              <p style={{ fontSize: '14px', color: 'rgba(0,0,0,0.7)', margin: '0 0 10px' }}>
                 📍 {teacher.profiles?.city}, {teacher.profiles?.country}
               </p>
               {avgRating && (
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.25)', borderRadius: '50px', padding: '4px 14px', marginBottom: '10px' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(109,40,217,0.12)', border: '1px solid rgba(109,40,217,0.25)', borderRadius: '50px', padding: '4px 14px', marginBottom: '10px' }}>
                   <span style={{ fontSize: '15px' }}>⭐</span>
                   <span style={{ fontSize: '15px', fontWeight: '800', color: YELLOW }}>{avgRating}</span>
-                  <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>({visibleReviews.length} review{visibleReviews.length !== 1 ? 's' : ''})</span>
+                  <span style={{ fontSize: '13px', color: 'rgba(0,0,0,0.6)' }}>({visibleReviews.length} review{visibleReviews.length !== 1 ? 's' : ''})</span>
                 </div>
               )}
               {teacher.subjects?.length > 0 && (
                 <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '10px' }}>
                   {teacher.subjects.map(s => (
-                    <span key={s} style={{ fontSize: '12px', background: YELLOW, color: BLUE, padding: '3px 12px', borderRadius: '50px', fontWeight: '700' }}>{s}</span>
+                    <span key={s} style={{ fontSize: '12px', background: YELLOW, color: '#FFFFFF', padding: '3px 12px', borderRadius: '50px', fontWeight: '700' }}>{s}</span>
                   ))}
                 </div>
               )}
               {teacher.teaching_levels?.length > 0 && (
                 <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
                   {teacher.teaching_levels.map(level => (
-                    <span key={level} style={{ fontSize: '12px', background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.85)', padding: '3px 12px', borderRadius: '50px', fontWeight: '500' }}>{level}</span>
+                    <span key={level} style={{ fontSize: '12px', background: 'rgba(0,0,0,0.12)', color: 'rgba(0,0,0,0.85)', padding: '3px 12px', borderRadius: '50px', fontWeight: '500' }}>{level}</span>
                   ))}
                 </div>
               )}
@@ -228,14 +229,14 @@ export default function TeacherProfile() {
 
             {!isMobile && teacher.hourly_rate > 0 && (
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                <div style={{ fontFamily: 'Georgia, serif', fontSize: '32px', fontWeight: '700', color: YELLOW, letterSpacing: '-0.02em', lineHeight: 1 }}>GH₵ {teacher.hourly_rate}</div>
-                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', marginTop: '4px', fontWeight: '500' }}>per session</div>
+                <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '32px', fontWeight: '700', color: YELLOW, letterSpacing: '-0.02em', lineHeight: 1 }}>GH₵ {teacher.hourly_rate}</div>
+                <div style={{ fontSize: '12px', color: 'rgba(0,0,0,0.6)', marginTop: '4px', fontWeight: '500' }}>per session</div>
               </div>
             )}
           </div>
 
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.12)' }}>
-            {teacher.is_verified && <TrustPill label="Verified teacher" icon="✓" bg="rgba(34,197,94,0.15)" />}
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(0,0,0,0.12)' }}>
+            {teacher.is_verified && <TrustPill label="Verified teacher" icon="✓" bg="rgba(109,40,217,0.15)" />}
             {isBackgroundChecked && <TrustPill label="Background checked" icon="🛡️" />}
             {teacher.years_experience > 0 && <TrustPill label={`${teacher.years_experience} yrs experience`} icon="🏆" />}
             {teacher.languages?.length > 0 && <TrustPill label={teacher.languages.join(', ')} icon="🗣️" />}
@@ -250,12 +251,12 @@ export default function TeacherProfile() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
           {upcomingSessions.length > 0 && (
-            <Section title="Upcoming live sessions" icon="🎥" gradient="linear-gradient(135deg, #F59E0B 0%, #D97706 100%)">
+            <Section title="Upcoming live sessions" icon="🎥" gradient="linear-gradient(135deg, #4B5563 0%, #6B7280 100%)">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {upcomingSessions.map(session => (
                   <div key={session.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: GREY_BG, borderRadius: '12px', border: BORDER }}>
                     <div style={{ background: GRADIENT_BLUE, borderRadius: '10px', padding: '8px 6px', textAlign: 'center', color: '#fff', minWidth: '44px', flexShrink: 0 }}>
-                      <div style={{ fontFamily: 'Georgia, serif', fontSize: '18px', fontWeight: '700', lineHeight: 1 }}>{new Date(session.session_date).getDate()}</div>
+                      <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '18px', fontWeight: '700', lineHeight: 1 }}>{new Date(session.session_date).getDate()}</div>
                       <div style={{ fontSize: '9px', textTransform: 'uppercase', opacity: 0.8, marginTop: '2px' }}>{new Date(session.session_date).toLocaleString('default', { month: 'short' })}</div>
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -265,7 +266,7 @@ export default function TeacherProfile() {
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', flexShrink: 0 }}>
                       <SessionCountdown session={session} />
                       {!session.price || session.price <= 0
-                        ? <span style={{ fontSize: '11px', fontWeight: '700', color: '#166634' }}>Free</span>
+                        ? <span style={{ fontSize: '11px', fontWeight: '700', color: '#0B0B0B' }}>Free</span>
                         : <span style={{ fontSize: '12px', fontWeight: '700', color: BLUE }}>GH₵ {session.price}</span>}
                     </div>
                     <Link to="/sessions" style={{ fontSize: '13px', color: '#fff', fontWeight: '700', background: GRADIENT_BLUE, padding: '8px 14px', borderRadius: '50px', textDecoration: 'none', flexShrink: 0, boxShadow: SHADOW_BLUE }}>
@@ -282,7 +283,7 @@ export default function TeacherProfile() {
 
           {(teacher.bio || teacher.years_experience || teacher.languages?.length > 0) && (
             <Section title="About" icon="✏️">
-              {teacher.bio && <p style={{ fontSize: '15px', color: '#374151', lineHeight: '1.8', margin: '0 0 16px', letterSpacing: '0.01em' }}>{teacher.bio}</p>}
+              {teacher.bio && <p style={{ fontSize: '15px', color: '#0B0B0B', lineHeight: '1.8', margin: '0 0 16px', letterSpacing: '0.01em' }}>{teacher.bio}</p>}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                 {teacher.years_experience > 0 && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: GREY_BG, borderRadius: '10px', padding: '10px 14px', border: BORDER }}>
@@ -307,12 +308,12 @@ export default function TeacherProfile() {
           )}
 
           {visibleReviews.length > 0 && (
-            <Section title={`Reviews (${visibleReviews.length})`} icon="⭐" gradient="linear-gradient(135deg, #D97706 0%, #B45309 100%)">
+            <Section title={`Reviews (${visibleReviews.length})`} icon="⭐" gradient="linear-gradient(135deg, #4B5563 0%, #6B7280 100%)">
               <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: BORDER, flexWrap: 'wrap' }}>
                 <div style={{ textAlign: 'center', flexShrink: 0 }}>
-                  <div style={{ fontFamily: 'Georgia, serif', fontSize: '56px', fontWeight: '700', color: TEXT, lineHeight: 1, letterSpacing: '-0.03em' }}>{avgRating}</div>
+                  <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '56px', fontWeight: '700', color: TEXT, lineHeight: 1, letterSpacing: '-0.03em' }}>{avgRating}</div>
                   <div style={{ display: 'flex', justifyContent: 'center', gap: '2px', margin: '6px 0 4px' }}>
-                    {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: '14px', color: parseFloat(avgRating) >= s ? '#F59E0B' : GREY_LIGHT }}>★</span>)}
+                    {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: '14px', color: parseFloat(avgRating) >= s ? '#0B0B0B' : GREY_LIGHT }}>★</span>)}
                   </div>
                   <div style={{ fontSize: '12px', color: TEXT_MUTED, fontWeight: '500' }}>{visibleReviews.length} review{visibleReviews.length !== 1 ? 's' : ''}</div>
                 </div>
@@ -321,7 +322,7 @@ export default function TeacherProfile() {
                     <div key={star} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ fontSize: '12px', color: TEXT_MUTED, width: '20px', textAlign: 'right', flexShrink: 0, fontWeight: '500' }}>{star}★</span>
                       <div style={{ flex: 1, height: '8px', background: GREY_BG, borderRadius: '50px', overflow: 'hidden', border: BORDER }}>
-                        <div style={{ height: '100%', width: `${pct}%`, background: pct > 50 ? '#F59E0B' : pct > 20 ? '#FCD34D' : '#FEF9C3', borderRadius: '50px', transition: 'width 0.5s ease' }} />
+                        <div style={{ height: '100%', width: `${pct}%`, background: pct > 50 ? '#0B0B0B' : pct > 20 ? '#0B0B0B' : '#F5F5F5', borderRadius: '50px', transition: 'width 0.5s ease' }} />
                       </div>
                       <span style={{ fontSize: '12px', color: TEXT_MUTED, width: '24px', flexShrink: 0, fontWeight: '500' }}>{count}</span>
                     </div>
@@ -330,15 +331,15 @@ export default function TeacherProfile() {
               </div>
 
               {featuredReview && (
-                <div style={{ background: '#FFFBEB', borderRadius: '12px', padding: '1.25rem', marginBottom: '1rem', border: '1px solid #FDE68A' }}>
-                  <div style={{ fontSize: '11px', fontWeight: '800', color: '#854D0E', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>⭐ Featured review</div>
+                <div style={{ background: '#F5F5F5', borderRadius: '12px', padding: '1.25rem', marginBottom: '1rem', border: '1px solid #E2E8F0' }}>
+                  <div style={{ fontSize: '11px', fontWeight: '800', color: '#0B0B0B', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>⭐ Featured review</div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                     <span style={{ fontSize: '14px', fontWeight: '700', color: TEXT }}>{featuredReview.profiles?.full_name}</span>
                     <div style={{ display: 'flex', gap: '1px' }}>
-                      {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: '13px', color: s <= featuredReview.rating ? '#F59E0B' : GREY_LIGHT }}>★</span>)}
+                      {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: '13px', color: s <= featuredReview.rating ? '#0B0B0B' : GREY_LIGHT }}>★</span>)}
                     </div>
                   </div>
-                  {featuredReview.comment && <p style={{ fontSize: '14px', color: '#374151', margin: 0, lineHeight: '1.7', fontStyle: 'italic' }}>"{featuredReview.comment}"</p>}
+                  {featuredReview.comment && <p style={{ fontSize: '14px', color: '#0B0B0B', margin: 0, lineHeight: '1.7', fontStyle: 'italic' }}>"{featuredReview.comment}"</p>}
                 </div>
               )}
 
@@ -353,10 +354,10 @@ export default function TeacherProfile() {
                         <span style={{ fontSize: '14px', fontWeight: '700', color: TEXT }}>{r.profiles?.full_name}</span>
                       </div>
                       <div style={{ display: 'flex', gap: '1px' }}>
-                        {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: '12px', color: s <= r.rating ? '#F59E0B' : GREY_LIGHT }}>★</span>)}
+                        {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: '12px', color: s <= r.rating ? '#0B0B0B' : GREY_LIGHT }}>★</span>)}
                       </div>
                     </div>
-                    {r.comment && <p style={{ fontSize: '14px', color: '#374151', margin: '0 0 6px', lineHeight: '1.6' }}>{r.comment}</p>}
+                    {r.comment && <p style={{ fontSize: '14px', color: '#0B0B0B', margin: '0 0 6px', lineHeight: '1.6' }}>{r.comment}</p>}
                     <div style={{ fontSize: '12px', color: TEXT_MUTED }}>{new Date(r.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                   </div>
                 ))}
@@ -365,10 +366,10 @@ export default function TeacherProfile() {
           )}
 
           {hasAvailability && (
-            <Section title="Weekly availability" icon="📅" gradient="linear-gradient(135deg, #0891B2 0%, #0E7490 100%)">
+            <Section title="Weekly availability" icon="📅" gradient="linear-gradient(135deg, #4B5563 0%, #6B7280 100%)">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {days.map(day => (
-                  <div key={day} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: slotsByDay[day].length > 0 ? LIGHT_BLUE : GREY_BG, borderRadius: '10px', border: `1px solid ${slotsByDay[day].length > 0 ? 'rgba(37,99,235,0.15)' : GREY_LIGHT}` }}>
+                  <div key={day} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: slotsByDay[day].length > 0 ? LIGHT_BLUE : GREY_BG, borderRadius: '10px', border: `1px solid ${slotsByDay[day].length > 0 ? 'rgba(0,0,0,0.15)' : GREY_LIGHT}` }}>
                     <span style={{ fontSize: '13px', fontWeight: '700', color: slotsByDay[day].length > 0 ? BLUE : TEXT_MUTED, width: '72px', flexShrink: 0 }}>{day.slice(0, 3)}</span>
                     {slotsByDay[day].length > 0 ? (
                       <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
@@ -407,7 +408,7 @@ export default function TeacherProfile() {
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: GREY_BG, borderRadius: '12px', border: BORDER }}>
                     <span style={{ fontSize: '22px', flexShrink: 0 }}>📄</span>
                     <div style={{ flex: 1, fontSize: '14px', fontWeight: '600', color: TEXT }}>{cert.certificate_name}</div>
-                    <span style={{ fontSize: '11px', background: '#DCFCE7', color: '#166534', padding: '3px 10px', borderRadius: '50px', fontWeight: '700', flexShrink: 0 }}>✓ Verified</span>
+                    <span style={{ fontSize: '11px', background: '#F5F5F5', color: '#0B0B0B', padding: '3px 10px', borderRadius: '50px', fontWeight: '700', flexShrink: 0 }}>✓ Verified</span>
                   </div>
                 ))}
               </div>
@@ -415,13 +416,13 @@ export default function TeacherProfile() {
           )}
 
           {academicCerts.length > 0 && (
-            <Section title="Academic degrees" icon="🎓" gradient="linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)">
+            <Section title="Academic degrees" icon="🎓" gradient="linear-gradient(135deg, #4B5563 0%, #6B7280 100%)">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {academicCerts.map((cert, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: GREY_BG, borderRadius: '12px', border: BORDER }}>
                     <span style={{ fontSize: '22px', flexShrink: 0 }}>🎓</span>
                     <div style={{ flex: 1, fontSize: '14px', fontWeight: '600', color: TEXT }}>{cert.certificate_name}</div>
-                    <span style={{ fontSize: '11px', background: '#F3E8FF', color: '#6B21A8', padding: '3px 10px', borderRadius: '50px', fontWeight: '700', flexShrink: 0 }}>✓ Verified</span>
+                    <span style={{ fontSize: '11px', background: '#F5F5F5', color: '#0B0B0B', padding: '3px 10px', borderRadius: '50px', fontWeight: '700', flexShrink: 0 }}>✓ Verified</span>
                   </div>
                 ))}
               </div>
@@ -429,7 +430,7 @@ export default function TeacherProfile() {
           )}
 
           {portfolio.length > 0 && (
-            <Section title="Teaching portfolio" icon="📁" gradient="linear-gradient(135deg, #EA580C 0%, #C2410C 100%)">
+            <Section title="Teaching portfolio" icon="📁" gradient="linear-gradient(135deg, #4B5563 0%, #6B7280 100%)">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {portfolio.map(item => (
                   <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: GREY_BG, borderRadius: '12px', border: BORDER }}>
@@ -450,11 +451,11 @@ export default function TeacherProfile() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', position: isMobile ? 'static' : 'sticky', top: '80px' }}>
           <div style={{ background: '#fff', borderRadius: '20px', border: BORDER, overflow: 'hidden', boxShadow: SHADOW_XL }}>
-            <div style={{ background: GRADIENT_BLUE, padding: '1.25rem' }}>
+            <div style={{ background: '#F5F5F5', padding: '1.25rem' }}>
               {teacher.hourly_rate > 0 ? (
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontFamily: 'Georgia, serif', fontSize: '36px', fontWeight: '700', color: YELLOW, letterSpacing: '-0.02em', lineHeight: 1 }}>GH₵ {teacher.hourly_rate}</div>
-<div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)', marginTop: '4px', fontWeight: '500' }}>per session · prices negotiable</div>                </div>
+                  <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '36px', fontWeight: '700', color: YELLOW, letterSpacing: '-0.02em', lineHeight: 1 }}>GH₵ {teacher.hourly_rate}</div>
+<div style={{ fontSize: '12px', color: 'rgba(0,0,0,0.65)', marginTop: '4px', fontWeight: '500' }}>per session · prices negotiable</div>                </div>
               ) : (
                 <div style={{ textAlign: 'center', fontSize: '15px', fontWeight: '700', color: YELLOW }}>Contact for pricing</div>
               )}
@@ -462,7 +463,7 @@ export default function TeacherProfile() {
             <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {canBook ? (
                 <Link to={`/booking?teacher=${teacher.id}`}
-                  style={{ display: 'block', padding: '14px', background: YELLOW, color: BLUE, borderRadius: '50px', fontSize: '15px', textDecoration: 'none', textAlign: 'center', fontWeight: '800', boxShadow: SHADOW_YELLOW, transition: TRANSITION }}>
+                  style={{ display: 'block', padding: '14px', background: YELLOW, color: '#FFFFFF', borderRadius: '50px', fontSize: '15px', textDecoration: 'none', textAlign: 'center', fontWeight: '800', boxShadow: SHADOW_YELLOW, transition: TRANSITION }}>
                   📅 Send booking request
                 </Link>
               ) : !user ? (
@@ -486,10 +487,10 @@ export default function TeacherProfile() {
             </div>
           )}
 
-          <div style={{ background: LIGHT_BLUE, borderRadius: '16px', padding: '1.25rem', border: '1px solid rgba(37,99,235,0.12)' }}>
+          <div style={{ background: LIGHT_BLUE, borderRadius: '16px', padding: '1.25rem', border: '1px solid rgba(0,0,0,0.12)' }}>
             <h4 style={{ fontSize: '13px', fontWeight: '800', color: BLUE, marginBottom: '10px', marginTop: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>🔒 Privacy guaranteed</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-              {['Personal contact details never shared', 'All communication stays on TeachMe', 'Payments processed securely'].map((item, i) => (
+              {['Personal contact details never shared', 'All communication stays on Stuumo', 'Payments processed securely'].map((item, i) => (
                 <div key={i} style={{ fontSize: '13px', color: BLUE, display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
                   <span style={{ fontWeight: '700', flexShrink: 0 }}>✓</span> {item}
                 </div>
@@ -501,11 +502,11 @@ export default function TeacherProfile() {
             <h4 style={{ fontSize: '13px', fontWeight: '800', color: TEXT, marginBottom: '12px', marginTop: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>📤 Share this teacher</h4>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={shareWhatsApp}
-                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: '#25D366', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}>
+                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: '#6D28D9', color: '#FFFFFF', border: 'none', borderRadius: '10px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}>
                 💬 WhatsApp
               </button>
               <button onClick={copyLink}
-                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: copied ? '#DCFCE7' : GREY_BG, color: copied ? '#166534' : TEXT, border: BORDER, borderRadius: '10px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700', transition: TRANSITION }}>
+                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: copied ? '#F5F5F5' : GREY_BG, color: copied ? '#0B0B0B' : TEXT, border: BORDER, borderRadius: '10px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700', transition: TRANSITION }}>
                 {copied ? '✓ Copied' : '🔗 Copy link'}
               </button>
             </div>
@@ -519,11 +520,11 @@ export default function TeacherProfile() {
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
               {teacher.hourly_rate > 0 && (
                 <div>
-                  <div style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: '700', color: BLUE, lineHeight: 1 }}>GH₵ {teacher.hourly_rate}</div>
+                  <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '20px', fontWeight: '700', color: BLUE, lineHeight: 1 }}>GH₵ {teacher.hourly_rate}</div>
                   <div style={{ fontSize: '10px', color: TEXT_MUTED, fontWeight: '500' }}>per session</div>
                 </div>
               )}
-              <Link to={`/booking?teacher=${teacher.id}`} style={{ flex: 1, padding: '14px', background: YELLOW, color: BLUE, borderRadius: '50px', fontSize: '15px', textDecoration: 'none', textAlign: 'center', fontWeight: '800', boxShadow: SHADOW_YELLOW }}>
+              <Link to={`/booking?teacher=${teacher.id}`} style={{ flex: 1, padding: '14px', background: YELLOW, color: '#FFFFFF', borderRadius: '50px', fontSize: '15px', textDecoration: 'none', textAlign: 'center', fontWeight: '800', boxShadow: SHADOW_YELLOW }}>
                 📅 Book now
               </Link>
             </div>
@@ -543,12 +544,12 @@ export default function TeacherProfile() {
 function PublicNav() {
   return (
     <nav style={{ background: GRADIENT_HERO, padding: '0.875rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
-      <Link to="/" style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: '700', color: '#fff', textDecoration: 'none', letterSpacing: '-0.02em' }}>
-        Teach<span style={{ color: YELLOW }}>Me</span>
-      </Link>
+      <Link to="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
+          <Logo variant="yellow" height={30} />
+        </Link>
       <div style={{ display: 'flex', gap: '8px' }}>
-        <Link to="/teachers" style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.1)', color: '#fff', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.2)', fontWeight: '600' }}>← Teachers</Link>
-        <Link to="/login" style={{ padding: '7px 14px', background: YELLOW, color: BLUE, borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_YELLOW }}>Log in</Link>
+        <Link to="/teachers" style={{ padding: '7px 14px', background: 'rgba(0,0,0,0.1)', color: '#0B0B0B', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', border: '1px solid rgba(0,0,0,0.2)', fontWeight: '600' }}>← Teachers</Link>
+        <Link to="/login" style={{ padding: '7px 14px', background: YELLOW, color: '#FFFFFF', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_YELLOW }}>Log in</Link>
       </div>
     </nav>
   )
@@ -560,7 +561,7 @@ function Badge({ label, icon, bg, color }) {
 
 function TrustPill({ label, icon, bg }) {
   return (
-    <span style={{ fontSize: '12px', background: bg || 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.85)', padding: '4px 12px', borderRadius: '50px', fontWeight: '500', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+    <span style={{ fontSize: '12px', background: bg || 'rgba(0,0,0,0.1)', color: 'rgba(0,0,0,0.85)', padding: '4px 12px', borderRadius: '50px', fontWeight: '500', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
       {icon} {label}
     </span>
   )
@@ -583,11 +584,11 @@ function ReportButton({ reporterId, targetType, targetId }) {
       {!open ? (
         <button onClick={() => setOpen(true)} style={{ fontSize: '12px', color: TEXT_MUTED, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Report this profile</button>
       ) : (
-        <div style={{ background: '#FFF5F5', border: '1px solid #FECACA', borderRadius: '16px', padding: '1.25rem', textAlign: 'left' }}>
-          <div style={{ fontSize: '14px', fontWeight: '700', color: '#991B1B', marginBottom: '10px' }}>🚩 Report this profile</div>
+        <div style={{ background: '#F5F5F5', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '1.25rem', textAlign: 'left' }}>
+          <div style={{ fontSize: '14px', fontWeight: '700', color: '#6D28D9', marginBottom: '10px' }}>🚩 Report this profile</div>
           <textarea style={{ width: '100%', padding: '10px 14px', border: BORDER, borderRadius: '10px', fontSize: '14px', fontFamily: 'inherit', outline: 'none', height: '80px', resize: 'vertical', boxSizing: 'border-box', background: '#fff', color: TEXT }} placeholder="Describe the issue..." value={reason} onChange={e => setReason(e.target.value)} />
           <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-            <button onClick={submit} disabled={submitting || !reason.trim()} style={{ flex: 1, padding: '10px', background: reason.trim() ? '#EF4444' : GREY_BG, color: reason.trim() ? '#fff' : TEXT_MUTED, border: 'none', borderRadius: '50px', fontSize: '14px', cursor: reason.trim() ? 'pointer' : 'not-allowed', fontFamily: 'inherit', fontWeight: '700' }}>
+            <button onClick={submit} disabled={submitting || !reason.trim()} style={{ flex: 1, padding: '10px', background: reason.trim() ? '#6D28D9' : GREY_BG, color: reason.trim() ? '#fff' : TEXT_MUTED, border: 'none', borderRadius: '50px', fontSize: '14px', cursor: reason.trim() ? 'pointer' : 'not-allowed', fontFamily: 'inherit', fontWeight: '700' }}>
               {submitting ? 'Submitting...' : 'Submit report'}
             </button>
             <button onClick={() => setOpen(false)} style={{ padding: '10px 18px', background: '#fff', border: BORDER, borderRadius: '50px', fontSize: '14px', cursor: 'pointer', color: TEXT_MUTED, fontFamily: 'inherit' }}>Cancel</button>

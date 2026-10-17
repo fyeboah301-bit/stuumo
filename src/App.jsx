@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import Logo from './components/Logo'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { lazy, Suspense, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -23,17 +24,18 @@ const Referrals = lazy(() => import('./pages/Referrals'))
 const Progress = lazy(() => import('./pages/Progress'))
 const VideoCall = lazy(() => import('./pages/VideoCall'))
 const TeacherApplication = lazy(() => import('./pages/TeacherApplication'))
+const Terms = lazy(() => import('./pages/Terms'))
+const Privacy = lazy(() => import('./pages/Privacy'))
+const RefundPolicy = lazy(() => import('./pages/RefundPolicy'))
 
 // ─── LOADING FALLBACK ─────────────────────────────────────────────
 function PageLoader() {
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans, sans-serif', gap: '16px' }}>
-      <div style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '700', color: BLUE }}>
-        Teach<span style={{ color: '#FFD700' }}>Me</span>
-      </div>
+    <div style={{ minHeight: '100vh', background: '#F5F5F5', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Tahoma, Geneva, sans-serif', gap: '16px' }}>
+      <Logo variant="yellow" height={32} />
       <div style={{ display: 'flex', gap: '6px' }}>
         {[0, 1, 2].map(i => (
-          <div key={i} style={{ width: '8px', height: '8px', borderRadius: '50%', background: BLUE, animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }} />
+          <div key={i} style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#6D28D9', animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }} />
         ))}
       </div>
       <style>{`
@@ -79,6 +81,9 @@ function AppRoutes() {
           <Route path="/verify/:code" element={<VerifyCertificate />} />
           <Route path="/call/:roomId" element={<VideoCall />} />
           <Route path="/apply" element={<TeacherApplication />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
 
           {/* PROTECTED */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

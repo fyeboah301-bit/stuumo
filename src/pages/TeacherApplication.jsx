@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
+import Logo from '../components/Logo'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import usePageMeta from '../hooks/usePageMeta'
 
-const BLUE = '#2563EB'
-const YELLOW = '#FFD700'
+const BLUE = '#0B0B0B'
+const YELLOW = '#6D28D9'
 
 const LEVELS = ['Primary (1–6)', 'JHS (7–9)', 'SHS (10–12)', 'University', 'Professional']
 
@@ -412,11 +413,11 @@ const STEPS = [
 const LANGUAGES = ['English','Twi','Ga','Ewe','Hausa','French','Fante','Dagbani','Yoruba','Igbo','Kiswahili','Afrikaans','German','Spanish','Arabic','Other']
 const DOC_TYPES  = ["National ID","Passport","Voter ID","Driver's License","NHIS Card"]
 
-const inp = { width: '100%', padding: '12px 16px', border: '1.5px solid #E2E8F0', borderRadius: '10px', fontSize: '15px', color: '#111', background: '#fff', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }
-const lbl = { fontSize: '13px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }
+const inp = { width: '100%', padding: '12px 16px', border: '1.5px solid #E2E8F0', borderRadius: '10px', fontSize: '15px', color: '#0B0B0B', background: '#fff', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }
+const lbl = { fontSize: '13px', fontWeight: '600', color: '#0B0B0B', display: 'block', marginBottom: '6px' }
 
 export default function TeacherApplication() {
-  usePageMeta({ title: 'Teacher Application — TeachMe', description: 'Complete your teaching profile and apply to teach on TeachMe' })
+  usePageMeta({ title: 'Teacher Application — Stuumo', description: 'Complete your teaching profile and apply to teach on Stuumo' })
   const navigate = useNavigate()
 
   const [user, setUser]         = useState(null)
@@ -566,7 +567,7 @@ export default function TeacherApplication() {
 
   if (existing?.application_status === 'pending' && !done) {
     return (
-      <StatusScreen icon="⏳" title="Application under review" color="#D97706" bg="#FEF3C7"
+      <StatusScreen icon="⏳" title="Application under review" color="#0B0B0B" bg="#F5F5F5"
         message="Your application has been submitted and is being reviewed by our team. We'll email you within 48 hours."
         actions={[{ label: 'Go to dashboard', onClick: () => navigate('/dashboard'), primary: true }]} />
     )
@@ -574,7 +575,7 @@ export default function TeacherApplication() {
 
   if (existing?.application_status === 'approved' && !done) {
     return (
-      <StatusScreen icon="✅" title="Application approved!" color="#059669" bg="#DCFCE7"
+      <StatusScreen icon="✅" title="Application approved!" color="#0B0B0B" bg="#F5F5F5"
         message="Congratulations — your teacher profile is live and learners can now find and book you."
         actions={[
           { label: 'Go to dashboard', onClick: () => navigate('/dashboard'), primary: true },
@@ -585,7 +586,7 @@ export default function TeacherApplication() {
 
   if (existing?.application_status === 'rejected' && !done) {
     return (
-      <StatusScreen icon="❌" title="Application not approved" color="#DC2626" bg="#FEE2E2"
+      <StatusScreen icon="❌" title="Application not approved" color="#6D28D9" bg="#F5F5F5"
         message={`Your application was not approved${existing.application_notes ? `: ${existing.application_notes}` : '. Please review your profile and resubmit.'}`}
         actions={[
           { label: 'Update & resubmit', onClick: () => setExisting(e => ({ ...e, application_status: 'draft' })), primary: true },
@@ -600,13 +601,13 @@ export default function TeacherApplication() {
     return (
       <Wrapper>
         <div style={{ textAlign: 'center', maxWidth: '480px', margin: '0 auto', padding: '3rem 1rem' }}>
-          <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#DCFCE7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', margin: '0 auto 1.5rem' }}>🎉</div>
-          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '26px', fontWeight: '700', color: '#111', marginBottom: '1rem' }}>Application submitted!</h1>
-          <p style={{ color: '#64748B', fontSize: '16px', lineHeight: '1.7', marginBottom: '2rem' }}>
-            Our team will review your profile and documents within <strong style={{ color: '#111' }}>48 hours</strong>. You'll receive an email notification.
+          <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', margin: '0 auto 1.5rem' }}>🎉</div>
+          <h1 style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '26px', fontWeight: '700', color: '#0B0B0B', marginBottom: '1rem' }}>Application submitted!</h1>
+          <p style={{ color: '#6B7280', fontSize: '16px', lineHeight: '1.7', marginBottom: '2rem' }}>
+            Our team will review your profile and documents within <strong style={{ color: '#0B0B0B' }}>48 hours</strong>. You'll receive an email notification.
           </p>
-          <div style={{ background: '#F8FAFC', borderRadius: '16px', padding: '1.5rem', marginBottom: '2rem', textAlign: 'left', border: '1px solid #E2E8F0' }}>
-            <div style={{ fontSize: '13px', fontWeight: '700', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '1rem' }}>What happens next</div>
+          <div style={{ background: '#F5F5F5', borderRadius: '16px', padding: '1.5rem', marginBottom: '2rem', textAlign: 'left', border: '1px solid #E2E8F0' }}>
+            <div style={{ fontSize: '13px', fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '1rem' }}>What happens next</div>
             {[
               ['🔍', 'Admin reviews your profile and uploaded documents'],
               ['✉️', 'You receive an email with approval or feedback'],
@@ -615,12 +616,12 @@ export default function TeacherApplication() {
             ].map(([icon, text]) => (
               <div key={text} style={{ display: 'flex', gap: '12px', marginBottom: '10px', alignItems: 'flex-start' }}>
                 <span style={{ fontSize: '18px', flexShrink: 0 }}>{icon}</span>
-                <span style={{ fontSize: '14px', color: '#374151', lineHeight: '1.5' }}>{text}</span>
+                <span style={{ fontSize: '14px', color: '#0B0B0B', lineHeight: '1.5' }}>{text}</span>
               </div>
             ))}
           </div>
           <button onClick={() => navigate('/dashboard')}
-            style={{ width: '100%', padding: '14px', background: BLUE, color: '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+            style={{ width: '100%', padding: '14px', background: '#6D28D9', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
             Go to dashboard
           </button>
         </div>
@@ -635,10 +636,10 @@ export default function TeacherApplication() {
       <div style={{ maxWidth: '620px', margin: '0 auto', padding: '1rem' }}>
 
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ fontFamily: 'Georgia, serif', fontSize: '26px', fontWeight: '700', color: '#111', marginBottom: '6px' }}>
-            Teach<span style={{ color: BLUE }}>Me</span>
+          <div style={{ marginBottom: '6px' }}>
+            <Logo variant="yellow" height={30} />
           </div>
-          <div style={{ fontSize: '14px', color: '#64748B' }}>Teacher application — complete all 4 steps</div>
+          <div style={{ fontSize: '14px', color: '#6B7280' }}>Teacher application — complete all 4 steps</div>
         </div>
 
         {/* Progress */}
@@ -650,26 +651,26 @@ export default function TeacherApplication() {
                   width: '36px', height: '36px', borderRadius: '50%', margin: '0 auto 6px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '14px', fontWeight: '700', transition: 'all 0.3s',
-                  background: step > s.number ? '#059669' : step === s.number ? BLUE : '#E2E8F0',
+                  background: step > s.number ? '#0B0B0B' : step === s.number ? '#6D28D9' : '#E2E8F0',
                   color: step >= s.number ? '#fff' : '#9CA3AF',
                 }}>
                   {step > s.number ? '✓' : s.number}
                 </div>
-                <div style={{ fontSize: '11px', fontWeight: step === s.number ? '700' : '400', color: step === s.number ? '#111' : '#9CA3AF' }}>
+                <div style={{ fontSize: '11px', fontWeight: step === s.number ? '700' : '400', color: step === s.number ? '#0B0B0B' : '#9CA3AF' }}>
                   {s.title}
                 </div>
               </div>
             ))}
           </div>
           <div style={{ height: '4px', background: '#E2E8F0', borderRadius: '2px', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${((step - 1) / (STEPS.length - 1)) * 100}%`, background: BLUE, borderRadius: '2px', transition: 'width 0.4s ease' }} />
+            <div style={{ height: '100%', width: `${((step - 1) / (STEPS.length - 1)) * 100}%`, background: '#6D28D9', borderRadius: '2px', transition: 'width 0.4s ease' }} />
           </div>
         </div>
 
         <div style={{ background: '#fff', borderRadius: '20px', padding: '2rem', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid #E2E8F0' }}>
 
           {error && (
-            <div style={{ background: '#FEF2F2', color: '#DC2626', padding: '12px 16px', borderRadius: '10px', fontSize: '14px', marginBottom: '1.25rem', border: '1px solid #FECACA' }}>
+            <div style={{ background: '#F5F5F5', color: '#6D28D9', padding: '12px 16px', borderRadius: '10px', fontSize: '14px', marginBottom: '1.25rem', border: '1px solid #E2E8F0' }}>
               {error}
             </div>
           )}
@@ -684,7 +685,7 @@ export default function TeacherApplication() {
                   <textarea style={{ ...inp, height: '120px', resize: 'vertical', lineHeight: '1.6' }}
                     placeholder="Describe your teaching style, experience, and what you love about teaching..."
                     value={bio} onChange={e => setBio(e.target.value)} />
-                  <div style={{ fontSize: '12px', color: bio.length < 80 ? '#F59E0B' : '#059669', marginTop: '4px' }}>
+                  <div style={{ fontSize: '12px', color: bio.length < 80 ? '#0B0B0B' : '#0B0B0B', marginTop: '4px' }}>
                     {bio.length < 80 ? `${80 - bio.length} more characters recommended` : '✓ Good length'}
                   </div>
                 </div>
@@ -701,10 +702,10 @@ export default function TeacherApplication() {
                 </div>
                 <div>
                   <label style={lbl}>Languages you teach in</label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '12px', border: '1.5px solid #E2E8F0', borderRadius: '10px', background: '#F8FAFC' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '12px', border: '1.5px solid #E2E8F0', borderRadius: '10px', background: '#F5F5F5' }}>
                     {LANGUAGES.map(lang => (
                       <button key={lang} type="button" onClick={() => toggleLang(lang)}
-                        style={{ padding: '6px 14px', borderRadius: '20px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: selectedLangs.includes(lang) ? '700' : '400', background: selectedLangs.includes(lang) ? BLUE : '#fff', color: selectedLangs.includes(lang) ? '#fff' : '#64748B', border: `1.5px solid ${selectedLangs.includes(lang) ? BLUE : '#E2E8F0'}`, transition: 'all 0.15s' }}>
+                        style={{ padding: '6px 14px', borderRadius: '20px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: selectedLangs.includes(lang) ? '700' : '400', background: selectedLangs.includes(lang) ? '#6D28D9' : '#fff', color: selectedLangs.includes(lang) ? '#fff' : '#6B7280', border: `1.5px solid ${selectedLangs.includes(lang) ? BLUE : '#E2E8F0'}`, transition: 'all 0.15s' }}>
                         {lang}
                       </button>
                     ))}
@@ -735,17 +736,17 @@ export default function TeacherApplication() {
                         style={{
                           padding: '10px 20px', borderRadius: '50px', fontSize: '14px', cursor: 'pointer',
                           fontFamily: 'inherit', fontWeight: levels.includes(l) ? '700' : '500',
-                          background: levels.includes(l) ? '#7C3AED' : '#fff',
-                          color: levels.includes(l) ? '#fff' : '#374151',
-                          border: `2px solid ${levels.includes(l) ? '#7C3AED' : '#E2E8F0'}`,
-                          transition: 'all 0.15s', boxShadow: levels.includes(l) ? '0 2px 8px rgba(124,58,237,0.3)' : 'none',
+                          background: levels.includes(l) ? '#0B0B0B' : '#fff',
+                          color: levels.includes(l) ? '#fff' : '#0B0B0B',
+                          border: `2px solid ${levels.includes(l) ? '#0B0B0B' : '#E2E8F0'}`,
+                          transition: 'all 0.15s', boxShadow: levels.includes(l) ? '0 2px 8px rgba(0,0,0,0.3)' : 'none',
                         }}>
                         {l}
                       </button>
                     ))}
                   </div>
                   {levels.length > 0 && (
-                    <div style={{ fontSize: '12px', color: '#7C3AED', marginTop: '10px', fontWeight: '600' }}>
+                    <div style={{ fontSize: '12px', color: '#0B0B0B', marginTop: '10px', fontWeight: '600' }}>
                       ✓ {levels.length} level{levels.length !== 1 ? 's' : ''} selected
                     </div>
                   )}
@@ -756,16 +757,16 @@ export default function TeacherApplication() {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                     <label style={{ ...lbl, fontSize: '14px', margin: 0 }}>Subjects *</label>
                     {subjects.length > 0 && (
-                      <span style={{ fontSize: '12px', color: '#059669', fontWeight: '700', background: '#DCFCE7', padding: '3px 10px', borderRadius: '20px' }}>
+                      <span style={{ fontSize: '12px', color: '#0B0B0B', fontWeight: '700', background: '#F5F5F5', padding: '3px 10px', borderRadius: '20px' }}>
                         {subjects.length} selected
                       </span>
                     )}
                   </div>
 
                   {levels.length === 0 ? (
-                    <div style={{ padding: '2.5rem 1rem', textAlign: 'center', border: '2px dashed #E2E8F0', borderRadius: '12px', background: '#F8FAFC' }}>
+                    <div style={{ padding: '2.5rem 1rem', textAlign: 'center', border: '2px dashed #E2E8F0', borderRadius: '12px', background: '#F5F5F5' }}>
                       <div style={{ fontSize: '32px', marginBottom: '10px' }}>👆</div>
-                      <div style={{ fontSize: '14px', fontWeight: '700', color: '#374151', marginBottom: '4px' }}>
+                      <div style={{ fontSize: '14px', fontWeight: '700', color: '#0B0B0B', marginBottom: '4px' }}>
                         Select your teaching levels first
                       </div>
                       <div style={{ fontSize: '13px', color: '#9CA3AF' }}>
@@ -774,31 +775,31 @@ export default function TeacherApplication() {
                     </div>
                   ) : (
                     <>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', background: '#EFF6FF', borderRadius: '8px', border: '1px solid #BFDBFE', fontSize: '13px', color: '#1E40AF', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', background: '#F5F5F5', borderRadius: '8px', border: '1px solid #E2E8F0', fontSize: '13px', color: '#0B0B0B', marginBottom: '12px' }}>
                         <span style={{ flexShrink: 0 }}>📋</span>
                         <span>
                           Showing <strong>{availableSubjects.length} subjects</strong> taught at{' '}
                           <strong>{levels.join(', ')}</strong> level{levels.length !== 1 ? 's' : ''} in <strong>{country}</strong>
                         </span>
                       </div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '14px', border: '1.5px solid #E2E8F0', borderRadius: '12px', background: '#F8FAFC', maxHeight: '300px', overflowY: 'auto' }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '14px', border: '1.5px solid #E2E8F0', borderRadius: '12px', background: '#F5F5F5', maxHeight: '300px', overflowY: 'auto' }}>
                         {availableSubjects.map(s => (
                           <button key={s} type="button" onClick={() => toggleSubject(s)}
                             style={{
                               padding: '7px 14px', borderRadius: '20px', fontSize: '13px', cursor: 'pointer',
                               fontFamily: 'inherit', fontWeight: subjects.includes(s) ? '700' : '400',
-                              background: subjects.includes(s) ? BLUE : '#fff',
-                              color: subjects.includes(s) ? '#fff' : '#374151',
+                              background: subjects.includes(s) ? '#6D28D9' : '#fff',
+                              color: subjects.includes(s) ? '#fff' : '#0B0B0B',
                               border: `1.5px solid ${subjects.includes(s) ? BLUE : '#E2E8F0'}`,
                               transition: 'all 0.15s', whiteSpace: 'nowrap',
-                              boxShadow: subjects.includes(s) ? '0 2px 6px rgba(37,99,235,0.25)' : 'none',
+                              boxShadow: subjects.includes(s) ? '0 2px 6px rgba(0,0,0,0.25)' : 'none',
                             }}>
                             {s}
                           </button>
                         ))}
                       </div>
                       {subjects.length === 0 && (
-                        <div style={{ fontSize: '12px', color: '#F59E0B', marginTop: '8px', fontWeight: '600' }}>
+                        <div style={{ fontSize: '12px', color: '#0B0B0B', marginTop: '8px', fontWeight: '600' }}>
                           ⚠️ Select at least one subject to continue
                         </div>
                       )}
@@ -822,7 +823,7 @@ export default function TeacherApplication() {
               <StepHeader icon="🪪" title="Verify your identity" sub="Upload an ID document (required) and any teaching certificates (strongly recommended)" />
 
               {uploadMsg && (
-                <div style={{ background: uploadMsg.startsWith('✅') ? '#F0FDF4' : '#FEF2F2', color: uploadMsg.startsWith('✅') ? '#166534' : '#DC2626', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', border: `1px solid ${uploadMsg.startsWith('✅') ? '#BBF7D0' : '#FECACA'}` }}>
+                <div style={{ background: uploadMsg.startsWith('✅') ? '#F5F5F5' : '#F5F5F5', color: uploadMsg.startsWith('✅') ? '#0B0B0B' : '#DC2626', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', border: `1px solid ${uploadMsg.startsWith('✅') ? '#E2E8F0' : '#E2E8F0'}` }}>
                   {uploadMsg}
                   <button onClick={() => setUploadMsg('')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', color: 'inherit', padding: 0 }}>×</button>
                 </div>
@@ -831,34 +832,34 @@ export default function TeacherApplication() {
               {/* ID document */}
               <div style={{ marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                  <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#111', margin: 0 }}>ID Document</h3>
-                  <span style={{ fontSize: '11px', background: '#FEE2E2', color: '#991B1B', padding: '2px 8px', borderRadius: '20px', fontWeight: '700' }}>Required</span>
+                  <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#0B0B0B', margin: 0 }}>ID Document</h3>
+                  <span style={{ fontSize: '11px', background: '#F5F5F5', color: '#6D28D9', padding: '2px 8px', borderRadius: '20px', fontWeight: '700' }}>Required</span>
                 </div>
                 {uploadedDoc ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', background: '#F0FDF4', borderRadius: '10px', border: '1.5px solid #6EE7B7' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', background: '#F5F5F5', borderRadius: '10px', border: '1.5px solid #F5F5F5' }}>
                     <span style={{ fontSize: '22px' }}>✅</span>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '14px', fontWeight: '600', color: '#111' }}>{uploadedDoc.document_type}</div>
-                      <div style={{ fontSize: '12px', color: '#059669' }}>Uploaded · Pending review</div>
+                      <div style={{ fontSize: '14px', fontWeight: '600', color: '#0B0B0B' }}>{uploadedDoc.document_type}</div>
+                      <div style={{ fontSize: '12px', color: '#0B0B0B' }}>Uploaded · Pending review</div>
                     </div>
-                    <button onClick={() => setUploadedDoc(null)} style={{ fontSize: '12px', color: '#64748B', background: 'none', border: 'none', cursor: 'pointer' }}>Replace</button>
+                    <button onClick={() => setUploadedDoc(null)} style={{ fontSize: '12px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer' }}>Replace</button>
                   </div>
                 ) : (
-                  <div style={{ border: '1.5px solid #E2E8F0', borderRadius: '12px', padding: '1.25rem', background: '#F8FAFC' }}>
+                  <div style={{ border: '1.5px solid #E2E8F0', borderRadius: '12px', padding: '1.25rem', background: '#F5F5F5' }}>
                     <div style={{ marginBottom: '10px' }}>
                       <label style={lbl}>Document type</label>
                       <select style={inp} value={docType} onChange={e => setDocType(e.target.value)}>
                         {DOC_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                       </select>
                     </div>
-                    <div style={{ border: '2px dashed #CBD5E1', borderRadius: '8px', padding: '16px', background: '#fff', textAlign: 'center', marginBottom: '10px' }}>
+                    <div style={{ border: '2px dashed #E2E8F0', borderRadius: '8px', padding: '16px', background: '#fff', textAlign: 'center', marginBottom: '10px' }}>
                       <div style={{ fontSize: '24px', marginBottom: '8px' }}>📎</div>
                       <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setDocFile(e.target.files[0])} style={{ fontSize: '13px', cursor: 'pointer' }} />
                       <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '6px' }}>PDF, JPG or PNG</div>
-                      {docFile && <div style={{ fontSize: '13px', color: '#059669', fontWeight: '600', marginTop: '6px' }}>📎 {docFile.name}</div>}
+                      {docFile && <div style={{ fontSize: '13px', color: '#0B0B0B', fontWeight: '600', marginTop: '6px' }}>📎 {docFile.name}</div>}
                     </div>
                     <button onClick={uploadDoc} disabled={uploading || !docFile}
-                      style={{ width: '100%', padding: '11px', background: uploading || !docFile ? '#E2E8F0' : BLUE, color: uploading || !docFile ? '#9CA3AF' : '#fff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: uploading || !docFile ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                      style={{ width: '100%', padding: '11px', background: uploading || !docFile ? '#E2E8F0' : '#6D28D9', color: uploading || !docFile ? '#9CA3AF' : '#fff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: uploading || !docFile ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                       {uploading ? '⏳ Uploading...' : '⬆ Upload ID document'}
                     </button>
                   </div>
@@ -868,23 +869,23 @@ export default function TeacherApplication() {
               {/* Certificates */}
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                  <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#111', margin: 0 }}>Teaching Certificates</h3>
-                  <span style={{ fontSize: '11px', background: '#FEF3C7', color: '#92400E', padding: '2px 8px', borderRadius: '20px', fontWeight: '700' }}>Recommended</span>
+                  <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#0B0B0B', margin: 0 }}>Teaching Certificates</h3>
+                  <span style={{ fontSize: '11px', background: '#F5F5F5', color: '#0B0B0B', padding: '2px 8px', borderRadius: '20px', fontWeight: '700' }}>Recommended</span>
                 </div>
                 {uploadedCerts.length > 0 && (
                   <div style={{ marginBottom: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {uploadedCerts.map(c => (
-                      <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: '#F0FDF4', borderRadius: '10px', border: '1.5px solid #6EE7B7' }}>
+                      <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: '#F5F5F5', borderRadius: '10px', border: '1.5px solid #F5F5F5' }}>
                         <span style={{ fontSize: '20px' }}>{c.certificate_type === 'academic' ? '🎓' : '📋'}</span>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: '14px', fontWeight: '600', color: '#111' }}>{c.certificate_name}</div>
-                          <div style={{ fontSize: '12px', color: '#059669' }}>Uploaded · Pending review</div>
+                          <div style={{ fontSize: '14px', fontWeight: '600', color: '#0B0B0B' }}>{c.certificate_name}</div>
+                          <div style={{ fontSize: '12px', color: '#0B0B0B' }}>Uploaded · Pending review</div>
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
-                <div style={{ border: '1.5px solid #E2E8F0', borderRadius: '12px', padding: '1.25rem', background: '#F8FAFC' }}>
+                <div style={{ border: '1.5px solid #E2E8F0', borderRadius: '12px', padding: '1.25rem', background: '#F5F5F5' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
                     <div>
                       <label style={lbl}>Certificate name</label>
@@ -898,12 +899,12 @@ export default function TeacherApplication() {
                       </select>
                     </div>
                   </div>
-                  <div style={{ border: '2px dashed #CBD5E1', borderRadius: '8px', padding: '14px', background: '#fff', textAlign: 'center', marginBottom: '10px' }}>
+                  <div style={{ border: '2px dashed #E2E8F0', borderRadius: '8px', padding: '14px', background: '#fff', textAlign: 'center', marginBottom: '10px' }}>
                     <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setCertFile(e.target.files[0])} style={{ fontSize: '13px', cursor: 'pointer' }} />
-                    {certFile && <div style={{ fontSize: '13px', color: '#059669', fontWeight: '600', marginTop: '6px' }}>📎 {certFile.name}</div>}
+                    {certFile && <div style={{ fontSize: '13px', color: '#0B0B0B', fontWeight: '600', marginTop: '6px' }}>📎 {certFile.name}</div>}
                   </div>
                   <button onClick={uploadCert} disabled={uploading || !certFile || !certName.trim()}
-                    style={{ width: '100%', padding: '11px', background: uploading || !certFile || !certName.trim() ? '#E2E8F0' : '#7C3AED', color: uploading || !certFile || !certName.trim() ? '#9CA3AF' : '#fff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+                    style={{ width: '100%', padding: '11px', background: uploading || !certFile || !certName.trim() ? '#E2E8F0' : '#6D28D9', color: uploading || !certFile || !certName.trim() ? '#9CA3AF' : '#fff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
                     {uploading ? '⏳ Uploading...' : '⬆ Add certificate'}
                   </button>
                   <p style={{ fontSize: '12px', color: '#9CA3AF', textAlign: 'center', marginTop: '8px', marginBottom: 0 }}>You can add multiple certificates</p>
@@ -936,24 +937,24 @@ export default function TeacherApplication() {
               </div>
 
               {!uploadedDoc && (
-                <div style={{ background: '#FFFBEB', borderRadius: '10px', padding: '12px 14px', border: '1px solid #FCD34D', fontSize: '13px', color: '#92400E', marginBottom: '1rem' }}>
+                <div style={{ background: '#F5F5F5', borderRadius: '10px', padding: '12px 14px', border: '1px solid #0B0B0B', fontSize: '13px', color: '#0B0B0B', marginBottom: '1rem' }}>
                   ⚠️ Please go back and upload your ID document before submitting.
                 </div>
               )}
 
-              <div style={{ background: '#F8FAFC', borderRadius: '12px', padding: '1.25rem', border: '1px solid #E2E8F0', marginBottom: '1.5rem' }}>
-                <div style={{ fontSize: '13px', color: '#374151', lineHeight: '1.7' }}>
-                  By submitting, you confirm that all information is accurate and that you consent to TeachMe reviewing your application. You'll hear from us within <strong>48 hours</strong>.
+              <div style={{ background: '#F5F5F5', borderRadius: '12px', padding: '1.25rem', border: '1px solid #E2E8F0', marginBottom: '1.5rem' }}>
+                <div style={{ fontSize: '13px', color: '#0B0B0B', lineHeight: '1.7' }}>
+                  By submitting, you confirm that all information is accurate and that you consent to Stuumo reviewing your application. You'll hear from us within <strong>48 hours</strong>.
                 </div>
               </div>
 
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => { setError(''); setStep(3) }}
-                  style={{ padding: '13px 20px', background: '#fff', border: '1.5px solid #E2E8F0', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', color: '#64748B', fontWeight: '600' }}>
+                  style={{ padding: '13px 20px', background: '#fff', border: '1.5px solid #E2E8F0', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', color: '#6B7280', fontWeight: '600' }}>
                   ← Back
                 </button>
                 <button onClick={submitApplication} disabled={saving || !uploadedDoc}
-                  style={{ flex: 1, padding: '13px', background: saving || !uploadedDoc ? '#E2E8F0' : BLUE, color: saving || !uploadedDoc ? '#9CA3AF' : '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: saving || !uploadedDoc ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                  style={{ flex: 1, padding: '13px', background: saving || !uploadedDoc ? '#E2E8F0' : '#6D28D9', color: saving || !uploadedDoc ? '#9CA3AF' : '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: saving || !uploadedDoc ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                   {saving ? 'Submitting...' : '🚀 Submit application'}
                 </button>
               </div>
@@ -969,7 +970,7 @@ export default function TeacherApplication() {
 
 function Wrapper({ children }) {
   return (
-    <div style={{ minHeight: '100vh', background: '#F1F5F9', fontFamily: 'DM Sans, sans-serif', padding: '2rem 1rem' }}>
+    <div style={{ minHeight: '100vh', background: '#F5F5F5', fontFamily: 'Tahoma, Geneva, sans-serif', padding: '2rem 1rem' }}>
       {children}
     </div>
   )
@@ -977,27 +978,27 @@ function Wrapper({ children }) {
 
 function StepHeader({ icon, title, sub }) {
   return (
-    <div style={{ marginBottom: '1.5rem', paddingBottom: '1.25rem', borderBottom: '2px solid #F1F5F9' }}>
+    <div style={{ marginBottom: '1.5rem', paddingBottom: '1.25rem', borderBottom: '2px solid #F5F5F5' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
         <span style={{ fontSize: '24px' }}>{icon}</span>
-        <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#111', margin: 0 }}>{title}</h2>
+        <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0B0B0B', margin: 0 }}>{title}</h2>
       </div>
-      <p style={{ fontSize: '14px', color: '#64748B', margin: 0, lineHeight: '1.6' }}>{sub}</p>
+      <p style={{ fontSize: '14px', color: '#6B7280', margin: 0, lineHeight: '1.6' }}>{sub}</p>
     </div>
   )
 }
 
 function NavButtons({ onBack, onNext, saving, nextLabel = 'Continue →' }) {
   return (
-    <div style={{ display: 'flex', gap: '10px', marginTop: '1.75rem', paddingTop: '1.5rem', borderTop: '2px solid #F1F5F9' }}>
+    <div style={{ display: 'flex', gap: '10px', marginTop: '1.75rem', paddingTop: '1.5rem', borderTop: '2px solid #F5F5F5' }}>
       {onBack && (
         <button onClick={onBack}
-          style={{ padding: '13px 20px', background: '#fff', border: '1.5px solid #E2E8F0', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', color: '#64748B', fontWeight: '600' }}>
+          style={{ padding: '13px 20px', background: '#fff', border: '1.5px solid #E2E8F0', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', color: '#6B7280', fontWeight: '600' }}>
           ← Back
         </button>
       )}
       <button onClick={onNext} disabled={saving}
-        style={{ flex: 1, padding: '13px', background: saving ? '#E2E8F0' : '#2563EB', color: saving ? '#9CA3AF' : '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+        style={{ flex: 1, padding: '13px', background: saving ? '#E2E8F0' : '#6D28D9', color: saving ? '#9CA3AF' : '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
         {saving ? 'Saving...' : nextLabel}
       </button>
     </div>
@@ -1007,9 +1008,9 @@ function NavButtons({ onBack, onNext, saving, nextLabel = 'Continue →' }) {
 function ReviewSection({ title, onEdit, children }) {
   return (
     <div style={{ border: '1.5px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-        <span style={{ fontSize: '13px', fontWeight: '700', color: '#111' }}>{title}</span>
-        <button onClick={onEdit} style={{ fontSize: '12px', color: '#2563EB', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '700', fontFamily: 'inherit' }}>Edit</button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#F5F5F5', borderBottom: '1px solid #E2E8F0' }}>
+        <span style={{ fontSize: '13px', fontWeight: '700', color: '#0B0B0B' }}>{title}</span>
+        <button onClick={onEdit} style={{ fontSize: '12px', color: '#0B0B0B', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '700', fontFamily: 'inherit' }}>Edit</button>
       </div>
       <div style={{ padding: '4px 0' }}>{children}</div>
     </div>
@@ -1018,24 +1019,24 @@ function ReviewSection({ title, onEdit, children }) {
 
 function ReviewRow({ label, value, alert }) {
   return (
-    <div style={{ display: 'flex', gap: '12px', padding: '8px 14px', borderBottom: '1px solid #F8FAFC' }}>
-      <span style={{ fontSize: '13px', color: '#64748B', width: '110px', flexShrink: 0 }}>{label}</span>
-      <span style={{ fontSize: '13px', color: alert ? '#DC2626' : '#111', fontWeight: alert ? '600' : '400', flex: 1 }}>{value}</span>
+    <div style={{ display: 'flex', gap: '12px', padding: '8px 14px', borderBottom: '1px solid #F5F5F5' }}>
+      <span style={{ fontSize: '13px', color: '#6B7280', width: '110px', flexShrink: 0 }}>{label}</span>
+      <span style={{ fontSize: '13px', color: alert ? '#6D28D9' : '#0B0B0B', fontWeight: alert ? '600' : '400', flex: 1 }}>{value}</span>
     </div>
   )
 }
 
 function StatusScreen({ icon, title, color, bg, message, actions }) {
   return (
-    <div style={{ minHeight: '100vh', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem', fontFamily: 'DM Sans, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem', fontFamily: 'Tahoma, Geneva, sans-serif' }}>
       <div style={{ background: '#fff', borderRadius: '20px', padding: '2.5rem', maxWidth: '480px', width: '100%', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid #E2E8F0' }}>
         <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', margin: '0 auto 1.25rem' }}>{icon}</div>
-        <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#111', marginBottom: '1rem' }}>{title}</h2>
-        <p style={{ fontSize: '15px', color: '#64748B', lineHeight: '1.7', marginBottom: '1.5rem' }}>{message}</p>
+        <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#0B0B0B', marginBottom: '1rem' }}>{title}</h2>
+        <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: '1.7', marginBottom: '1.5rem' }}>{message}</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {actions.map(a => (
             <button key={a.label} onClick={a.onClick}
-              style={{ width: '100%', padding: '13px', background: a.primary ? color : '#fff', color: a.primary ? '#fff' : '#64748B', border: a.primary ? 'none' : '1.5px solid #E2E8F0', borderRadius: '12px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ width: '100%', padding: '13px', background: a.primary ? color : '#fff', color: a.primary ? '#fff' : '#6B7280', border: a.primary ? 'none' : '1.5px solid #E2E8F0', borderRadius: '12px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
               {a.label}
             </button>
           ))}

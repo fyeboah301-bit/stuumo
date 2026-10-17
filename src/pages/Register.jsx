@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import Logo from '../components/Logo'
 import { supabase } from '../lib/supabase'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import usePageMeta from '../hooks/usePageMeta'
@@ -64,15 +65,15 @@ const CITIES = {
 }
 
 const ROLES = [
-  { key: 'learner', icon: '📚', title: 'Join as a Learner', desc: 'Find qualified teachers for any subject and level', color: '#059669', bg: '#DCFCE7', border: '#6EE7B7', accent: '#F0FDF4' },
-  { key: 'parent',  icon: '👨‍👩‍👧', title: 'Join as a Parent',  desc: 'Book tutors for your child and track their progress', color: '#D97706', bg: '#FEF3C7', border: '#FCD34D', accent: '#FFFBEB' },
-  { key: 'teacher', icon: '👩‍🏫', title: 'Join as a Teacher', desc: 'Apply to teach, set your own schedule and earn income', color: '#2563EB', bg: '#DBEAFE', border: '#93C5FD', accent: '#EFF6FF' },
+  { key: 'learner', icon: '📚', title: 'Join as a Learner', desc: 'Find qualified teachers for any subject and level', color: '#0B0B0B', bg: '#F5F5F5', border: '#F5F5F5', accent: '#F5F5F5' },
+  { key: 'parent',  icon: '👨‍👩‍👧', title: 'Join as a Parent',  desc: 'Book tutors for your child and track their progress', color: '#0B0B0B', bg: '#F5F5F5', border: '#0B0B0B', accent: '#F5F5F5' },
+  { key: 'teacher', icon: '👩‍🏫', title: 'Join as a Teacher', desc: 'Apply to teach, set your own schedule and earn income', color: '#0B0B0B', bg: '#F5F5F5', border: '#6B7280', accent: '#F5F5F5' },
 ]
 
 // ── Shared styles ─────────────────────────────────────────────────────────────
 
-const inp = { width: '100%', padding: '12px 16px', border: '1.5px solid #E2E8F0', borderRadius: '10px', fontSize: '15px', color: '#111', background: '#fff', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }
-const lbl = { fontSize: '13px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }
+const inp = { width: '100%', padding: '12px 16px', border: '1.5px solid #E2E8F0', borderRadius: '10px', fontSize: '15px', color: '#0B0B0B', background: '#fff', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }
+const lbl = { fontSize: '13px', fontWeight: '600', color: '#0B0B0B', display: 'block', marginBottom: '6px' }
 
 // ── SearchableDropdown ────────────────────────────────────────────────────────
 
@@ -92,15 +93,15 @@ function SearchableDropdown({ options, value, onChange, placeholder = 'Select...
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <div onClick={() => { setOpen(o => !o); setSearch('') }}
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', border: `1.5px solid ${open ? '#2563EB' : '#E2E8F0'}`, borderRadius: '10px', background: '#fff', cursor: 'pointer', fontSize: '15px', color: value ? '#111' : '#9CA3AF', userSelect: 'none' }}>
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', border: `1.5px solid ${open ? '#0B0B0B' : '#E2E8F0'}`, borderRadius: '10px', background: '#fff', cursor: 'pointer', fontSize: '15px', color: value ? '#0B0B0B' : '#9CA3AF', userSelect: 'none' }}>
         <span>{value || placeholder}</span>
         <span style={{ fontSize: '11px', color: '#9CA3AF', marginLeft: '8px' }}>{open ? '▲' : '▼'}</span>
       </div>
       {open && (
         <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#fff', border: '1.5px solid #E2E8F0', borderRadius: '10px', boxShadow: '0 8px 32px rgba(0,0,0,0.12)', zIndex: 200, overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '260px' }}>
-          <div style={{ padding: '8px', borderBottom: '1px solid #F1F5F9' }}>
+          <div style={{ padding: '8px', borderBottom: '1px solid #F5F5F5' }}>
             <input autoFocus value={search} onChange={e => setSearch(e.target.value)} onClick={e => e.stopPropagation()} placeholder="Search..."
-              style={{ width: '100%', padding: '8px 12px', border: '1.5px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', color: '#111', background: '#F8FAFC', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+              style={{ width: '100%', padding: '8px 12px', border: '1.5px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', color: '#0B0B0B', background: '#F5F5F5', fontFamily: 'inherit', boxSizing: 'border-box' }} />
           </div>
           <div style={{ overflowY: 'auto', flex: 1 }}>
             {filtered.length === 0
@@ -108,8 +109,8 @@ function SearchableDropdown({ options, value, onChange, placeholder = 'Select...
               : filtered.map((o, i) => (
                 <div key={i}
                   onMouseDown={() => { onChange(o); setOpen(false); setSearch('') }}
-                  style={{ padding: '10px 16px', cursor: 'pointer', fontSize: '14px', color: '#111', background: o === value ? '#EFF6FF' : 'transparent', fontWeight: o === value ? '600' : '400', borderBottom: '1px solid #F8FAFC' }}
-                  onMouseEnter={e => { if (o !== value) e.currentTarget.style.background = '#F8FAFC' }}
+                  style={{ padding: '10px 16px', cursor: 'pointer', fontSize: '14px', color: '#0B0B0B', background: o === value ? '#F5F5F5' : 'transparent', fontWeight: o === value ? '600' : '400', borderBottom: '1px solid #F5F5F5' }}
+                  onMouseEnter={e => { if (o !== value) e.currentTarget.style.background = '#F5F5F5' }}
                   onMouseLeave={e => { if (o !== value) e.currentTarget.style.background = 'transparent' }}>
                   {o}
                 </div>
@@ -146,27 +147,27 @@ function PhoneInput({ dialCode, onDialChange, number, onNumberChange }) {
     <div style={{ display: 'flex', gap: '8px' }}>
       <div ref={ref} style={{ position: 'relative', flexShrink: 0 }}>
         <div onClick={() => { setOpen(o => !o); setSearch('') }}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '12px 10px', border: `1.5px solid ${open ? '#2563EB' : '#E2E8F0'}`, borderRadius: '10px', background: '#fff', cursor: 'pointer', userSelect: 'none', minWidth: '90px' }}>
+          style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '12px 10px', border: `1.5px solid ${open ? '#0B0B0B' : '#E2E8F0'}`, borderRadius: '10px', background: '#fff', cursor: 'pointer', userSelect: 'none', minWidth: '90px' }}>
           <span style={{ fontSize: '18px' }}>{sel.flag}</span>
-          <span style={{ fontSize: '14px', fontWeight: '600', color: '#111' }}>{dialCode}</span>
+          <span style={{ fontSize: '14px', fontWeight: '600', color: '#0B0B0B' }}>{dialCode}</span>
           <span style={{ fontSize: '10px', color: '#9CA3AF' }}>{open ? '▲' : '▼'}</span>
         </div>
         {open && (
           <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 200, background: '#fff', border: '1.5px solid #E2E8F0', borderRadius: '10px', boxShadow: '0 8px 32px rgba(0,0,0,0.12)', width: '240px', overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '260px' }}>
-            <div style={{ padding: '8px', borderBottom: '1px solid #F1F5F9' }}>
+            <div style={{ padding: '8px', borderBottom: '1px solid #F5F5F5' }}>
               <input autoFocus value={search} onChange={e => setSearch(e.target.value)} onClick={e => e.stopPropagation()} placeholder="Search country..."
-                style={{ width: '100%', padding: '8px 12px', border: '1.5px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', color: '#111', background: '#F8FAFC', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '8px 12px', border: '1.5px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', color: '#0B0B0B', background: '#F5F5F5', fontFamily: 'inherit', boxSizing: 'border-box' }} />
             </div>
             <div style={{ overflowY: 'auto', flex: 1 }}>
               {filtered.map((c, i) => (
                 <div key={i}
                   onMouseDown={() => { onDialChange(c.dial); setOpen(false); setSearch('') }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 14px', cursor: 'pointer', background: c.code === sel.code ? '#EFF6FF' : 'transparent', borderBottom: '1px solid #F8FAFC' }}
-                  onMouseEnter={e => { if (c.code !== sel.code) e.currentTarget.style.background = '#F8FAFC' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 14px', cursor: 'pointer', background: c.code === sel.code ? '#F5F5F5' : 'transparent', borderBottom: '1px solid #F5F5F5' }}
+                  onMouseEnter={e => { if (c.code !== sel.code) e.currentTarget.style.background = '#F5F5F5' }}
                   onMouseLeave={e => { if (c.code !== sel.code) e.currentTarget.style.background = 'transparent' }}>
                   <span style={{ fontSize: '18px' }}>{c.flag}</span>
-                  <span style={{ flex: 1, fontSize: '13px', color: '#111' }}>{c.name}</span>
-                  <span style={{ fontSize: '13px', color: '#64748B', fontWeight: '600' }}>{c.dial}</span>
+                  <span style={{ flex: 1, fontSize: '13px', color: '#0B0B0B' }}>{c.name}</span>
+                  <span style={{ fontSize: '13px', color: '#6B7280', fontWeight: '600' }}>{c.dial}</span>
                 </div>
               ))}
             </div>
@@ -182,7 +183,7 @@ function PhoneInput({ dialCode, onDialChange, number, onNumberChange }) {
 // ── Register ──────────────────────────────────────────────────────────────────
 
 export default function Register() {
-  usePageMeta({ title: 'Create Account — TeachMe', description: 'Join TeachMe as a learner, parent, or teacher' })
+  usePageMeta({ title: 'Create Account — Stuumo', description: 'Join Stuumo as a learner, parent, or teacher' })
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
@@ -244,24 +245,21 @@ export default function Register() {
 
   if (step === 'role') {
     return (
-      <div style={{ minHeight: '100vh', background: '#F1F5F9', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem', fontFamily: 'DM Sans, sans-serif' }}>
+      <div style={{ minHeight: '100vh', background: '#F5F5F5', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem', fontFamily: 'Tahoma, Geneva, sans-serif' }}>
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div style={{ fontFamily: 'Georgia, serif', fontSize: '32px', fontWeight: '700', color: '#111', marginBottom: '8px' }}>
-            Teach<span style={{ color: '#2563EB' }}>Me</span>
-          </div>
-          <div style={{ fontSize: '16px', color: '#64748B' }}>How will you use TeachMe?</div>
+          <Logo variant="yellow" height={32} />
+          <div style={{ fontSize: '16px', color: '#6B7280' }}>How will you use Stuumo?</div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', width: '100%', maxWidth: '740px', marginBottom: '1.5rem' }}>
-          {ROLES.map(r => (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', width: '100%', maxWidth: '740px', marginBottom: '1.5rem' }}>          {ROLES.map(r => (
             <div key={r.key}
               onClick={() => { setRole(r.key); setStep('account') }}
               style={{ background: '#fff', border: '2px solid #E2E8F0', borderRadius: '16px', padding: '2rem 1.5rem', cursor: 'pointer', textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', transition: 'all 0.2s' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = r.border; e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)' }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)' }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>{r.icon}</div>
-              <div style={{ fontSize: '15px', fontWeight: '700', color: '#111', marginBottom: '8px' }}>{r.title}</div>
-              <div style={{ fontSize: '13px', color: '#64748B', lineHeight: '1.6', marginBottom: '18px' }}>{r.desc}</div>
+              <div style={{ fontSize: '15px', fontWeight: '700', color: '#0B0B0B', marginBottom: '8px' }}>{r.title}</div>
+              <div style={{ fontSize: '13px', color: '#6B7280', lineHeight: '1.6', marginBottom: '18px' }}>{r.desc}</div>
               <div style={{ display: 'inline-block', padding: '7px 20px', background: r.bg, color: r.color, borderRadius: '20px', fontSize: '13px', fontWeight: '700' }}>
                 Get started →
               </div>
@@ -269,9 +267,9 @@ export default function Register() {
           ))}
         </div>
 
-        <p style={{ color: '#64748B', fontSize: '14px' }}>
+        <p style={{ color: '#6B7280', fontSize: '14px' }}>
           Already have an account?{' '}
-          <Link to="/login" style={{ color: '#2563EB', fontWeight: '600', textDecoration: 'none' }}>Sign in</Link>
+          <Link to="/login" style={{ color: '#0B0B0B', fontWeight: '600', textDecoration: 'none' }}>Sign in</Link>
         </p>
       </div>
     )
@@ -280,13 +278,11 @@ export default function Register() {
   // ── Account form ────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F1F5F9', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem', fontFamily: 'DM Sans, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#F5F5F5', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem', fontFamily: 'Tahoma, Geneva, sans-serif' }}>
       <div style={{ width: '100%', maxWidth: '480px' }}>
 
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <div style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '700', color: '#111' }}>
-            Teach<span style={{ color: '#2563EB' }}>Me</span>
-          </div>
+          <Logo variant="yellow" height={32} />
         </div>
 
         <div style={{ background: '#fff', borderRadius: '20px', padding: '2rem', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid #E2E8F0' }}>
@@ -295,21 +291,21 @@ export default function Register() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
             {!validRole && (
               <button onClick={() => setStep('role')}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', fontSize: '22px', padding: '0 4px', lineHeight: 1, flexShrink: 0 }}>
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', fontSize: '22px', padding: '0 4px', lineHeight: 1, flexShrink: 0 }}>
                 ←
               </button>
             )}
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: roleInfo?.accent || '#F8FAFC', borderRadius: '10px', border: `1.5px solid ${roleInfo?.border || '#E2E8F0'}` }}>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: roleInfo?.accent || '#F5F5F5', borderRadius: '10px', border: `1.5px solid ${roleInfo?.border || '#E2E8F0'}` }}>
               <span style={{ fontSize: '22px' }}>{roleInfo?.icon}</span>
               <div>
-                <div style={{ fontSize: '14px', fontWeight: '700', color: '#111' }}>{roleInfo?.title}</div>
-                <div style={{ fontSize: '12px', color: '#64748B' }}>Fill in your details below</div>
+                <div style={{ fontSize: '14px', fontWeight: '700', color: '#0B0B0B' }}>{roleInfo?.title}</div>
+                <div style={{ fontSize: '12px', color: '#6B7280' }}>Fill in your details below</div>
               </div>
             </div>
           </div>
 
           {error && (
-            <div style={{ background: '#FEF2F2', color: '#DC2626', padding: '12px 16px', borderRadius: '10px', fontSize: '14px', marginBottom: '1.25rem', border: '1px solid #FECACA' }}>
+            <div style={{ background: '#F5F5F5', color: '#6D28D9', padding: '12px 16px', borderRadius: '10px', fontSize: '14px', marginBottom: '1.25rem', border: '1px solid #E2E8F0' }}>
               {error}
             </div>
           )}
@@ -371,20 +367,20 @@ export default function Register() {
             </div>
 
             <button type="submit" disabled={loading}
-              style={{ width: '100%', padding: '14px', background: loading ? '#E2E8F0' : '#2563EB', color: loading ? '#94A3B8' : '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', marginTop: '4px' }}>
+              style={{ width: '100%', padding: '14px', background: loading ? '#E2E8F0' : '#6D28D9', color: loading ? '#9CA3AF' : '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', marginTop: '4px' }}>
               {loading ? 'Creating account...' : role === 'teacher' ? 'Create account & complete profile →' : 'Create my account →'}
             </button>
           </form>
 
           {role === 'teacher' && (
-            <div style={{ marginTop: '1rem', padding: '12px 14px', background: '#EFF6FF', borderRadius: '10px', border: '1px solid #BFDBFE', fontSize: '13px', color: '#1E40AF' }}>
+            <div style={{ marginTop: '1rem', padding: '12px 14px', background: '#F5F5F5', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '13px', color: '#0B0B0B' }}>
               📋 After this you'll complete your teaching profile and submit your application for admin review.
             </div>
           )}
 
-          <p style={{ textAlign: 'center', color: '#64748B', fontSize: '14px', marginTop: '1.25rem', marginBottom: 0 }}>
+          <p style={{ textAlign: 'center', color: '#6B7280', fontSize: '14px', marginTop: '1.25rem', marginBottom: 0 }}>
             Already have an account?{' '}
-            <Link to="/login" style={{ color: '#2563EB', fontWeight: '600', textDecoration: 'none' }}>Sign in</Link>
+            <Link to="/login" style={{ color: '#0B0B0B', fontWeight: '600', textDecoration: 'none' }}>Sign in</Link>
           </p>
         </div>
       </div>

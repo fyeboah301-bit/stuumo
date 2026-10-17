@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Logo from '../components/Logo'
 import { supabase } from '../lib/supabase'
 import { Link, useParams } from 'react-router-dom'
 import {
@@ -9,10 +10,10 @@ import {
 usePageMeta(cert ? `Verify Certificate — ${cert.certificate_code}` : 'Verify Certificate')
 
 const gradeColor = (label) => {
-  if (label === 'Distinction') return { color: '#854D0E', bg: '#FEF9C3', accent: '#F59E0B' }
-  if (label === 'Merit')       return { color: '#1E40AF', bg: '#DBEAFE', accent: BLUE }
-  if (label === 'Pass')        return { color: '#166534', bg: '#DCFCE7', accent: '#22C55E' }
-  return { color: TEXT_MUTED, bg: GREY_BG, accent: '#94A3B8' }
+  if (label === 'Distinction') return { color: '#0B0B0B', bg: '#F5F5F5', accent: '#0B0B0B' }
+  if (label === 'Merit')       return { color: '#0B0B0B', bg: '#F5F5F5', accent: BLUE }
+  if (label === 'Pass')        return { color: '#0B0B0B', bg: '#F5F5F5', accent: '#6D28D9' }
+  return { color: TEXT_MUTED, bg: GREY_BG, accent: '#9CA3AF' }
 }
 
 export default function VerifyCertificate() {
@@ -43,36 +44,36 @@ export default function VerifyCertificate() {
   const gc = cert ? gradeColor(cert.grade_label) : null
 
   return (
-    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'DM Sans, sans-serif', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'Tahoma, Geneva, sans-serif', display: 'flex', flexDirection: 'column' }}>
 
       {/* NAV */}
-      <nav style={{ background: GRADIENT_HERO, padding: '0.875rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <Link to="/" style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: '700', color: '#fff', textDecoration: 'none', letterSpacing: '-0.02em' }}>
-          Teach<span style={{ color: YELLOW }}>Me</span>
+      <nav style={{ background: GRADIENT_HERO, padding: '0.875rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
+        <Link to="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
+          <Logo variant="yellow" height={30} />
         </Link>
-        <Link to="/teachers" style={{ padding: '7px 16px', background: YELLOW, color: BLUE, borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_YELLOW }}>
+        <Link to="/teachers" style={{ padding: '7px 16px', background: YELLOW, color: '#FFFFFF', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_YELLOW }}>
           Browse teachers
         </Link>
       </nav>
 
       {/* HERO */}
       <div style={{ background: GRADIENT_HERO, padding: '3rem 1.5rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '220px', height: '220px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: '-40px', left: '-40px', width: '160px', height: '160px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '220px', height: '220px', borderRadius: '50%', border: '1px solid rgba(0,0,0,0.06)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-40px', left: '-40px', width: '160px', height: '160px', borderRadius: '50%', border: '1px solid rgba(0,0,0,0.05)', pointerEvents: 'none' }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px', margin: '0 auto 1rem' }}>
+          <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(0,0,0,0.1)', border: '1px solid rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px', margin: '0 auto 1rem' }}>
             🔍
           </div>
-          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '32px', fontWeight: '700', color: '#fff', marginBottom: '8px', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '32px', fontWeight: '700', color: '#0B0B0B', marginBottom: '8px', letterSpacing: '-0.02em' }}>
             Certificate Verification
           </h1>
-          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.65)', margin: 0, lineHeight: '1.6' }}>
-            Verify the authenticity of a TeachMe certificate
+          <p style={{ fontSize: '14px', color: 'rgba(0,0,0,0.65)', margin: 0, lineHeight: '1.6' }}>
+            Verify the authenticity of a Stuumo certificate
           </p>
           {code && (
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '50px', padding: '6px 16px', marginTop: '14px' }}>
-              <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Code</span>
-              <span style={{ fontSize: '13px', fontFamily: 'monospace', color: '#fff', fontWeight: '700', letterSpacing: '0.05em' }}>{code}</span>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(0,0,0,0.1)', border: '1px solid rgba(0,0,0,0.2)', borderRadius: '50px', padding: '6px 16px', marginTop: '14px' }}>
+              <span style={{ fontSize: '11px', color: 'rgba(0,0,0,0.55)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Code</span>
+              <span style={{ fontSize: '13px', fontFamily: 'monospace', color: '#0B0B0B', fontWeight: '700', letterSpacing: '0.05em' }}>{code}</span>
             </div>
           )}
         </div>
@@ -85,7 +86,7 @@ export default function VerifyCertificate() {
           <div style={{ background: '#fff', borderRadius: '20px', border: BORDER, padding: '4rem 2rem', textAlign: 'center', boxShadow: SHADOW_LG }}>
             <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', marginBottom: '1.25rem' }}>
               {[0, 1, 2].map(i => (
-                <div key={i} style={{ width: '10px', height: '10px', borderRadius: '50%', background: BLUE, animation: `dot 1.4s ease-in-out ${i * 0.2}s infinite` }} />
+                <div key={i} style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#6D28D9', animation: `dot 1.4s ease-in-out ${i * 0.2}s infinite` }} />
               ))}
             </div>
             <p style={{ fontSize: '15px', fontWeight: '600', color: TEXT, marginBottom: '6px' }}>Verifying certificate...</p>
@@ -96,11 +97,11 @@ export default function VerifyCertificate() {
 
         {/* NOT FOUND */}
         {!loading && !cert && (
-          <div style={{ background: '#fff', borderRadius: '20px', border: '2px solid #FECACA', overflow: 'hidden', boxShadow: SHADOW_LG }}>
-            <div style={{ background: '#FEE2E2', padding: '1.5rem', textAlign: 'center', borderBottom: '1px solid #FECACA' }}>
-              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#FECACA', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', margin: '0 auto 1rem' }}>❌</div>
-              <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#991B1B', marginBottom: '6px', letterSpacing: '-0.01em' }}>Certificate Not Found</h3>
-              <p style={{ fontSize: '14px', color: '#991B1B', opacity: 0.85, margin: 0, lineHeight: '1.6' }}>
+          <div style={{ background: '#fff', borderRadius: '20px', border: '2px solid #E2E8F0', overflow: 'hidden', boxShadow: SHADOW_LG }}>
+            <div style={{ background: '#F5F5F5', padding: '1.5rem', textAlign: 'center', borderBottom: '1px solid #E2E8F0' }}>
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', margin: '0 auto 1rem' }}>❌</div>
+              <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#6D28D9', marginBottom: '6px', letterSpacing: '-0.01em' }}>Certificate Not Found</h3>
+              <p style={{ fontSize: '14px', color: '#6D28D9', opacity: 0.85, margin: 0, lineHeight: '1.6' }}>
                 This certificate code does not exist in our records. It may be invalid or fraudulent.
               </p>
             </div>
@@ -113,8 +114,8 @@ export default function VerifyCertificate() {
                   <li>The certificate may have been revoked by the issuing teacher</li>
                 </ul>
               </div>
-              <Link to="/" style={{ display: 'block', padding: '12px', background: GRADIENT_BLUE, color: '#fff', borderRadius: '50px', fontSize: '14px', textDecoration: 'none', fontWeight: '700', textAlign: 'center', boxShadow: '0 4px 12px rgba(37,99,235,0.25)' }}>
-                Return to TeachMe
+              <Link to="/" style={{ display: 'block', padding: '12px', background: GRADIENT_BLUE, color: '#fff', borderRadius: '50px', fontSize: '14px', textDecoration: 'none', fontWeight: '700', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.25)' }}>
+                Return to Stuumo
               </Link>
             </div>
           </div>
@@ -124,33 +125,33 @@ export default function VerifyCertificate() {
         {!loading && cert && (
           <div>
             {/* VALID BADGE */}
-            <div style={{ background: '#DCFCE7', borderRadius: '14px', padding: '14px 20px', border: '2px solid #22C55E', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 4px 16px rgba(34,197,94,0.15)' }}>
-              <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#22C55E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0, boxShadow: '0 4px 12px rgba(34,197,94,0.35)' }}>✓</div>
+            <div style={{ background: '#F5F5F5', borderRadius: '14px', padding: '14px 20px', border: '1px solid #E2E8F0', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 4px 16px rgba(0,0,0,0.07)' }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#6D28D9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0, boxShadow: '0 4px 12px rgba(0,0,0,0.17)' }}>✓</div>
               <div>
-                <div style={{ fontSize: '16px', fontWeight: '800', color: '#166534', letterSpacing: '-0.01em' }}>Valid Certificate</div>
-                <div style={{ fontSize: '13px', color: '#166534', opacity: 0.8, marginTop: '2px' }}>This certificate is authentic and verified by TeachMe</div>
+                <div style={{ fontSize: '16px', fontWeight: '800', color: '#0B0B0B', letterSpacing: '-0.01em' }}>Valid Certificate</div>
+                <div style={{ fontSize: '13px', color: '#0B0B0B', opacity: 0.8, marginTop: '2px' }}>This certificate is authentic and verified by Stuumo</div>
               </div>
             </div>
 
             {/* CERTIFICATE CARD */}
-            <div style={{ background: '#fff', borderRadius: '20px', border: `2px solid ${YELLOW}`, overflow: 'hidden', boxShadow: `0 8px 32px rgba(255,215,0,0.15)` }}>
+            <div style={{ background: '#fff', borderRadius: '20px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: `0 8px 32px rgba(0,0,0,0.07)` }}>
 
               {/* CERT HEADER */}
-              <div style={{ background: GRADIENT_BLUE, padding: '1.5rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '100px', height: '100px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.1)', pointerEvents: 'none' }} />
-                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'rgba(255,215,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', margin: '0 auto 12px', border: '1px solid rgba(255,215,0,0.3)' }}>🏆</div>
-                <div style={{ fontFamily: 'Georgia, serif', fontSize: '22px', fontWeight: '700', color: '#fff', marginBottom: '4px', letterSpacing: '-0.01em' }}>
+              <div style={{ background: '#F5F5F5', padding: '1.5rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '100px', height: '100px', borderRadius: '50%', border: '1px solid rgba(0,0,0,0.1)', pointerEvents: 'none' }} />
+                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'rgba(109,40,217,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', margin: '0 auto 12px', border: '1px solid rgba(109,40,217,0.3)' }}>🏆</div>
+                <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '22px', fontWeight: '700', color: '#0B0B0B', marginBottom: '4px', letterSpacing: '-0.01em' }}>
                   Certificate of Completion
                 </div>
-                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontWeight: '500', letterSpacing: '0.04em' }}>
-                  TeachMe · Verified. Trusted. Effective.
+                <div style={{ fontSize: '12px', color: 'rgba(0,0,0,0.6)', fontWeight: '500', letterSpacing: '0.04em' }}>
+                  Stuumo · Verified. Trusted. Effective.
                 </div>
               </div>
 
               {/* LEARNER NAME */}
               <div style={{ padding: '1.5rem', textAlign: 'center', borderBottom: BORDER, background: GREY_BG }}>
                 <div style={{ fontSize: '11px', fontWeight: '800', color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' }}>This certifies that</div>
-                <div style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '700', color: TEXT, letterSpacing: '-0.02em', lineHeight: '1.2' }}>
+                <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '28px', fontWeight: '700', color: TEXT, letterSpacing: '-0.02em', lineHeight: '1.2' }}>
                   {cert.learner?.full_name}
                 </div>
                 <div style={{ fontSize: '14px', color: TEXT_MUTED, marginTop: '6px' }}>has successfully completed</div>
@@ -158,7 +159,7 @@ export default function VerifyCertificate() {
 
               {/* SUBJECT + GRADE */}
               <div style={{ padding: '1.5rem', textAlign: 'center', borderBottom: BORDER }}>
-                <div style={{ fontFamily: 'Georgia, serif', fontSize: '24px', fontWeight: '700', color: BLUE, marginBottom: '12px', letterSpacing: '-0.01em' }}>
+                <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '24px', fontWeight: '700', color: BLUE, marginBottom: '12px', letterSpacing: '-0.01em' }}>
                   {cert.subject}
                 </div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: gc.bg, color: gc.color, padding: '7px 20px', borderRadius: '50px', fontSize: '14px', fontWeight: '800', border: `1px solid ${gc.accent}40` }}>
@@ -194,21 +195,21 @@ export default function VerifyCertificate() {
               {/* FOOTER ACTIONS */}
               <div style={{ padding: '1rem 1.5rem', borderTop: BORDER, background: GREY_BG, display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 <button onClick={copyLink}
-                  style={{ flex: 1, padding: '11px', background: copied ? '#DCFCE7' : '#fff', color: copied ? '#166534' : BLUE, border: BORDER, borderRadius: '50px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700', transition: TRANSITION }}>
+                  style={{ flex: 1, padding: '11px', background: copied ? '#F5F5F5' : '#fff', color: copied ? '#0B0B0B' : BLUE, border: BORDER, borderRadius: '50px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700', transition: TRANSITION }}>
                   {copied ? '✓ Link copied!' : '🔗 Copy verification link'}
                 </button>
                 <Link to="/teachers"
-                  style={{ flex: 1, padding: '11px', background: GRADIENT_BLUE, color: '#fff', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', textAlign: 'center', boxShadow: '0 4px 12px rgba(37,99,235,0.25)' }}>
+                  style={{ flex: 1, padding: '11px', background: GRADIENT_BLUE, color: '#fff', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.25)' }}>
                   Find teachers →
                 </Link>
               </div>
             </div>
 
             {/* TRUST NOTE */}
-            <div style={{ background: LIGHT_BLUE, borderRadius: '14px', padding: '1rem 1.25rem', marginTop: '1.25rem', border: '1px solid rgba(37,99,235,0.15)', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+            <div style={{ background: LIGHT_BLUE, borderRadius: '14px', padding: '1rem 1.25rem', marginTop: '1.25rem', border: '1px solid rgba(0,0,0,0.15)', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
               <span style={{ fontSize: '18px', flexShrink: 0 }}>🛡️</span>
               <p style={{ fontSize: '13px', color: BLUE, margin: 0, lineHeight: '1.7', fontWeight: '500' }}>
-                This certificate was issued through TeachMe's verified tutoring platform. The teacher's credentials and teaching qualification were reviewed by our team before this certificate was issued.
+                This certificate was issued through Stuumo's verified tutoring platform. The teacher's credentials and teaching qualification were reviewed by our team before this certificate was issued.
               </p>
             </div>
           </div>
@@ -217,11 +218,11 @@ export default function VerifyCertificate() {
 
       {/* FOOTER */}
       <div style={{ borderTop: BORDER, padding: '1.25rem', textAlign: 'center', background: '#fff', marginTop: '2rem' }}>
-        <Link to="/" style={{ fontFamily: 'Georgia, serif', fontSize: '18px', fontWeight: '700', color: BLUE, textDecoration: 'none', letterSpacing: '-0.01em' }}>
-          Teach<span style={{ color: YELLOW }}>Me</span>
+        <Link to="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
+          <Logo variant="yellow" height={30} />
         </Link>
         <p style={{ fontSize: '12px', color: TEXT_MUTED, marginTop: '6px', margin: '6px 0 0' }}>
-          Ghana's trusted platform for verified home tutors
+          the trusted platform for verified tutors
         </p>
       </div>
     </div>
