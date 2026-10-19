@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { detectContactShare } from '../lib/contactFilter'
 import {
   BLUE, YELLOW, DARK_BLUE, LIGHT_BLUE, GREY_BG, GREY_LIGHT,
   TEXT, TEXT_MUTED, GRADIENT_BLUE, GRADIENT_HERO,
@@ -61,6 +62,7 @@ export default function Messages() {
   const [activeBooking, setActiveBooking] = useState(null)
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
+  const [blockWarning, setBlockWarning] = useState('')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
   const [search, setSearch] = useState('')
@@ -172,8 +174,11 @@ export default function Messages() {
   const sendMessage = async (e) => {
     e.preventDefault()
     if (!newMessage.trim() || !activeBooking) return
-    setSending(true)
     const messageText = newMessage.trim()
+    const contactCheck = detectContactShare(messageText)
+    if (contactCheck.blocked) { setBlockWarning(contactCheck.reason); return }
+    setBlockWarning('')
+    setSending(true)
     setNewMessage('')
     try {
       const receiverId = getOtherPersonId(activeBooking)
@@ -188,7 +193,13 @@ export default function Messages() {
         type: 'message', link: `/messages?booking=${activeBooking.id}`
       })
       setConversationMeta(prev => ({ ...prev, [activeBooking.id]: { ...prev[activeBooking.id], lastMessage: data } }))
-    } catch (err) { console.log(err); setNewMessage(messageText) }
+    } catch (err) {
+      console.log(err)
+      setNewMessage(messageText)
+      if (String(err?.message || '').includes('CONTACT_BLOCKED')) {
+        setBlockWarning("To keep everyone safe, you can't share phone numbers, emails, or links here — keep chats on Stuumo.")
+      }
+    }
     finally { setSending(false) }
   }
 
@@ -417,6 +428,13 @@ export default function Messages() {
               Never share personal contact details. Keep all communication on Stuumo.
             </p>
           </div>
+
+          {blockWarning && (
+            <div style={{ margin: '0 1.25rem 0.5rem', padding: '10px 14px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '12px', fontSize: '13px', color: '#B91C1C', display: 'flex', justifyContent: 'space-between', gap: '10px', alignItems: 'flex-start' }}>
+              <span>🔒 {blockWarning}</span>
+              <button onClick={() => setBlockWarning('')} style={{ background: 'none', border: 'none', color: '#B91C1C', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: 0, flexShrink: 0 }}>×</button>
+            </div>
+          )}
 
           <form onSubmit={sendMessage} style={{ padding: '0.875rem 1.25rem', borderTop: BORDER, display: 'flex', gap: '10px', alignItems: 'flex-end', background: '#fff' }}>
             <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', background: GREY_BG, borderRadius: '20px', border: `1px solid ${newMessage.trim() ? BLUE : GREY_LIGHT}`, padding: '0 14px', transition: TRANSITION }}>
