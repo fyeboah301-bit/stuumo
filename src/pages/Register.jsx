@@ -244,7 +244,7 @@ export default function Register() {
       if (!uid) throw new Error('Something went wrong — please try again.')
       const referral_code = 'TM' + Math.random().toString(36).substring(2, 8).toUpperCase()
       const { error: pErr } = await supabase.from('profiles').upsert({
-        id: uid, full_name,
+        id: uid, email: form.email.trim(), full_name,
         phone: phone ? `${dialCode}${phone}` : '',
         city: form.city, country: form.country,
         role, referral_code, status: 'active',
