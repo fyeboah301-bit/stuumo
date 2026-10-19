@@ -411,7 +411,7 @@ const STEPS = [
 ]
 
 const LANGUAGES = ['English','Twi','Ga','Ewe','Hausa','French','Fante','Dagbani','Yoruba','Igbo','Kiswahili','Afrikaans','German','Spanish','Arabic','Other']
-const DOC_TYPES  = ["National ID","Passport","Voter ID","Driver's License","NHIS Card"]
+const DOC_TYPES  = ["Ghana Card"]
 
 const inp = { width: '100%', padding: '12px 16px', border: '1.5px solid #E2E8F0', borderRadius: '10px', fontSize: '15px', color: '#0B0B0B', background: '#fff', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }
 const lbl = { fontSize: '13px', fontWeight: '600', color: '#0B0B0B', display: 'block', marginBottom: '6px' }
@@ -436,12 +436,15 @@ export default function TeacherApplication() {
   const [selectedLangs, setSelectedLangs] = useState([])
 
   // Step 2
+  const [subjectSearch, setSubjectSearch] = useState('')
   const [levels, setLevels]     = useState([])
   const [subjects, setSubjects] = useState([])
 
   // Step 3
+  const [avatarUrl, setAvatarUrl] = useState(null)
+  const [avatarUploading, setAvatarUploading] = useState(false)
   const [docFile, setDocFile]       = useState(null)
-  const [docType, setDocType]       = useState('National ID')
+  const [docType, setDocType]       = useState('Ghana Card')
   const [uploadedDoc, setUploadedDoc]   = useState(null)
   const [certFile, setCertFile]     = useState(null)
   const [certName, setCertName]     = useState('')
@@ -456,8 +459,9 @@ export default function TeacherApplication() {
 
       // Get country from profile
       const { data: profile } = await supabase
-        .from('profiles').select('country').eq('id', data.user.id).single()
+        .from('profiles').select('country, avatar_url').eq('id', data.user.id).single()
       if (profile?.country) setCountry(profile.country)
+      if (profile?.avatar_url) setAvatarUrl(profile.avatar_url)
 
       const { data: teacher } = await supabase
         .from('teachers').select('*').eq('id', data.user.id).single()
@@ -512,31 +516,62 @@ export default function TeacherApplication() {
     setSaving(false); setStep(3)
   }
 
-  const uploadDoc = async () => {
-    if (!docFile) return setUploadMsg('Please select a file')
+  const uploadDoc = async (file) => {
+    if (!file) return
     setUploading(true); setUploadMsg('')
     try {
-      const ext  = docFile.name.split('.').pop()
+      const ext  = file.name.split('.').pop()
       const path = `${user.id}/${Date.now()}.${ext}`
-      const { error } = await supabase.storage.from('documents').upload(path, docFile)
+      const { error } = await supabase.storage.from('documents').upload(path, file)
       if (error) throw error
       const { data: urlData } = supabase.storage.from('documents').getPublicUrl(path)
       const { data: doc } = await supabase.from('teacher_documents').insert({
         teacher_id: user.id, document_type: docType, file_url: urlData.publicUrl, status: 'pending'
       }).select().single()
       setUploadedDoc(doc); setDocFile(null)
-      setUploadMsg('✅ ID document uploaded')
+      setUploadMsg('✅ Ghana Card uploaded')
     } catch (err) { setUploadMsg('Upload failed: ' + err.message) }
     finally { setUploading(false) }
   }
 
-  const uploadCert = async () => {
-    if (!certFile || !certName.trim()) return setUploadMsg('Please enter a certificate name and select a file')
+  const removeDoc = async () => {
+    if (uploadedDoc?.id) {
+      await supabase.from('teacher_documents').delete().eq('id', uploadedDoc.id)
+      const rel = uploadedDoc.file_url?.split('/documents/')[1]
+      if (rel) await supabase.storage.from('documents').remove([decodeURIComponent(rel)])
+    }
+    setUploadedDoc(null); setDocFile(null); setUploadMsg('')
+  }
+
+  const uploadAvatar = async (file) => {
+    if (!file) return
+    setAvatarUploading(true); setUploadMsg('')
+    try {
+      const ext  = file.name.split('.').pop()
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`
+      const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true })
+      if (error) throw error
+      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path)
+      await supabase.from('profiles').update({ avatar_url: urlData.publicUrl }).eq('id', user.id)
+      setAvatarUrl(urlData.publicUrl)
+      setUploadMsg('✅ Profile photo uploaded')
+    } catch (err) { setUploadMsg('Photo upload failed: ' + err.message) }
+    finally { setAvatarUploading(false) }
+  }
+
+  const removeAvatar = async () => {
+    await supabase.from('profiles').update({ avatar_url: null }).eq('id', user.id)
+    setAvatarUrl(null)
+  }
+
+  const uploadCert = async (file) => {
+    if (!certName.trim()) return setUploadMsg('Enter a certificate name first, then choose a file')
+    if (!file) return
     setUploading(true); setUploadMsg('')
     try {
-      const ext  = certFile.name.split('.').pop()
+      const ext  = file.name.split('.').pop()
       const path = `${user.id}/${Date.now()}.${ext}`
-      const { error } = await supabase.storage.from('certificates').upload(path, certFile)
+      const { error } = await supabase.storage.from('certificates').upload(path, file)
       if (error) throw error
       const { data: urlData } = supabase.storage.from('certificates').getPublicUrl(path)
       const { data: cert } = await supabase.from('certificates').insert({
@@ -549,8 +584,18 @@ export default function TeacherApplication() {
     finally { setUploading(false) }
   }
 
+  const removeCert = async (cert) => {
+    if (cert?.id) {
+      await supabase.from('certificates').delete().eq('id', cert.id)
+      const rel = cert.file_url?.split('/certificates/')[1]
+      if (rel) await supabase.storage.from('certificates').remove([decodeURIComponent(rel)])
+    }
+    setUploadedCerts(prev => prev.filter(c => c.id !== cert.id))
+  }
+
   const submitApplication = async () => {
-    if (!uploadedDoc) return setError('Please upload at least one ID document before submitting')
+    if (!avatarUrl) return setError('Please add a profile photo before submitting')
+    if (!uploadedDoc) return setError('Please upload your Ghana Card before submitting')
     setSaving(true); setError('')
     await supabase.from('teachers').update({
       application_status: 'pending',
@@ -561,6 +606,7 @@ export default function TeacherApplication() {
       target_id: user.id, details: 'New teacher application submitted'
     })
     setSaving(false); setDone(true)
+    await supabase.auth.signOut()
   }
 
   // ── Status screens ────────────────────────────────────────────────────────
@@ -568,8 +614,8 @@ export default function TeacherApplication() {
   if (existing?.application_status === 'pending' && !done) {
     return (
       <StatusScreen icon="⏳" title="Application under review" color="#0B0B0B" bg="#F5F5F5"
-        message="Your application has been submitted and is being reviewed by our team. We'll email you within 48 hours."
-        actions={[{ label: 'Go to dashboard', onClick: () => navigate('/dashboard'), primary: true }]} />
+        message="Your application has been submitted and is being reviewed. Once approved, we'll email you a link to set your password and sign in."
+        actions={[{ label: 'Back to home', onClick: () => navigate('/'), primary: true }]} />
     )
   }
 
@@ -620,9 +666,12 @@ export default function TeacherApplication() {
               </div>
             ))}
           </div>
-          <button onClick={() => navigate('/dashboard')}
-            style={{ width: '100%', padding: '14px', background: '#6D28D9', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
-            Go to dashboard
+          <div style={{ fontSize: '14px', color: '#6B7280', lineHeight: '1.7' }}>
+            You can close this page. Once approved, we'll email you a link to set your password and sign in.
+          </div>
+          <button onClick={() => navigate('/')}
+            style={{ marginTop: '1.25rem', width: '100%', padding: '14px', background: '#fff', color: '#6B7280', border: '1.5px solid #E2E8F0', borderRadius: '12px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+            Back to home
           </button>
         </div>
       </Wrapper>
@@ -782,8 +831,10 @@ export default function TeacherApplication() {
                           <strong>{levels.join(', ')}</strong> level{levels.length !== 1 ? 's' : ''} in <strong>{country}</strong>
                         </span>
                       </div>
+                      <input value={subjectSearch} onChange={e => setSubjectSearch(e.target.value)} placeholder="🔍 Search subjects..."
+                        style={{ ...inp, marginBottom: '10px' }} />
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '14px', border: '1.5px solid #E2E8F0', borderRadius: '12px', background: '#F5F5F5', maxHeight: '300px', overflowY: 'auto' }}>
-                        {availableSubjects.map(s => (
+                        {availableSubjects.filter(s => s.toLowerCase().includes(subjectSearch.toLowerCase())).map(s => (
                           <button key={s} type="button" onClick={() => toggleSubject(s)}
                             style={{
                               padding: '7px 14px', borderRadius: '20px', fontSize: '13px', cursor: 'pointer',
@@ -820,7 +871,7 @@ export default function TeacherApplication() {
           {/* ── STEP 3 ── */}
           {step === 3 && (
             <div>
-              <StepHeader icon="🪪" title="Verify your identity" sub="Upload an ID document (required) and any teaching certificates (strongly recommended)" />
+              <StepHeader icon="🪪" title="Verify your identity" sub="Add your profile photo, upload your Ghana Card, and any teaching certificates" />
 
               {uploadMsg && (
                 <div style={{ background: uploadMsg.startsWith('✅') ? '#F5F5F5' : '#F5F5F5', color: uploadMsg.startsWith('✅') ? '#0B0B0B' : '#DC2626', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', border: `1px solid ${uploadMsg.startsWith('✅') ? '#E2E8F0' : '#E2E8F0'}` }}>
@@ -828,6 +879,32 @@ export default function TeacherApplication() {
                   <button onClick={() => setUploadMsg('')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', color: 'inherit', padding: 0 }}>×</button>
                 </div>
               )}
+
+              {/* Profile photo */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#0B0B0B', margin: 0 }}>Profile photo</h3>
+                  <span style={{ fontSize: '11px', background: '#F5F5F5', color: '#6D28D9', padding: '2px 8px', borderRadius: '20px', fontWeight: '700' }}>Required</span>
+                </div>
+                {avatarUrl ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px 16px', background: '#F5F5F5', borderRadius: '10px', border: '1.5px solid #E2E8F0' }}>
+                    <img src={avatarUrl} alt="" style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #6D28D9' }} />
+                    <div style={{ flex: 1, fontSize: '14px', fontWeight: '600', color: '#0B0B0B' }}>Photo added</div>
+                    <label style={{ fontSize: '12px', color: '#6B7280', cursor: 'pointer', fontWeight: '600' }}>
+                      Change
+                      <input type="file" accept=".jpg,.jpeg,.png" onChange={e => uploadAvatar(e.target.files[0])} style={{ display: 'none' }} />
+                    </label>
+                    <button onClick={removeAvatar} style={{ fontSize: '12px', color: '#DC2626', background: 'none', border: 'none', cursor: 'pointer' }}>Remove</button>
+                  </div>
+                ) : (
+                  <div style={{ border: '2px dashed #E2E8F0', borderRadius: '12px', padding: '1.25rem', background: '#F5F5F5', textAlign: 'center' }}>
+                    <div style={{ fontSize: '24px', marginBottom: '8px' }}>📷</div>
+                    <input type="file" accept=".jpg,.jpeg,.png" onChange={e => uploadAvatar(e.target.files[0])} style={{ fontSize: '13px', cursor: 'pointer' }} />
+                    <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '6px' }}>A clear photo of your face · JPG or PNG</div>
+                    {avatarUploading && <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '6px' }}>⏳ Uploading...</div>}
+                  </div>
+                )}
+              </div>
 
               {/* ID document */}
               <div style={{ marginBottom: '1.5rem' }}>
@@ -842,26 +919,21 @@ export default function TeacherApplication() {
                       <div style={{ fontSize: '14px', fontWeight: '600', color: '#0B0B0B' }}>{uploadedDoc.document_type}</div>
                       <div style={{ fontSize: '12px', color: '#0B0B0B' }}>Uploaded · Pending review</div>
                     </div>
-                    <button onClick={() => setUploadedDoc(null)} style={{ fontSize: '12px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer' }}>Replace</button>
+                    <button onClick={removeDoc} style={{ fontSize: '12px', color: '#DC2626', background: 'none', border: 'none', cursor: 'pointer' }}>Remove</button>
                   </div>
                 ) : (
                   <div style={{ border: '1.5px solid #E2E8F0', borderRadius: '12px', padding: '1.25rem', background: '#F5F5F5' }}>
                     <div style={{ marginBottom: '10px' }}>
                       <label style={lbl}>Document type</label>
-                      <select style={inp} value={docType} onChange={e => setDocType(e.target.value)}>
-                        {DOC_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                      </select>
+                      <div style={{ ...inp, display: 'flex', alignItems: 'center', color: '#0B0B0B', fontWeight: '600' }}>Ghana Card</div>
                     </div>
                     <div style={{ border: '2px dashed #E2E8F0', borderRadius: '8px', padding: '16px', background: '#fff', textAlign: 'center', marginBottom: '10px' }}>
                       <div style={{ fontSize: '24px', marginBottom: '8px' }}>📎</div>
-                      <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setDocFile(e.target.files[0])} style={{ fontSize: '13px', cursor: 'pointer' }} />
+                      <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => uploadDoc(e.target.files[0])} style={{ fontSize: '13px', cursor: 'pointer' }} />
                       <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '6px' }}>PDF, JPG or PNG</div>
                       {docFile && <div style={{ fontSize: '13px', color: '#0B0B0B', fontWeight: '600', marginTop: '6px' }}>📎 {docFile.name}</div>}
                     </div>
-                    <button onClick={uploadDoc} disabled={uploading || !docFile}
-                      style={{ width: '100%', padding: '11px', background: uploading || !docFile ? '#E2E8F0' : '#6D28D9', color: uploading || !docFile ? '#9CA3AF' : '#fff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: uploading || !docFile ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
-                      {uploading ? '⏳ Uploading...' : '⬆ Upload ID document'}
-                    </button>
+                    {uploading && <div style={{ fontSize: '13px', color: '#6B7280', textAlign: 'center' }}>⏳ Uploading...</div>}
                   </div>
                 )}
               </div>
@@ -881,6 +953,7 @@ export default function TeacherApplication() {
                           <div style={{ fontSize: '14px', fontWeight: '600', color: '#0B0B0B' }}>{c.certificate_name}</div>
                           <div style={{ fontSize: '12px', color: '#0B0B0B' }}>Uploaded · Pending review</div>
                         </div>
+                        <button onClick={() => removeCert(c)} style={{ fontSize: '12px', color: '#DC2626', background: 'none', border: 'none', cursor: 'pointer' }}>Remove</button>
                       </div>
                     ))}
                   </div>
@@ -900,13 +973,10 @@ export default function TeacherApplication() {
                     </div>
                   </div>
                   <div style={{ border: '2px dashed #E2E8F0', borderRadius: '8px', padding: '14px', background: '#fff', textAlign: 'center', marginBottom: '10px' }}>
-                    <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setCertFile(e.target.files[0])} style={{ fontSize: '13px', cursor: 'pointer' }} />
+                    <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => uploadCert(e.target.files[0])} style={{ fontSize: '13px', cursor: 'pointer' }} />
                     {certFile && <div style={{ fontSize: '13px', color: '#0B0B0B', fontWeight: '600', marginTop: '6px' }}>📎 {certFile.name}</div>}
                   </div>
-                  <button onClick={uploadCert} disabled={uploading || !certFile || !certName.trim()}
-                    style={{ width: '100%', padding: '11px', background: uploading || !certFile || !certName.trim() ? '#E2E8F0' : '#6D28D9', color: uploading || !certFile || !certName.trim() ? '#9CA3AF' : '#fff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
-                    {uploading ? '⏳ Uploading...' : '⬆ Add certificate'}
-                  </button>
+                  {uploading && <div style={{ fontSize: '13px', color: '#6B7280', textAlign: 'center' }}>⏳ Uploading...</div>}
                   <p style={{ fontSize: '12px', color: '#9CA3AF', textAlign: 'center', marginTop: '8px', marginBottom: 0 }}>You can add multiple certificates</p>
                 </div>
               </div>
@@ -931,14 +1001,15 @@ export default function TeacherApplication() {
                   <ReviewRow label="Subjects" value={subjects.length ? subjects.join(', ') : '—'} />
                 </ReviewSection>
                 <ReviewSection title="Verification" onEdit={() => setStep(3)}>
+                  <ReviewRow label="Profile photo" value={avatarUrl ? 'Added ✓' : '⚠️ Not added (required)'} alert={!avatarUrl} />
                   <ReviewRow label="ID document" value={uploadedDoc ? `${uploadedDoc.document_type} ✓` : '⚠️ Not uploaded (required)'} alert={!uploadedDoc} />
                   <ReviewRow label="Certificates" value={uploadedCerts.length ? `${uploadedCerts.length} uploaded` : 'None (recommended)'} />
                 </ReviewSection>
               </div>
 
-              {!uploadedDoc && (
+              {(!uploadedDoc || !avatarUrl) && (
                 <div style={{ background: '#F5F5F5', borderRadius: '10px', padding: '12px 14px', border: '1px solid #0B0B0B', fontSize: '13px', color: '#0B0B0B', marginBottom: '1rem' }}>
-                  ⚠️ Please go back and upload your ID document before submitting.
+                  ⚠️ Please add your profile photo and upload your Ghana Card before submitting.
                 </div>
               )}
 
@@ -953,8 +1024,8 @@ export default function TeacherApplication() {
                   style={{ padding: '13px 20px', background: '#fff', border: '1.5px solid #E2E8F0', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', color: '#6B7280', fontWeight: '600' }}>
                   ← Back
                 </button>
-                <button onClick={submitApplication} disabled={saving || !uploadedDoc}
-                  style={{ flex: 1, padding: '13px', background: saving || !uploadedDoc ? '#E2E8F0' : '#6D28D9', color: saving || !uploadedDoc ? '#9CA3AF' : '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: saving || !uploadedDoc ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                <button onClick={submitApplication} disabled={saving || !uploadedDoc || !avatarUrl}
+                  style={{ flex: 1, padding: '13px', background: saving || !uploadedDoc || !avatarUrl ? '#E2E8F0' : '#6D28D9', color: saving || !uploadedDoc || !avatarUrl ? '#9CA3AF' : '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: saving || !uploadedDoc || !avatarUrl ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                   {saving ? 'Submitting...' : '🚀 Submit application'}
                 </button>
               </div>

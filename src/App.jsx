@@ -27,6 +27,7 @@ const TeacherApplication = lazy(() => import('./pages/TeacherApplication'))
 const Terms = lazy(() => import('./pages/Terms'))
 const Privacy = lazy(() => import('./pages/Privacy'))
 const RefundPolicy = lazy(() => import('./pages/RefundPolicy'))
+const SetPassword = lazy(() => import('./pages/SetPassword'))
 
 // ─── LOADING FALLBACK ─────────────────────────────────────────────
 function PageLoader() {
@@ -74,6 +75,7 @@ function AppRoutes() {
           {/* PUBLIC */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<SetPassword />} />
           <Route path="/register" element={<Register />} />
           <Route path="/teachers" element={<Teachers />} />
           <Route path="/teachers/:id" element={<TeacherProfile />} />

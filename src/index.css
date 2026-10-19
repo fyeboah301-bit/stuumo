@@ -39,3 +39,12 @@ p { margin: 0; }
   flex: 1;
   padding: 0;
 }
+
+/* native-app-safe-area-guard */
+/* Capacitor: constrain document width so nothing overflows past the screen.
+   overflow-x: clip (not hidden) does NOT create a scroll container, so the
+   sticky header keeps working. */
+html, body, #root {
+  overflow-x: clip;
+  max-width: 100%;
+}

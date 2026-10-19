@@ -94,10 +94,17 @@ export const AuthProvider = ({ children }) => {
  const signIn = async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
-    const { data: profileData } = await supabase.from('profiles').select('status').eq('id', data.user.id).single()
+    const { data: profileData } = await supabase.from('profiles').select('status, role').eq('id', data.user.id).single()
     if (profileData?.status === 'suspended') {
       await supabase.auth.signOut()
       throw new Error('Your account has been suspended. Please contact support.')
+    }
+    if (profileData?.role === 'teacher') {
+      const { data: t } = await supabase.from('teachers').select('application_status').eq('id', data.user.id).single()
+      if (t?.application_status !== 'approved') {
+        await supabase.auth.signOut()
+        throw new Error("Your teacher application is still under review. We'll email you a link to set your password once it's approved.")
+      }
     }
     return data
   }

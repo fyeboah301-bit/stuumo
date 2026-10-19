@@ -350,7 +350,7 @@ export default function Home() {
     <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', background: '#fff', minHeight: '100vh', overflowX: 'clip' }}>
 
       {/* NAV */}
-      <nav style={{ background: '#6D28D9', padding: isMobile ? '0.875rem 1.25rem' : '1rem 2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
+      <nav style={{ background: '#6D28D9', padding: isMobile ? 'calc(0.875rem + env(safe-area-inset-top)) calc(1.25rem + env(safe-area-inset-right)) 0.875rem calc(1.25rem + env(safe-area-inset-left))' : '1rem 2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
         <Logo variant="blue" height={isMobile ? 28 : 32} />
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <Link to="/login" style={{ padding: isMobile ? '8px 14px' : '9px 20px', background: 'rgba(255,255,255,0.15)', color: '#FFFFFF', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '600', border: '1px solid rgba(255,255,255,0.3)', transition: TRANSITION }}>Log in</Link>

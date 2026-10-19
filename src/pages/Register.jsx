@@ -3,6 +3,9 @@ import Logo from '../components/Logo'
 import { supabase } from '../lib/supabase'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import usePageMeta from '../hooks/usePageMeta'
+import teacherImg from '../assets/images/teacher.png'
+import parentImg from '../assets/images/parent.png'
+import learnerImg from '../assets/images/learner.png'
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
@@ -64,10 +67,17 @@ const CITIES = {
   Australia: ['Sydney','Melbourne','Brisbane','Perth','Adelaide','Gold Coast','Newcastle','Canberra','Wollongong','Hobart'],
 }
 
+function RoleIcon({ role, size = 40 }) {
+  const common = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: '#6D28D9', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' }
+  if (role === 'teacher') return (<svg {...common}><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1 2.5 2.5 6 2.5s6-1.5 6-2.5v-5"/><path d="M22 10v4"/></svg>)
+  if (role === 'parent')  return (<svg {...common}><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.3"/><path d="M2 20c0-3.3 2.7-5.6 6-5.6s6 2.3 6 5.6"/><path d="M15.2 20c0-2.4 1-4 3.3-4.2"/></svg>)
+  return (<svg {...common}><path d="M12 6.5C10.5 5 8 4.6 4 5v13c4-.4 6.5 0 8 1.5"/><path d="M12 6.5C13.5 5 16 4.6 20 5v13c-4-.4-6.5 0-8 1.5"/><path d="M12 6.5v13"/></svg>)
+}
+
 const ROLES = [
-  { key: 'learner', icon: '📚', title: 'Join as a Learner', desc: 'Find qualified teachers for any subject and level', color: '#0B0B0B', bg: '#F5F5F5', border: '#F5F5F5', accent: '#F5F5F5' },
-  { key: 'parent',  icon: '👨‍👩‍👧', title: 'Join as a Parent',  desc: 'Book tutors for your child and track their progress', color: '#0B0B0B', bg: '#F5F5F5', border: '#0B0B0B', accent: '#F5F5F5' },
-  { key: 'teacher', icon: '👩‍🏫', title: 'Join as a Teacher', desc: 'Apply to teach, set your own schedule and earn income', color: '#0B0B0B', bg: '#F5F5F5', border: '#6B7280', accent: '#F5F5F5' },
+  { key: 'learner', img: learnerImg, title: 'Join as a Learner', desc: 'Find qualified teachers for any subject and level', color: '#0B0B0B', bg: '#F5F5F5', border: '#6D28D9', accent: '#F5F5F5' },
+  { key: 'parent',  img: parentImg,  title: 'Join as a Parent',  desc: 'Book tutors for your child and track their progress', color: '#0B0B0B', bg: '#F5F5F5', border: '#6D28D9', accent: '#F5F5F5' },
+  { key: 'teacher', img: teacherImg, title: 'Join as a Teacher', desc: 'Apply to teach, set your own schedule and earn income', color: '#0B0B0B', bg: '#F5F5F5', border: '#6D28D9', accent: '#F5F5F5' },
 ]
 
 // ── Shared styles ─────────────────────────────────────────────────────────────
@@ -193,7 +203,7 @@ export default function Register() {
   const [step, setStep] = useState(validRole ? 'account' : 'role')
   const [role, setRole] = useState(validRole)
 
-  const [form, setForm]   = useState({ full_name: '', email: '', country: 'Ghana', city: '', password: '', confirm: '' })
+  const [form, setForm]   = useState({ first_name: '', last_name: '', email: '', country: 'Ghana', city: '', password: '', confirm: '' })
   const [dialCode, setDialCode] = useState('+233')
   const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
@@ -211,27 +221,36 @@ export default function Register() {
   const submit = async e => {
     e.preventDefault()
     setError('')
-    if (form.password !== form.confirm) return setError('Passwords do not match')
-    if (form.password.length < 6)       return setError('Password must be at least 6 characters')
+    const full_name = `${form.first_name.trim()} ${form.last_name.trim()}`.trim()
+    if (!form.first_name.trim() || !form.last_name.trim()) return setError('Please enter your first and last name')
+    const isTeacher = role === 'teacher'
+    if (!isTeacher) {
+      if (form.password !== form.confirm) return setError('Passwords do not match')
+      if (form.password.length < 6)       return setError('Password must be at least 6 characters')
+    }
     setLoading(true)
     try {
+      // Teachers don't choose a password at signup — they set it after approval.
+      const signupPassword = isTeacher
+        ? ((crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36)) + 'Aa1!')
+        : form.password
       const { data, error: authErr } = await supabase.auth.signUp({
         email: form.email.trim(),
-        password: form.password,
-        options: { data: { full_name: form.full_name.trim() } },
+        password: signupPassword,
+        options: { data: { full_name } },
       })
       if (authErr) throw authErr
       const uid = data.user?.id
       if (!uid) throw new Error('Something went wrong — please try again.')
       const referral_code = 'TM' + Math.random().toString(36).substring(2, 8).toUpperCase()
       const { error: pErr } = await supabase.from('profiles').upsert({
-        id: uid, full_name: form.full_name.trim(),
+        id: uid, full_name,
         phone: phone ? `${dialCode}${phone}` : '',
         city: form.city, country: form.country,
         role, referral_code, status: 'active',
       })
       if (pErr) throw pErr
-      if (role === 'teacher') {
+      if (isTeacher) {
         await supabase.from('teachers').upsert({ id: uid, application_status: 'draft', is_verified: false, hourly_rate: 0 })
         navigate('/apply')
       } else {
@@ -254,14 +273,15 @@ export default function Register() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', width: '100%', maxWidth: '740px', marginBottom: '1.5rem' }}>          {ROLES.map(r => (
             <div key={r.key}
               onClick={() => { setRole(r.key); setStep('account') }}
-              style={{ background: '#fff', border: '2px solid #E2E8F0', borderRadius: '16px', padding: '2rem 1.5rem', cursor: 'pointer', textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', transition: 'all 0.2s' }}
+              style={{ position: 'relative', overflow: 'hidden', background: '#fff', border: '2px solid #E2E8F0', borderRadius: '16px', padding: '2rem 1.5rem', cursor: 'pointer', textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', transition: 'all 0.2s' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = r.border; e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)' }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>{r.icon}</div>
-              <div style={{ fontSize: '15px', fontWeight: '700', color: '#0B0B0B', marginBottom: '8px' }}>{r.title}</div>
-              <div style={{ fontSize: '13px', color: '#6B7280', lineHeight: '1.6', marginBottom: '18px' }}>{r.desc}</div>
-              <div style={{ display: 'inline-block', padding: '7px 20px', background: r.bg, color: r.color, borderRadius: '20px', fontSize: '13px', fontWeight: '700' }}>
-                Get started →
+              <div aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: `url(${r.img})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.08, pointerEvents: 'none' }} />
+              <div style={{ position: 'relative' }}>
+                <div style={{ marginBottom: '14px' }}><RoleIcon role={r.key} size={44} /></div>
+                <div style={{ fontSize: '15px', fontWeight: '700', color: '#0B0B0B', marginBottom: '8px' }}>{r.title}</div>
+                <div style={{ fontSize: '13px', color: '#6B7280', lineHeight: '1.6', marginBottom: '18px' }}>{r.desc}</div>
+                <div style={{ display: 'inline-block', padding: '7px 20px', background: '#6D28D9', color: '#fff', borderRadius: '20px', fontSize: '13px', fontWeight: '700' }}>Get started →</div>
               </div>
             </div>
           ))}
@@ -278,8 +298,9 @@ export default function Register() {
   // ── Account form ────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F5F5F5', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem', fontFamily: 'Tahoma, Geneva, sans-serif' }}>
-      <div style={{ width: '100%', maxWidth: '480px' }}>
+    <div style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh', background: '#F5F5F5', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem', fontFamily: 'Tahoma, Geneva, sans-serif' }}>
+      {roleInfo?.img && <div aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: `url(${roleInfo.img})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.07, pointerEvents: 'none' }} />}
+      <div style={{ position: 'relative', width: '100%', maxWidth: '480px' }}>
 
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
           <Logo variant="yellow" height={32} />
@@ -296,7 +317,7 @@ export default function Register() {
               </button>
             )}
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: roleInfo?.accent || '#F5F5F5', borderRadius: '10px', border: `1.5px solid ${roleInfo?.border || '#E2E8F0'}` }}>
-              <span style={{ fontSize: '22px' }}>{roleInfo?.icon}</span>
+              <RoleIcon role={role} size={24} />
               <div>
                 <div style={{ fontSize: '14px', fontWeight: '700', color: '#0B0B0B' }}>{roleInfo?.title}</div>
                 <div style={{ fontSize: '12px', color: '#6B7280' }}>Fill in your details below</div>
@@ -312,9 +333,15 @@ export default function Register() {
 
           <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-            <div>
-              <label style={lbl}>Full name *</label>
-              <input style={inp} placeholder="e.g. Kofi Mensah" value={form.full_name} onChange={setE('full_name')} required />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div>
+                <label style={lbl}>First name *</label>
+                <input style={inp} placeholder="e.g. Kofi" value={form.first_name} onChange={setE('first_name')} required />
+              </div>
+              <div>
+                <label style={lbl}>Last name *</label>
+                <input style={inp} placeholder="e.g. Mensah" value={form.last_name} onChange={setE('last_name')} required />
+              </div>
             </div>
 
             <div>
@@ -356,15 +383,19 @@ export default function Register() {
               )}
             </div>
 
-            <div>
-              <label style={lbl}>Password *</label>
-              <input type="password" style={inp} placeholder="At least 6 characters" value={form.password} onChange={setE('password')} required minLength={6} />
-            </div>
+            {role !== 'teacher' && (
+              <>
+                <div>
+                  <label style={lbl}>Password *</label>
+                  <input type="password" style={inp} placeholder="At least 6 characters" value={form.password} onChange={setE('password')} required minLength={6} />
+                </div>
 
-            <div>
-              <label style={lbl}>Confirm password *</label>
-              <input type="password" style={inp} placeholder="Repeat your password" value={form.confirm} onChange={setE('confirm')} required />
-            </div>
+                <div>
+                  <label style={lbl}>Confirm password *</label>
+                  <input type="password" style={inp} placeholder="Repeat your password" value={form.confirm} onChange={setE('confirm')} required />
+                </div>
+              </>
+            )}
 
             <button type="submit" disabled={loading}
               style={{ width: '100%', padding: '14px', background: loading ? '#E2E8F0' : '#6D28D9', color: loading ? '#9CA3AF' : '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', marginTop: '4px' }}>
@@ -374,7 +405,7 @@ export default function Register() {
 
           {role === 'teacher' && (
             <div style={{ marginTop: '1rem', padding: '12px 14px', background: '#F5F5F5', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '13px', color: '#0B0B0B' }}>
-              📋 After this you'll complete your teaching profile and submit your application for admin review.
+              📋 Next you'll complete your teaching profile and submit your application. You'll set your password after your account is approved.
             </div>
           )}
 

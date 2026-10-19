@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import {
   BLUE, YELLOW, DARK_BLUE, LIGHT_BLUE, GREY_BG, GREY_LIGHT,
@@ -28,6 +29,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [resetMsg, setResetMsg] = useState('')
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
@@ -43,6 +45,13 @@ export default function Login() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleReset = async () => {
+    setResetMsg('')
+    if (!form.email) { setResetMsg('Enter your email above first.'); return }
+    const { error } = await supabase.auth.resetPasswordForEmail(form.email.trim(), { redirectTo: window.location.origin + '/reset-password' })
+    setResetMsg(error ? error.message : 'Check your email for a link to set your password.')
   }
 
   const selectedRole = ROLES.find(r => r.id === role)
@@ -140,6 +149,14 @@ export default function Login() {
                   {loading ? '⏳ Logging in...' : `Log in as ${selectedRole?.label} ${selectedRole?.icon}`}
                 </button>
               </form>
+
+              <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                <button type="button" onClick={handleReset}
+                  style={{ background: 'none', border: 'none', color: BLUE, fontWeight: '700', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Set or reset your password →
+                </button>
+                {resetMsg && <div style={{ fontSize: '12px', color: TEXT_MUTED, marginTop: '6px' }}>{resetMsg}</div>}
+              </div>
 
               <div style={{ marginTop: '1.25rem', textAlign: 'center' }}>
                 <p style={{ fontSize: '14px', color: TEXT_MUTED, margin: 0 }}>
