@@ -176,7 +176,11 @@ export default function Messages() {
     if (!newMessage.trim() || !activeBooking) return
     const messageText = newMessage.trim()
     const contactCheck = detectContactShare(messageText)
-    if (contactCheck.blocked) { setBlockWarning(contactCheck.reason); return }
+    if (contactCheck.blocked) {
+      setBlockWarning(contactCheck.reason)
+      supabase.from('flagged_messages').insert({ user_id: user.id, booking_id: activeBooking.id, content: messageText, reason: 'contact_attempt' }).then(() => {}, () => {})
+      return
+    }
     setBlockWarning('')
     setSending(true)
     setNewMessage('')
@@ -198,6 +202,7 @@ export default function Messages() {
       setNewMessage(messageText)
       if (String(err?.message || '').includes('CONTACT_BLOCKED')) {
         setBlockWarning("To keep everyone safe, you can't share phone numbers, emails, or links here — keep chats on Stuumo.")
+        supabase.from('flagged_messages').insert({ user_id: user.id, booking_id: activeBooking.id, content: messageText, reason: 'server_block' }).then(() => {}, () => {})
       }
     }
     finally { setSending(false) }
