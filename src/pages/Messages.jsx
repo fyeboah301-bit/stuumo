@@ -175,7 +175,18 @@ export default function Messages() {
     e.preventDefault()
     if (!newMessage.trim() || !activeBooking) return
     const messageText = newMessage.trim()
-    const contactCheck = detectContactShare(messageText)
+    // Also scan the sender's recent messages together, to catch contact details
+    // deliberately split across many small messages ("Whats" "App" "0" "2" "4" ...).
+    const nowTs = Date.now()
+    const recentMine = messages
+      .filter(m => m.sender_id === user.id && m.created_at && (nowTs - new Date(m.created_at).getTime()) < 5 * 60 * 1000)
+      .slice(-12)
+      .map(m => m.content || '')
+    const windowSpaced = [...recentMine, messageText].join(' ')
+    const windowTight = [...recentMine, messageText].join('')
+    const contactCheck = detectContactShare(messageText).blocked ? detectContactShare(messageText)
+      : detectContactShare(windowSpaced).blocked ? detectContactShare(windowSpaced)
+      : detectContactShare(windowTight)
     if (contactCheck.blocked) {
       setBlockWarning(contactCheck.reason)
       supabase.from('flagged_messages').insert({ user_id: user.id, booking_id: activeBooking.id, content: messageText, reason: 'contact_attempt' }).then(() => {}, () => {})
