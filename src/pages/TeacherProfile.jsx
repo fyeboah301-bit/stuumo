@@ -467,9 +467,9 @@ export default function TeacherProfile() {
                   📅 Send booking request
                 </Link>
               ) : !user ? (
-                <Link to="/login"
+                <Link to={`/login?next=${encodeURIComponent('/booking?teacher=' + teacher.id)}`}
                   style={{ display: 'block', padding: '14px', background: GRADIENT_BLUE, color: '#fff', borderRadius: '50px', fontSize: '15px', textDecoration: 'none', textAlign: 'center', fontWeight: '700', boxShadow: SHADOW_BLUE }}>
-                  Log in to book
+                  Log in or sign up to book
                 </Link>
               ) : null}
               <Link to="/sessions"
@@ -529,8 +529,8 @@ export default function TeacherProfile() {
               </Link>
             </div>
           ) : !user ? (
-            <Link to="/login" style={{ display: 'block', padding: '14px', background: GRADIENT_BLUE, color: '#fff', borderRadius: '50px', fontSize: '15px', textDecoration: 'none', textAlign: 'center', fontWeight: '700', boxShadow: SHADOW_BLUE }}>
-              Log in to book this teacher
+            <Link to={`/login?next=${encodeURIComponent('/booking?teacher=' + teacher.id)}`} style={{ display: 'block', padding: '14px', background: GRADIENT_BLUE, color: '#fff', borderRadius: '50px', fontSize: '15px', textDecoration: 'none', textAlign: 'center', fontWeight: '700', boxShadow: SHADOW_BLUE }}>
+              Log in or sign up to book this teacher
             </Link>
           ) : null}
         </div>

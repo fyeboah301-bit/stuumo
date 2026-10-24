@@ -196,6 +196,7 @@ export default function Register() {
   usePageMeta({ title: 'Create Account — Stuumo', description: 'Join Stuumo as a learner, parent, or teacher' })
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+  const next = searchParams.get('next')
 
   const roleParam = searchParams.get('role')
   const validRole = ['learner', 'parent', 'teacher'].includes(roleParam) ? roleParam : null
@@ -254,7 +255,7 @@ export default function Register() {
         await supabase.from('teachers').upsert({ id: uid, application_status: 'draft', is_verified: false, hourly_rate: 0 })
         navigate('/apply')
       } else {
-        navigate('/dashboard')
+        navigate(next && next.startsWith('/') ? next : '/dashboard')
       }
     } catch (err) { setError(err.message) }
     finally { setLoading(false) }
@@ -289,7 +290,7 @@ export default function Register() {
 
         <p style={{ color: '#6B7280', fontSize: '14px' }}>
           Already have an account?{' '}
-          <Link to="/login" style={{ color: '#0B0B0B', fontWeight: '600', textDecoration: 'none' }}>Sign in</Link>
+          <Link to={`/login${next ? '?next=' + encodeURIComponent(next) : ''}`} style={{ color: '#0B0B0B', fontWeight: '600', textDecoration: 'none' }}>Sign in</Link>
         </p>
       </div>
     )
@@ -411,7 +412,7 @@ export default function Register() {
 
           <p style={{ textAlign: 'center', color: '#6B7280', fontSize: '14px', marginTop: '1.25rem', marginBottom: 0 }}>
             Already have an account?{' '}
-            <Link to="/login" style={{ color: '#0B0B0B', fontWeight: '600', textDecoration: 'none' }}>Sign in</Link>
+            <Link to={`/login${next ? '?next=' + encodeURIComponent(next) : ''}`} style={{ color: '#0B0B0B', fontWeight: '600', textDecoration: 'none' }}>Sign in</Link>
           </p>
         </div>
       </div>

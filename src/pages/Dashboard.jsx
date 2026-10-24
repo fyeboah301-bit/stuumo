@@ -659,20 +659,21 @@ function TeacherBioSection({ userId }) {
   const [yearsExperience, setYearsExperience] = useState('')
   const [languages, setLanguages] = useState('')
   const [teachingLevels, setTeachingLevels] = useState([])
+  const [rate, setRate] = useState('')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
 
   useEffect(() => {
-    supabase.from('teachers').select('bio, years_experience, languages, teaching_levels').eq('id', userId).single()
+    supabase.from('teachers').select('bio, years_experience, languages, teaching_levels, hourly_rate').eq('id', userId).single()
       .then(({ data }) => {
-        if (data) { setBio(data.bio || ''); setYearsExperience(data.years_experience || ''); setLanguages((data.languages || []).join(', ')); setTeachingLevels(data.teaching_levels || []) }
+        if (data) { setBio(data.bio || ''); setYearsExperience(data.years_experience || ''); setLanguages((data.languages || []).join(', ')); setTeachingLevels(data.teaching_levels || []); setRate(data.hourly_rate?.toString() || '') }
       })
   }, [])
 
   const save = async () => {
     setSaving(true); setMessage('')
     try {
-      const { error } = await supabase.from('teachers').update({ bio, years_experience: yearsExperience ? parseInt(yearsExperience) : null, languages: languages ? languages.split(',').map(l => l.trim()).filter(Boolean) : [], teaching_levels: teachingLevels }).eq('id', userId)
+      const { error } = await supabase.from('teachers').update({ bio, years_experience: yearsExperience ? parseInt(yearsExperience) : null, languages: languages ? languages.split(',').map(l => l.trim()).filter(Boolean) : [], teaching_levels: teachingLevels, hourly_rate: rate ? parseFloat(rate) : 0 }).eq('id', userId)
       if (error) throw error
       setMessage('✅ Profile updated!')
     } catch (err) { setMessage('Error: ' + err.message) }
@@ -686,6 +687,11 @@ function TeacherBioSection({ userId }) {
         <div>
           <label style={lbl}>Bio</label>
           <textarea style={{ ...inp, height: '110px', resize: 'vertical' }} placeholder="Tell parents and learners about yourself..." value={bio} onChange={e => setBio(e.target.value)} />
+        </div>
+        <div>
+          <label style={lbl}>Hourly rate (GH₵)</label>
+          <input style={inp} type="number" min="0" step="5" placeholder="e.g. 150" value={rate} onChange={e => setRate(e.target.value)} />
+          <div style={{ fontSize: '12px', color: TEXT_MUTED, marginTop: '4px' }}>What learners pay per session. You can change this anytime.</div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           <div>

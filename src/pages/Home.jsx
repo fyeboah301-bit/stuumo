@@ -16,6 +16,12 @@ import {
   GREY_BG, GREY_LIGHT,
 } from '../styles/colors'
 
+const NAV_LINKS = [
+  { to: '/teachers', label: 'Browse teachers' },
+  { to: '/sessions', label: 'Live sessions' },
+  { to: '/about', label: 'About us' },
+]
+
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 769)
   useEffect(() => {
@@ -304,6 +310,7 @@ export default function Home() {
   const [sessionCount, setSessionCount]       = useState(0)
   const [teacherCount, setTeacherCount]       = useState(0)
   const [upcomingSessions, setUpcomingSessions] = useState([])
+  const [testimonials, setTestimonials] = useState([])
   const isMobile = useIsMobile()
   const animatedTeachers = useCountUp(teacherCount)
   const animatedSessions = useCountUp(sessionCount)
@@ -342,6 +349,18 @@ export default function Home() {
             : null,
         }
       }))
+      // Testimonials: curated entries first, then real platform reviews (never fabricated)
+      let featured = []
+      try {
+        const { data: tData } = await supabase.from('testimonials').select('*').eq('is_published', true).order('sort_order', { ascending: true }).limit(12)
+        featured = (tData || []).map(t => ({ name: t.name, role: t.role, comment: t.quote, avatar_url: t.avatar_url, rating: t.rating || 5 }))
+      } catch (e) { /* testimonials table may not exist yet */ }
+      const { data: reviewData } = await supabase.from('reviews')
+        .select('rating, comment, created_at, reviewer:reviewer_id (full_name, role, avatar_url), teachers (profiles (full_name))')
+        .is('deleted_at', null).not('comment', 'is', null).gte('rating', 4)
+        .order('created_at', { ascending: false }).limit(12)
+      const realOnes = (reviewData || []).filter(r => r.comment && r.comment.trim().length > 12).map(r => ({ name: r.reviewer?.full_name || 'Verified user', role: r.reviewer?.role, comment: r.comment, avatar_url: r.reviewer?.avatar_url, rating: r.rating, teacher: r.teachers?.profiles?.full_name }))
+      setTestimonials([...featured, ...realOnes].slice(0, 6))
     }
     fetchData()
   }, [])
@@ -350,12 +369,28 @@ export default function Home() {
     <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', background: '#fff', minHeight: '100vh', overflowX: 'clip' }}>
 
       {/* NAV */}
-      <nav style={{ background: '#6D28D9', padding: isMobile ? 'calc(0.875rem + env(safe-area-inset-top)) calc(1.25rem + env(safe-area-inset-right)) 0.875rem calc(1.25rem + env(safe-area-inset-left))' : '1rem 2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
-        <Logo variant="blue" height={isMobile ? 28 : 32} />
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <Link to="/login" style={{ padding: isMobile ? '8px 14px' : '9px 20px', background: 'rgba(255,255,255,0.15)', color: '#FFFFFF', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '600', border: '1px solid rgba(255,255,255,0.3)', transition: TRANSITION }}>Log in</Link>
-          <Link to="/register" style={{ padding: isMobile ? '8px 14px' : '9px 20px', background: '#FFFFFF', color: '#6D28D9', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: '0 4px 14px rgba(0,0,0,0.18)', transition: TRANSITION }}>Sign up free</Link>
+      <nav style={{ background: '#6D28D9', padding: isMobile ? 'calc(0.875rem + env(safe-area-inset-top)) calc(1.25rem + env(safe-area-inset-right)) 0.7rem calc(1.25rem + env(safe-area-inset-left))' : '1rem 2.5rem', position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+          <Logo variant="blue" height={isMobile ? 28 : 32} />
+          {!isMobile && (
+            <div style={{ display: 'flex', gap: '28px', alignItems: 'center' }}>
+              {NAV_LINKS.map(l => (
+                <Link key={l.to} to={l.to} style={{ color: 'rgba(255,255,255,0.92)', fontSize: '14px', textDecoration: 'none', fontWeight: '600', transition: TRANSITION }}>{l.label}</Link>
+              ))}
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <Link to="/login" style={{ padding: isMobile ? '8px 14px' : '9px 20px', background: 'rgba(255,255,255,0.15)', color: '#FFFFFF', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '600', border: '1px solid rgba(255,255,255,0.3)', transition: TRANSITION }}>Log in</Link>
+            <Link to="/register" style={{ padding: isMobile ? '8px 14px' : '9px 20px', background: '#FFFFFF', color: '#6D28D9', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: '0 4px 14px rgba(0,0,0,0.18)', transition: TRANSITION }}>Sign up free</Link>
+          </div>
         </div>
+        {isMobile && (
+          <div style={{ display: 'flex', gap: '20px', marginTop: '10px', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '2px' }}>
+            {NAV_LINKS.map(l => (
+              <Link key={l.to} to={l.to} style={{ color: 'rgba(255,255,255,0.92)', fontSize: '13px', textDecoration: 'none', fontWeight: '600', whiteSpace: 'nowrap', flexShrink: 0 }}>{l.label}</Link>
+            ))}
+          </div>
+        )}
       </nav>
 
       {/* HERO */}
@@ -554,6 +589,38 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* TESTIMONIALS */}
+      {testimonials.length >= 1 && (
+        <section style={{ padding: isMobile ? '4rem 1.25rem' : '6rem 2.5rem', background: '#F5F5F5' }}>
+          <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: isMobile ? '2.5rem' : '3.5rem' }}>
+              <p style={{ fontSize: '12px', fontWeight: '700', color: '#6D28D9', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '12px' }}>Loved by families</p>
+              <h2 style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: isMobile ? '28px' : '40px', fontWeight: '700', color: TEXT, marginBottom: '12px', letterSpacing: '-0.02em' }}>What parents and learners say</h2>
+              <p style={{ fontSize: isMobile ? '14px' : '16px', color: TEXT_MUTED, maxWidth: '540px', margin: '0 auto', lineHeight: '1.7' }}>Real reviews from people who found their teacher on Stuumo.</p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? '1rem' : '1.5rem' }}>
+              {testimonials.map((t, i) => (
+                <div key={i} style={{ background: '#fff', border: `1px solid ${GREY_LIGHT}`, borderRadius: '18px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
+                  <div style={{ display: 'flex', gap: '3px' }}>
+                    {[1,2,3,4,5].map(star => <span key={star} style={{ fontSize: '15px', color: star <= (t.rating || 5) ? YELLOW : GREY_LIGHT }}>★</span>)}
+                  </div>
+                  <p style={{ fontSize: '14.5px', color: TEXT, lineHeight: '1.7', margin: 0, flex: 1 }}>&ldquo;{t.comment}&rdquo;</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    {t.avatar_url
+                      ? <img src={t.avatar_url} alt={t.name} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                      : <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(109,40,217,0.12)', color: '#6D28D9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '16px', flexShrink: 0 }}>{(t.name || 'S').charAt(0).toUpperCase()}</div>}
+                    <div>
+                      <div style={{ fontSize: '14px', fontWeight: '700', color: TEXT }}>{t.name}</div>
+                      <div style={{ fontSize: '12px', color: TEXT_MUTED, textTransform: 'capitalize' }}>{t.role || 'Verified user'}{t.teacher ? ` · on ${t.teacher}` : ''}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA BANNER */}
       <section style={{ background: GRADIENT_HERO, padding: isMobile ? '4rem 1.25rem' : '6rem 2.5rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>

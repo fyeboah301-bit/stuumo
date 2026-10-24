@@ -24,6 +24,7 @@ export default function Login() {
   const { signIn } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+  const next = searchParams.get('next')
   const [role, setRole] = useState(searchParams.get('role') || 'teacher')
   const [form, setForm] = useState({ email: searchParams.get('email') || '', password: '' })
   const [loading, setLoading] = useState(false)
@@ -39,7 +40,7 @@ export default function Login() {
     setError('')
     try {
       await signIn(form.email, form.password)
-      navigate('/dashboard')
+      navigate(next && next.startsWith('/') ? next : '/dashboard')
     } catch (err) {
       setError(err.message)
     } finally {
@@ -161,7 +162,7 @@ export default function Login() {
               <div style={{ marginTop: '1.25rem', textAlign: 'center' }}>
                 <p style={{ fontSize: '14px', color: TEXT_MUTED, margin: 0 }}>
                   Don't have an account?{' '}
-                  <Link to={`/register?role=${role}`} style={{ color: BLUE, fontWeight: '700', textDecoration: 'none' }}>
+                  <Link to={`/register?role=${role}${next ? '&next=' + encodeURIComponent(next) : ''}`} style={{ color: BLUE, fontWeight: '700', textDecoration: 'none' }}>
                     Sign up free →
                   </Link>
                 </p>

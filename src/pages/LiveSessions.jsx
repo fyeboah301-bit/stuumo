@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Logo from '../components/Logo'
 import { supabase } from '../lib/supabase'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
   BLUE, YELLOW, DARK_BLUE, LIGHT_BLUE, GREY_BG, GREY_LIGHT,
@@ -96,6 +96,7 @@ export default function LiveSessions() {
   usePageMeta('Live Sessions', 'Join live online classes with verified teachers from anywhere.')
 
   const { user, profile } = useAuth()
+  const navigate = useNavigate()
   const isMobile = useIsMobile()
   const [sessions, setSessions] = useState([])
   const [myEnrollments, setMyEnrollments] = useState({})
@@ -192,7 +193,7 @@ export default function LiveSessions() {
   }
 
   const enroll = async (session) => {
-    if (!user) return setMessage('Please log in to enroll.')
+    if (!user) return navigate('/login?next=/sessions')
     if (myEnrollments[session.id]) return setMessage('You are already enrolled.')
     setEnrolling(session.id)
     try {

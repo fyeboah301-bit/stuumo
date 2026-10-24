@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Logo from './components/Logo'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { lazy, Suspense, useEffect } from 'react'
@@ -8,6 +8,7 @@ import NotFound from './pages/NotFound'
 
 // ─── LAZY LOADED PAGES ───────────────────────────────────────────
 const Home = lazy(() => import('./pages/Home'))
+const About = lazy(() => import('./pages/About'))
 const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -52,7 +53,12 @@ function PageLoader() {
 // ─── PROTECTED ROUTE ──────────────────────────────────────────────
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth()
-  return user ? children : <Navigate to="/login" />
+  const location = useLocation()
+  if (!user) {
+    const next = encodeURIComponent(location.pathname + location.search)
+    return <Navigate to={`/login?next=${next}`} replace />
+  }
+  return children
 }
 
 // ─── REFERRAL CAPTURE ─────────────────────────────────────────────
@@ -77,6 +83,7 @@ function AppRoutes() {
           <Route path="/login" element={<Login />} />
           <Route path="/reset-password" element={<SetPassword />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/about" element={<About />} />
           <Route path="/teachers" element={<Teachers />} />
           <Route path="/teachers/:id" element={<TeacherProfile />} />
           <Route path="/sessions" element={<LiveSessions />} />
