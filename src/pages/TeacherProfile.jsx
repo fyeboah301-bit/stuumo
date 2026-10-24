@@ -3,6 +3,7 @@ import Logo from '../components/Logo'
 import { supabase } from '../lib/supabase'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import PublicNav from '../components/PublicNav'
 import {
   BLUE, YELLOW, DARK_BLUE, LIGHT_BLUE, GREY_BG, GREY_LIGHT,
   TEXT, TEXT_MUTED, GRADIENT_BLUE, GRADIENT_HERO,
@@ -538,20 +539,6 @@ export default function TeacherProfile() {
 
       <Footer />
     </div>
-  )
-}
-
-function PublicNav() {
-  return (
-    <nav style={{ background: GRADIENT_HERO, padding: '0.875rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
-      <Link to="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
-          <Logo variant="yellow" height={30} />
-        </Link>
-      <div style={{ display: 'flex', gap: '8px' }}>
-        <Link to="/teachers" style={{ padding: '7px 14px', background: 'rgba(0,0,0,0.1)', color: '#0B0B0B', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', border: '1px solid rgba(0,0,0,0.2)', fontWeight: '600' }}>← Teachers</Link>
-        <Link to="/login" style={{ padding: '7px 14px', background: YELLOW, color: '#FFFFFF', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_YELLOW }}>Log in</Link>
-      </div>
-    </nav>
   )
 }
 

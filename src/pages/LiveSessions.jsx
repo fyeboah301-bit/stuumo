@@ -10,6 +10,7 @@ import {
   TRANSITION, BORDER,
 } from '../styles/colors'
 import NavBar from '../components/NavBar'
+import PublicNav from '../components/PublicNav'
 import Footer from '../components/Footer'
 import heroImg from '../assets/images/hero.png'
 import usePageMeta from '../hooks/usePageMeta'
@@ -242,17 +243,7 @@ export default function LiveSessions() {
   return (
     <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'Tahoma, Geneva, sans-serif', display: 'flex', flexDirection: 'column' }}>
 
-      {user ? <NavBar /> : (
-        <nav style={{ background: GRADIENT_HERO, padding: '0.875rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
-          <Link to="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
-          <Logo variant="yellow" height={30} />
-        </Link>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <Link to="/teachers" style={{ padding: '7px 16px', background: 'rgba(0,0,0,0.1)', color: '#0B0B0B', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', border: '1px solid rgba(0,0,0,0.2)', fontWeight: '600' }}>Teachers</Link>
-            <Link to="/login" style={{ padding: '7px 16px', background: YELLOW, color: '#FFFFFF', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_YELLOW }}>Log in</Link>
-          </div>
-        </nav>
-      )}
+      {user ? <NavBar /> : <PublicNav />}
 
       {/* HERO */}
       <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>

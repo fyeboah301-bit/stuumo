@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Logo from '../components/Logo'
 import { useAuth } from '../context/AuthContext'
 import NavBar from '../components/NavBar'
+import PublicNav from '../components/PublicNav'
 import Footer from '../components/Footer'
 import { supabase } from '../lib/supabase'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
@@ -249,17 +250,7 @@ export default function Teachers() {
   return (
     <div style={{ minHeight: '100vh', background: GREY_BG, fontFamily: 'Tahoma, Geneva, sans-serif', display: 'flex', flexDirection: 'column' }}>
 
-      {user ? <NavBar /> : (
-        <nav style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '0.875rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
-          <Link to="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
-          <Logo variant="yellow" height={30} />
-        </Link>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <Link to="/login" style={{ padding: '8px 16px', background: 'rgba(0,0,0,0.1)', color: '#0B0B0B', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', border: '1px solid rgba(0,0,0,0.2)', fontWeight: '600' }}>Log in</Link>
-            <Link to="/register" style={{ padding: '8px 16px', background: YELLOW, color: '#FFFFFF', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: SHADOW_YELLOW }}>Sign up</Link>
-          </div>
-        </nav>
-      )}
+      {user ? <NavBar /> : <PublicNav />}
 
       <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>
         <div style={{ position: 'relative', zIndex: 2, padding: isMobile ? '2.5rem 1.25rem' : '3.5rem 2.5rem', maxWidth: '1100px', margin: '0 auto' }}>
