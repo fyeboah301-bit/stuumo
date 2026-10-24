@@ -385,7 +385,7 @@ export default function Home() {
           </div>
         </div>
         {isMobile && (
-          <div style={{ display: 'flex', gap: '20px', marginTop: '10px', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '2px' }}>
+          <div style={{ display: 'flex', gap: '16px', marginTop: '12px', justifyContent: 'center', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '2px' }}>
             {NAV_LINKS.map(l => (
               <Link key={l.to} to={l.to} style={{ color: 'rgba(255,255,255,0.92)', fontSize: '13px', textDecoration: 'none', fontWeight: '600', whiteSpace: 'nowrap', flexShrink: 0 }}>{l.label}</Link>
             ))}
