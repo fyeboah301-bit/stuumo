@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Logo from '../components/Logo'
 import { supabase } from '../lib/supabase'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
   BLUE, YELLOW, DARK_BLUE, LIGHT_BLUE, GREY_BG, GREY_LIGHT,
@@ -98,6 +98,7 @@ export default function LiveSessions() {
 
   const { user, profile } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const isMobile = useIsMobile()
   const [sessions, setSessions] = useState([])
   const [myEnrollments, setMyEnrollments] = useState({})
@@ -108,7 +109,7 @@ export default function LiveSessions() {
   const [message, setMessage] = useState('')
   const [tab, setTab] = useState('upcoming')
   const [search, setSearch] = useState('')
-  const [filterSubject, setFilterSubject] = useState('')
+  const [filterSubject, setFilterSubject] = useState(searchParams.get('subject') || '')
   const [filterPrice, setFilterPrice] = useState('all')
   const [form, setForm] = useState({ title: '', subject: '', session_date: '', start_time: '', end_time: '', max_spots: 20, price: 0 })
 

@@ -9,6 +9,8 @@ import NotFound from './pages/NotFound'
 // ─── LAZY LOADED PAGES ───────────────────────────────────────────
 const Home = lazy(() => import('./pages/Home'))
 const About = lazy(() => import('./pages/About'))
+const HowItWorks = lazy(() => import('./pages/HowItWorks'))
+const ForTeachers = lazy(() => import('./pages/ForTeachers'))
 const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -72,10 +74,25 @@ function ReferralCapture() {
 }
 
 // ─── ROUTES ───────────────────────────────────────────────────────
+function ScrollToHash() {
+  const { hash, pathname } = useLocation()
+  useEffect(() => {
+    if (!hash) return
+    const id = hash.slice(1)
+    const t = setTimeout(() => {
+      const el = document.getElementById(id)
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 80)
+    return () => clearTimeout(t)
+  }, [hash, pathname])
+  return null
+}
+
 function AppRoutes() {
   return (
     <>
       <ReferralCapture />
+      <ScrollToHash />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* PUBLIC */}
@@ -84,6 +101,8 @@ function AppRoutes() {
           <Route path="/reset-password" element={<SetPassword />} />
           <Route path="/register" element={<Register />} />
           <Route path="/about" element={<About />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/for-teachers" element={<ForTeachers />} />
           <Route path="/teachers" element={<Teachers />} />
           <Route path="/teachers/:id" element={<TeacherProfile />} />
           <Route path="/sessions" element={<LiveSessions />} />

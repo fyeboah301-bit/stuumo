@@ -8,6 +8,7 @@ import parentImg from '../assets/images/parent.png'
 import learnerImg from '../assets/images/learner.png'
 import usePageMeta from '../hooks/usePageMeta'
 import Logo from '../components/Logo'
+import PublicNav from '../components/PublicNav'
 import {
   BLUE, YELLOW, DARK_BLUE, LIGHT_BLUE,
   GRADIENT_BLUE, GRADIENT_HERO, GRADIENT_YELLOW,
@@ -16,11 +17,6 @@ import {
   GREY_BG, GREY_LIGHT,
 } from '../styles/colors'
 
-const NAV_LINKS = [
-  { to: '/teachers', label: 'Browse teachers' },
-  { to: '/sessions', label: 'Live sessions' },
-  { to: '/about', label: 'About us' },
-]
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 769)
@@ -368,30 +364,7 @@ export default function Home() {
   return (
     <div style={{ fontFamily: 'Tahoma, Geneva, sans-serif', background: '#fff', minHeight: '100vh', overflowX: 'clip' }}>
 
-      {/* NAV */}
-      <nav style={{ background: '#6D28D9', padding: isMobile ? 'calc(0.875rem + env(safe-area-inset-top)) calc(1.25rem + env(safe-area-inset-right)) 0.7rem calc(1.25rem + env(safe-area-inset-left))' : '1rem 2.5rem', position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
-          <Logo variant="blue" height={isMobile ? 28 : 32} />
-          {!isMobile && (
-            <div style={{ display: 'flex', gap: '28px', alignItems: 'center' }}>
-              {NAV_LINKS.map(l => (
-                <Link key={l.to} to={l.to} style={{ color: 'rgba(255,255,255,0.92)', fontSize: '14px', textDecoration: 'none', fontWeight: '600', transition: TRANSITION }}>{l.label}</Link>
-              ))}
-            </div>
-          )}
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <Link to="/login" style={{ padding: isMobile ? '8px 14px' : '9px 20px', background: 'rgba(255,255,255,0.15)', color: '#FFFFFF', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '600', border: '1px solid rgba(255,255,255,0.3)', transition: TRANSITION }}>Log in</Link>
-            <Link to="/register" style={{ padding: isMobile ? '8px 14px' : '9px 20px', background: '#FFFFFF', color: '#6D28D9', borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', boxShadow: '0 4px 14px rgba(0,0,0,0.18)', transition: TRANSITION }}>Sign up free</Link>
-          </div>
-        </div>
-        {isMobile && (
-          <div style={{ display: 'flex', gap: '16px', marginTop: '12px', justifyContent: 'center', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '2px' }}>
-            {NAV_LINKS.map(l => (
-              <Link key={l.to} to={l.to} style={{ color: 'rgba(255,255,255,0.92)', fontSize: '13px', textDecoration: 'none', fontWeight: '600', whiteSpace: 'nowrap', flexShrink: 0 }}>{l.label}</Link>
-            ))}
-          </div>
-        )}
-      </nav>
+      <PublicNav />
 
       {/* HERO */}
       <section style={{ position: 'relative', minHeight: isMobile ? '100svh' : '680px', display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', overflow: 'hidden' }}>
@@ -592,7 +565,7 @@ export default function Home() {
 
       {/* TESTIMONIALS */}
       {testimonials.length >= 1 && (
-        <section style={{ padding: isMobile ? '4rem 1.25rem' : '6rem 2.5rem', background: '#F5F5F5' }}>
+        <section id="testimonials" style={{ padding: isMobile ? '4rem 1.25rem' : '6rem 2.5rem', background: '#F5F5F5', scrollMarginTop: '90px' }}>
           <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: isMobile ? '2.5rem' : '3.5rem' }}>
               <p style={{ fontSize: '12px', fontWeight: '700', color: '#6D28D9', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '12px' }}>Loved by families</p>
