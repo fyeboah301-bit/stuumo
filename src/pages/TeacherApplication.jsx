@@ -3,6 +3,7 @@ import Logo from '../components/Logo'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import usePageMeta from '../hooks/usePageMeta'
+import { BANKS_BY_COUNTRY, MOMO_BY_COUNTRY } from '../data/payout'
 
 const BLUE = '#0B0B0B'
 const YELLOW = '#6D28D9'
@@ -451,6 +452,15 @@ export default function TeacherApplication() {
   const [certType, setCertType]     = useState('teaching')
   const [uploadedCerts, setUploadedCerts] = useState([])
   const [uploading, setUploading]   = useState(false)
+  const [payoutMethod, setPayoutMethod]   = useState('bank')
+  const [bankName, setBankName]           = useState('')
+  const [accountName, setAccountName]     = useState('')
+  const [accountNumber, setAccountNumber] = useState('')
+  const [bankOtherMode, setBankOtherMode] = useState(false)
+  const [momoNetwork, setMomoNetwork]     = useState('')
+  const [momoName, setMomoName]           = useState('')
+  const [momoNumber, setMomoNumber]       = useState('')
+  const [netOtherMode, setNetOtherMode]   = useState(false)
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
@@ -495,6 +505,13 @@ export default function TeacherApplication() {
   const toggleLang    = v => setSelectedLangs(p => p.includes(v) ? p.filter(x => x !== v) : [...p, v])
 
   const availableSubjects = getSubjectsForLevels(levels, country)
+  const banksForCountry = BANKS_BY_COUNTRY[country]
+  const momoForCountry = MOMO_BY_COUNTRY[country]
+  const payoutValid = payoutMethod === 'bank'
+    ? Boolean(bankName.trim() && accountName.trim() && accountNumber.trim())
+    : payoutMethod === 'momo'
+    ? Boolean(momoNetwork.trim() && momoName.trim() && momoNumber.trim())
+    : false
 
   const saveStep1 = async () => {
     if (!bio.trim()) return setError('Please write a short bio')
@@ -596,10 +613,18 @@ export default function TeacherApplication() {
   const submitApplication = async () => {
     if (!avatarUrl) return setError('Please add a profile photo before submitting')
     if (!uploadedDoc) return setError('Please upload your Ghana Card before submitting')
+    if (!payoutValid) return setError('Please complete your payout details so we can pay you')
     setSaving(true); setError('')
     await supabase.from('teachers').update({
       application_status: 'pending',
       application_submitted_at: new Date().toISOString(),
+      payout_method: payoutMethod,
+      bank_name: payoutMethod === 'bank' ? bankName.trim() : null,
+      account_name: payoutMethod === 'bank' ? accountName.trim() : null,
+      account_number: payoutMethod === 'bank' ? accountNumber.trim() : null,
+      momo_network: payoutMethod === 'momo' ? momoNetwork.trim() : null,
+      momo_name: payoutMethod === 'momo' ? momoName.trim() : null,
+      momo_number: payoutMethod === 'momo' ? momoNumber.trim() : null,
     }).eq('id', user.id)
     await supabase.from('audit_logs').insert({
       action: 'Application submitted', target_type: 'teacher',
@@ -1007,6 +1032,63 @@ export default function TeacherApplication() {
                 </ReviewSection>
               </div>
 
+              <div style={{ background: '#fff', borderRadius: '12px', padding: '1.25rem', border: '1.5px solid #E2E8F0', marginBottom: '1.5rem' }}>
+                <div style={{ fontSize: '15px', fontWeight: '700', color: '#0B0B0B', marginBottom: '4px' }}>💳 Payout details</div>
+                <div style={{ fontSize: '13px', color: '#6B7280', marginBottom: '14px' }}>How you'd like to receive your earnings. Required so we can pay you.</div>
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+                  {[['bank', '🏦 Bank account'], ['momo', '📱 Mobile money']].map(([val, label]) => (
+                    <button key={val} type="button" onClick={() => setPayoutMethod(val)}
+                      style={{ flex: 1, padding: '11px', borderRadius: '10px', border: payoutMethod === val ? '1.5px solid #6D28D9' : '1.5px solid #E2E8F0', background: payoutMethod === val ? 'rgba(109,40,217,0.08)' : '#fff', color: payoutMethod === val ? '#6D28D9' : '#6B7280', fontWeight: '700', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                {payoutMethod === 'bank' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div>
+                      <label style={lbl}>Bank name</label>
+                      {banksForCountry ? (
+                        <>
+                          <select style={inp} value={bankOtherMode ? '__other__' : bankName}
+                            onChange={e => { const v = e.target.value; if (v === '__other__') { setBankOtherMode(true); setBankName('') } else { setBankOtherMode(false); setBankName(v) } }}>
+                            <option value="">Select your bank</option>
+                            {banksForCountry.map(b => <option key={b} value={b}>{b}</option>)}
+                            <option value="__other__">Other (type below)</option>
+                          </select>
+                          {bankOtherMode && <input style={{ ...inp, marginTop: '8px' }} placeholder="Enter bank name" value={bankName} onChange={e => setBankName(e.target.value)} />}
+                        </>
+                      ) : (
+                        <input style={inp} placeholder="Enter your bank name" value={bankName} onChange={e => setBankName(e.target.value)} />
+                      )}
+                    </div>
+                    <div><label style={lbl}>Account name</label><input style={inp} placeholder="Name on the account" value={accountName} onChange={e => setAccountName(e.target.value)} /></div>
+                    <div><label style={lbl}>Account number</label><input style={inp} inputMode="numeric" placeholder="Account number" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} /></div>
+                  </div>
+                )}
+                {payoutMethod === 'momo' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div>
+                      <label style={lbl}>Mobile money network</label>
+                      {momoForCountry ? (
+                        <>
+                          <select style={inp} value={netOtherMode ? '__other__' : momoNetwork}
+                            onChange={e => { const v = e.target.value; if (v === '__other__') { setNetOtherMode(true); setMomoNetwork('') } else { setNetOtherMode(false); setMomoNetwork(v) } }}>
+                            <option value="">Select network</option>
+                            {momoForCountry.map(nw => <option key={nw} value={nw}>{nw}</option>)}
+                            <option value="__other__">Other (type below)</option>
+                          </select>
+                          {netOtherMode && <input style={{ ...inp, marginTop: '8px' }} placeholder="Enter network" value={momoNetwork} onChange={e => setMomoNetwork(e.target.value)} />}
+                        </>
+                      ) : (
+                        <input style={inp} placeholder="e.g. MTN Mobile Money" value={momoNetwork} onChange={e => setMomoNetwork(e.target.value)} />
+                      )}
+                    </div>
+                    <div><label style={lbl}>Mobile money name</label><input style={inp} placeholder="Registered name" value={momoName} onChange={e => setMomoName(e.target.value)} /></div>
+                    <div><label style={lbl}>Mobile money number</label><input style={inp} inputMode="tel" placeholder="e.g. 024 123 4567" value={momoNumber} onChange={e => setMomoNumber(e.target.value)} /></div>
+                  </div>
+                )}
+              </div>
+
               {(!uploadedDoc || !avatarUrl) && (
                 <div style={{ background: '#F5F5F5', borderRadius: '10px', padding: '12px 14px', border: '1px solid #0B0B0B', fontSize: '13px', color: '#0B0B0B', marginBottom: '1rem' }}>
                   ⚠️ Please add your profile photo and upload your Ghana Card before submitting.
@@ -1024,8 +1106,8 @@ export default function TeacherApplication() {
                   style={{ padding: '13px 20px', background: '#fff', border: '1.5px solid #E2E8F0', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', color: '#6B7280', fontWeight: '600' }}>
                   ← Back
                 </button>
-                <button onClick={submitApplication} disabled={saving || !uploadedDoc || !avatarUrl}
-                  style={{ flex: 1, padding: '13px', background: saving || !uploadedDoc || !avatarUrl ? '#E2E8F0' : '#6D28D9', color: saving || !uploadedDoc || !avatarUrl ? '#9CA3AF' : '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: saving || !uploadedDoc || !avatarUrl ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                <button onClick={submitApplication} disabled={saving || !uploadedDoc || !avatarUrl || !payoutValid}
+                  style={{ flex: 1, padding: '13px', background: (saving || !uploadedDoc || !avatarUrl || !payoutValid) ? '#E2E8F0' : '#6D28D9', color: (saving || !uploadedDoc || !avatarUrl || !payoutValid) ? '#9CA3AF' : '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: (saving || !uploadedDoc || !avatarUrl || !payoutValid) ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                   {saving ? 'Submitting...' : '🚀 Submit application'}
                 </button>
               </div>
