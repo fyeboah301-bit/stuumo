@@ -136,7 +136,8 @@ export default function TeacherProfile() {
   const isNewTeacher = memberSince && (new Date() - memberSince) < 60 * 24 * 60 * 60 * 1000
   const isTopRated = avgRating && parseFloat(avgRating) >= 4.5 && visibleReviews.length >= 3
   const isVerifiedPro = teacher.is_verified && teachingCerts.length > 0
-  const canBook = user && profile?.role !== 'teacher'
+  const idExpired = teacher.ghana_card_expiry && new Date(teacher.ghana_card_expiry) < new Date()
+  const canBook = user && profile?.role !== 'teacher' && !idExpired
 
   const starBreakdown = [5, 4, 3, 2, 1].map(star => ({
     star,

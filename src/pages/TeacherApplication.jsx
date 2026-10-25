@@ -478,13 +478,15 @@ export default function TeacherApplication() {
         .from('teachers').select('*').eq('id', data.user.id).single()
       if (teacher) {
         setExisting(teacher)
-        if (teacher.application_status === 'pending' || teacher.application_status === 'approved') return
+        const isResub = teacher.application_stage === 'resubmission_needed'
+        if (!isResub && (teacher.application_status === 'pending' || teacher.application_status === 'approved')) return
         setBio(teacher.bio || '')
         setExperience(teacher.years_experience?.toString() || '')
         setRate(teacher.hourly_rate?.toString() || '')
         setSelectedLangs(teacher.languages || [])
         setLevels(teacher.teaching_levels || [])
         setSubjects(teacher.subjects || [])
+        if (isResub) setStep(3)
       }
 
       const { data: docs }  = await supabase.from('teacher_documents').select('*').eq('teacher_id', data.user.id)
@@ -545,6 +547,7 @@ export default function TeacherApplication() {
       const { error } = await supabase.storage.from('documents').upload(path, file)
       if (error) throw error
       const { data: urlData } = supabase.storage.from('documents').getPublicUrl(path)
+      await supabase.from('teacher_documents').delete().eq('teacher_id', user.id).eq('document_type', docType).eq('status', 'rejected')
       const { data: doc } = await supabase.from('teacher_documents').insert({
         teacher_id: user.id, document_type: docType, file_url: urlData.publicUrl, status: 'pending', expiry_date: cardExpiry || null
       }).select().single()
@@ -641,7 +644,7 @@ export default function TeacherApplication() {
 
   // ── Status screens ────────────────────────────────────────────────────────
 
-  if (existing?.application_status === 'pending' && !done) {
+  if (existing?.application_status === 'pending' && existing?.application_stage !== 'resubmission_needed' && !done) {
     return (
       <StatusScreen icon="⏳" title="Application under review" color="#0B0B0B" bg="#F5F5F5"
         message="Your application has been submitted and is being reviewed. Once approved, we'll email you a link to set your password and sign in."
@@ -942,7 +945,7 @@ export default function TeacherApplication() {
                   <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#0B0B0B', margin: 0 }}>ID Document</h3>
                   <span style={{ fontSize: '11px', background: '#F5F5F5', color: '#6D28D9', padding: '2px 8px', borderRadius: '20px', fontWeight: '700' }}>Required</span>
                 </div>
-                {uploadedDoc ? (
+                {uploadedDoc && uploadedDoc.status !== 'rejected' ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', background: '#F5F5F5', borderRadius: '10px', border: '1.5px solid #F5F5F5' }}>
                     <span style={{ fontSize: '22px' }}>✅</span>
                     <div style={{ flex: 1 }}>
@@ -953,6 +956,9 @@ export default function TeacherApplication() {
                   </div>
                 ) : (
                   <div style={{ border: '1.5px solid #E2E8F0', borderRadius: '12px', padding: '1.25rem', background: '#F5F5F5' }}>
+                    {uploadedDoc?.status === 'rejected' && (
+                      <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '8px', padding: '10px 12px', marginBottom: '10px', fontSize: '13px', color: '#991B1B', fontWeight: '600' }}>⚠️ Your previous document was declined. Please upload a corrected one.</div>
+                    )}
                     <div style={{ marginBottom: '10px' }}>
                       <label style={lbl}>Document type</label>
                       <div style={{ ...inp, display: 'flex', alignItems: 'center', color: '#0B0B0B', fontWeight: '600' }}>Ghana Card</div>

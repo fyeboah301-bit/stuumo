@@ -111,6 +111,7 @@ export default function Teachers() {
   const filtered = teachers
     .filter(t => {
       if (t.profiles?.status === 'suspended') return false
+      if (t.ghana_card_expiry && new Date(t.ghana_card_expiry) < new Date()) return false
       const avg = t.reviews?.length > 0 ? t.reviews.reduce((s, r) => s + r.rating, 0) / t.reviews.length : 0
       if (selectedSubject !== 'All' && !(t.subjects?.includes(selectedSubject))) return false
       if (search) {

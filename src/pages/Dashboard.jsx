@@ -80,7 +80,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (profile?.role === 'teacher' && user) {
-      supabase.from('teachers').select('application_status, application_notes').eq('id', user.id).single()
+      supabase.from('teachers').select('application_status, application_notes, ghana_card_expiry').eq('id', user.id).single()
         .then(({ data }) => {
           if (data) {
             setAppStatus(data)
@@ -127,6 +127,9 @@ export default function Dashboard() {
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: isMobile ? '1rem' : '1.5rem 2rem', flex: 1, width: '100%', boxSizing: 'border-box' }}>
         <AnnouncementBanner />
+        {isTeacher && appStatus?.ghana_card_expiry && new Date(appStatus.ghana_card_expiry) < new Date() && (
+          <GhanaCardRenewalBanner userId={user.id} expiry={appStatus.ghana_card_expiry} onDone={() => window.location.reload()} />
+        )}
 
         {isTeacher && appStatus?.application_status === 'pending' && (
           <div style={{ background: '#F5F5F5', borderRadius: '14px', border: '2px solid #E2E8F0', padding: '1.25rem 1.5rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -1110,3 +1113,47 @@ function AvailabilitySchedule({ userId }) {
     </SectionCard>
   )
 }
+
+
+function GhanaCardRenewalBanner({ userId, expiry, onDone }) {
+  const [file, setFile] = useState(null)
+  const [newExpiry, setNewExpiry] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [msg, setMsg] = useState('')
+  const submit = async () => {
+    if (!file || !newExpiry) { setMsg('Please add the renewed card and its new expiry date.'); return }
+    setBusy(true); setMsg('')
+    try {
+      const ext = file.name.split('.').pop()
+      const path = `${userId}/${Date.now()}.${ext}`
+      const { error: upErr } = await supabase.storage.from('documents').upload(path, file)
+      if (upErr) throw upErr
+      const { data: urlData } = supabase.storage.from('documents').getPublicUrl(path)
+      const { data: existingDoc } = await supabase.from('teacher_documents').select('id').eq('teacher_id', userId).eq('document_type', 'Ghana Card').limit(1).maybeSingle()
+      if (existingDoc?.id) await supabase.from('teacher_documents').update({ file_url: urlData.publicUrl, expiry_date: newExpiry, status: 'pending' }).eq('id', existingDoc.id)
+      else await supabase.from('teacher_documents').insert({ teacher_id: userId, document_type: 'Ghana Card', file_url: urlData.publicUrl, expiry_date: newExpiry, status: 'pending' })
+      await supabase.from('teachers').update({ ghana_card_expiry: newExpiry }).eq('id', userId)
+      setMsg('✅ Renewed card submitted. You’re active again.')
+      setTimeout(() => { if (onDone) onDone() }, 1200)
+    } catch (err) { setMsg('Error: ' + err.message) }
+    finally { setBusy(false) }
+  }
+  return (
+    <div style={{ background: '#FEF2F2', borderRadius: '14px', border: '2px solid #FECACA', padding: '1.25rem 1.5rem', marginBottom: '1.25rem' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+        <span style={{ fontSize: '28px', flexShrink: 0 }}>⚠️</span>
+        <div style={{ flex: 1 }}>
+          <h3 style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: '16px', color: '#991B1B', margin: '0 0 4px' }}>Your Ghana Card has expired</h3>
+          <p style={{ fontSize: '13px', color: '#7F1D1D', margin: '0 0 12px', lineHeight: '1.6' }}>Your account is paused — you won’t appear in search or receive new bookings until you upload a renewed Ghana Card. Expired on {expiry}.</p>
+          {msg && <div style={{ fontSize: '13px', color: msg.startsWith('✅') ? '#166534' : '#991B1B', marginBottom: '10px', fontWeight: '600' }}>{msg}</div>}
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setFile(e.target.files[0])} style={{ fontSize: '13px' }} />
+            <input type="date" value={newExpiry} onChange={e => setNewExpiry(e.target.value)} style={{ padding: '8px 10px', border: '1px solid #FECACA', borderRadius: '8px', fontSize: '13px', fontFamily: 'inherit' }} />
+            <button onClick={submit} disabled={busy} style={{ padding: '9px 20px', background: '#DC2626', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700', opacity: busy ? 0.6 : 1 }}>{busy ? 'Uploading…' : 'Upload renewed card'}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
