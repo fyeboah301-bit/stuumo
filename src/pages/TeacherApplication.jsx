@@ -448,6 +448,7 @@ export default function TeacherApplication() {
   const [docType, setDocType]       = useState('Ghana Card')
   const [uploadedDoc, setUploadedDoc]   = useState(null)
   const [cardExpiry, setCardExpiry]     = useState('')
+  const [cardNumber, setCardNumber]     = useState('')
   const [certFile, setCertFile]     = useState(null)
   const [certName, setCertName]     = useState('')
   const [certType, setCertType]     = useState('teaching')
@@ -491,7 +492,7 @@ export default function TeacherApplication() {
 
       const { data: docs }  = await supabase.from('teacher_documents').select('*').eq('teacher_id', data.user.id)
       const { data: certs } = await supabase.from('certificates').select('*').eq('teacher_id', data.user.id)
-      if (docs?.length)  { setUploadedDoc(docs[0]); if (docs[0].expiry_date) setCardExpiry(docs[0].expiry_date) }
+      if (docs?.length)  { setUploadedDoc(docs[0]); if (docs[0].expiry_date) setCardExpiry(docs[0].expiry_date); if (docs[0].document_number) setCardNumber(docs[0].document_number) }
       if (certs?.length) setUploadedCerts(certs)
     })
   }, [])
@@ -539,6 +540,7 @@ export default function TeacherApplication() {
 
   const uploadDoc = async (file) => {
     if (!file) return
+    if (!cardNumber) { setUploadMsg('Please enter the Ghana Card number first') ; return }
     if (!cardExpiry) { setUploadMsg('Please enter the Ghana Card expiry date first') ; return }
     setUploading(true); setUploadMsg('')
     try {
@@ -549,7 +551,7 @@ export default function TeacherApplication() {
       const { data: urlData } = supabase.storage.from('documents').getPublicUrl(path)
       await supabase.from('teacher_documents').delete().eq('teacher_id', user.id).eq('document_type', docType).eq('status', 'rejected')
       const { data: doc } = await supabase.from('teacher_documents').insert({
-        teacher_id: user.id, document_type: docType, file_url: urlData.publicUrl, status: 'pending', expiry_date: cardExpiry || null
+        teacher_id: user.id, document_type: docType, file_url: urlData.publicUrl, status: 'pending', expiry_date: cardExpiry || null, document_number: cardNumber || null
       }).select().single()
       setUploadedDoc(doc); setDocFile(null)
       setUploadMsg('✅ Ghana Card uploaded')
@@ -626,6 +628,7 @@ export default function TeacherApplication() {
       application_submitted_at: new Date().toISOString(),
       application_stage: existing?.application_stage === 'resubmission_needed' ? 'resubmitted' : 'submitted',
       ghana_card_expiry: cardExpiry || null,
+      ghana_card_number: cardNumber || null,
       payout_method: payoutMethod,
       bank_name: payoutMethod === 'bank' ? bankName.trim() : null,
       account_name: payoutMethod === 'bank' ? accountName.trim() : null,
@@ -962,6 +965,10 @@ export default function TeacherApplication() {
                     <div style={{ marginBottom: '10px' }}>
                       <label style={lbl}>Document type</label>
                       <div style={{ ...inp, display: 'flex', alignItems: 'center', color: '#0B0B0B', fontWeight: '600' }}>Ghana Card</div>
+                    </div>
+                    <div style={{ marginBottom: '10px' }}>
+                      <label style={lbl}>Ghana Card number</label>
+                      <input style={inp} placeholder="GHA-XXXXXXXXX-X" value={cardNumber} onChange={e => setCardNumber(e.target.value)} />
                     </div>
                     <div style={{ marginBottom: '10px' }}>
                       <label style={lbl}>Ghana Card expiry date</label>
