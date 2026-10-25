@@ -447,6 +447,7 @@ export default function TeacherApplication() {
   const [docFile, setDocFile]       = useState(null)
   const [docType, setDocType]       = useState('Ghana Card')
   const [uploadedDoc, setUploadedDoc]   = useState(null)
+  const [cardExpiry, setCardExpiry]     = useState('')
   const [certFile, setCertFile]     = useState(null)
   const [certName, setCertName]     = useState('')
   const [certType, setCertType]     = useState('teaching')
@@ -488,7 +489,7 @@ export default function TeacherApplication() {
 
       const { data: docs }  = await supabase.from('teacher_documents').select('*').eq('teacher_id', data.user.id)
       const { data: certs } = await supabase.from('certificates').select('*').eq('teacher_id', data.user.id)
-      if (docs?.length)  setUploadedDoc(docs[0])
+      if (docs?.length)  { setUploadedDoc(docs[0]); if (docs[0].expiry_date) setCardExpiry(docs[0].expiry_date) }
       if (certs?.length) setUploadedCerts(certs)
     })
   }, [])
@@ -521,6 +522,7 @@ export default function TeacherApplication() {
       years_experience: experience ? parseInt(experience) : null,
       hourly_rate: rate ? parseFloat(rate) : 0,
       languages: selectedLangs,
+      application_stage: 'step_2',
     }).eq('id', user.id)
     setSaving(false); setStep(2)
   }
@@ -529,12 +531,13 @@ export default function TeacherApplication() {
     if (levels.length === 0)   return setError('Please select at least one teaching level')
     if (subjects.length === 0) return setError('Please select at least one subject')
     setSaving(true); setError('')
-    await supabase.from('teachers').update({ subjects, teaching_levels: levels }).eq('id', user.id)
+    await supabase.from('teachers').update({ subjects, teaching_levels: levels, application_stage: 'step_3' }).eq('id', user.id)
     setSaving(false); setStep(3)
   }
 
   const uploadDoc = async (file) => {
     if (!file) return
+    if (!cardExpiry) { setUploadMsg('Please enter the Ghana Card expiry date first') ; return }
     setUploading(true); setUploadMsg('')
     try {
       const ext  = file.name.split('.').pop()
@@ -543,7 +546,7 @@ export default function TeacherApplication() {
       if (error) throw error
       const { data: urlData } = supabase.storage.from('documents').getPublicUrl(path)
       const { data: doc } = await supabase.from('teacher_documents').insert({
-        teacher_id: user.id, document_type: docType, file_url: urlData.publicUrl, status: 'pending'
+        teacher_id: user.id, document_type: docType, file_url: urlData.publicUrl, status: 'pending', expiry_date: cardExpiry || null
       }).select().single()
       setUploadedDoc(doc); setDocFile(null)
       setUploadMsg('✅ Ghana Card uploaded')
@@ -618,6 +621,8 @@ export default function TeacherApplication() {
     await supabase.from('teachers').update({
       application_status: 'pending',
       application_submitted_at: new Date().toISOString(),
+      application_stage: existing?.application_stage === 'resubmission_needed' ? 'resubmitted' : 'submitted',
+      ghana_card_expiry: cardExpiry || null,
       payout_method: payoutMethod,
       bank_name: payoutMethod === 'bank' ? bankName.trim() : null,
       account_name: payoutMethod === 'bank' ? accountName.trim() : null,
@@ -952,6 +957,10 @@ export default function TeacherApplication() {
                       <label style={lbl}>Document type</label>
                       <div style={{ ...inp, display: 'flex', alignItems: 'center', color: '#0B0B0B', fontWeight: '600' }}>Ghana Card</div>
                     </div>
+                    <div style={{ marginBottom: '10px' }}>
+                      <label style={lbl}>Ghana Card expiry date</label>
+                      <input type="date" style={inp} value={cardExpiry} onChange={e => setCardExpiry(e.target.value)} />
+                    </div>
                     <div style={{ border: '2px dashed #E2E8F0', borderRadius: '8px', padding: '16px', background: '#fff', textAlign: 'center', marginBottom: '10px' }}>
                       <div style={{ fontSize: '24px', marginBottom: '8px' }}>📎</div>
                       <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => uploadDoc(e.target.files[0])} style={{ fontSize: '13px', cursor: 'pointer' }} />
@@ -1006,7 +1015,7 @@ export default function TeacherApplication() {
                 </div>
               </div>
 
-              <NavButtons onBack={() => { setError(''); setStep(2) }} onNext={() => { setError(''); setUploadMsg(''); setStep(4) }} nextLabel="Review application →" />
+              <NavButtons onBack={() => { setError(''); setStep(2) }} onNext={async () => { setError(''); setUploadMsg(''); try { await supabase.from('teachers').update({ application_stage: 'step_4' }).eq('id', user.id) } catch (e) {} setStep(4) }} nextLabel="Review application →" />
             </div>
           )}
 
