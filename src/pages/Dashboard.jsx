@@ -611,7 +611,7 @@ function TeacherEarnings({ userId }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: earnings && bookings.length > 0 ? '1.25rem' : 0 }}>
           {[
             ['Gross earnings', `GH₵ ${(earnings?.totalGross || 0).toFixed(2)}`, '#0B0B0B', GREY_BG],
-            ['Platform fee (12.5%)', `GH₵ ${(earnings?.totalCommission || 0).toFixed(2)}`, '#6D28D9', '#F5F5F5'],
+            ['Platform fee (20%)', `GH₵ ${(earnings?.totalCommission || 0).toFixed(2)}`, '#6D28D9', '#F5F5F5'],
             ['Your net payout', `GH₵ ${(earnings?.totalPayout || 0).toFixed(2)}`, '#0B0B0B', '#F5F5F5'],
             ['Pending payout', `GH₵ ${(earnings?.pendingPayout || 0).toFixed(2)}`, '#0B0B0B', '#F5F5F5'],
           ].map(([label, value, color, bg]) => (

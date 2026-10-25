@@ -7,7 +7,7 @@ const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 
 // Commission on 1:1 private sessions
-const COMMISSION_RATE = 0.125
+const COMMISSION_RATE = 0.20
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
