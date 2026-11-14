@@ -74,5 +74,13 @@ create policy "parents read child certificates"
   on public.course_certificates for select
   using (learner_id in (select id from public.profiles where parent_id = auth.uid()));
 
+-- enrollments: see which live sessions a child is enrolled in
+-- (the enrollment row itself is written server-side by the
+--  verify-payment function; this just lets the parent read it)
+drop policy if exists "parents read child enrollments" on public.enrollments;
+create policy "parents read child enrollments"
+  on public.enrollments for select
+  using (user_id in (select id from public.profiles where parent_id = auth.uid()));
+
 -- Done. New children can now be added with no login, and parents
 -- can see and manage everything for them from their own account.

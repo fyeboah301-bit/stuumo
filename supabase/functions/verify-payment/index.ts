@@ -39,7 +39,7 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
-    const { type, booking_id, session_id, reference } = await req.json()
+    const { type, booking_id, session_id, reference, learner_id } = await req.json()
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE)
 
     // Identify the caller from their login token (needed for enrollments).
@@ -92,12 +92,21 @@ serve(async (req) => {
       if (!session_id) return json({ ok: false, error: 'Missing session_id' }, 400)
       if (!callerId)   return json({ ok: false, error: 'Not authenticated' }, 401)
 
+      // A parent may enroll one of their own children; otherwise the caller.
+      let enrolleeId = callerId
+      if (learner_id && learner_id !== callerId) {
+        const { data: kid } = await admin
+          .from('profiles').select('id').eq('id', learner_id).eq('parent_id', callerId).maybeSingle()
+        if (!kid) return json({ ok: false, error: 'That child is not linked to your account' }, 403)
+        enrolleeId = learner_id
+      }
+
       const { data: session, error: sErr } = await admin
         .from('live_sessions').select('*').eq('id', session_id).single()
       if (sErr || !session) return json({ ok: false, error: 'Session not found' }, 404)
 
       const { data: already } = await admin
-        .from('enrollments').select('id').eq('session_id', session_id).eq('user_id', callerId).maybeSingle()
+        .from('enrollments').select('id').eq('session_id', session_id).eq('user_id', enrolleeId).maybeSingle()
       if (already) return json({ ok: true, already: true })
 
       // Capacity
@@ -120,7 +129,7 @@ serve(async (req) => {
       }
 
       const { error: eErr } = await admin.from('enrollments')
-        .insert({ session_id, user_id: callerId, payment_status: 'paid' })
+        .insert({ session_id, user_id: enrolleeId, payment_status: 'paid' })
       if (eErr) return json({ ok: false, error: eErr.message }, 500)
 
       await admin.from('notifications').insert({

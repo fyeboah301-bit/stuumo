@@ -106,6 +106,8 @@ export default function LiveSessions() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [enrolling, setEnrolling] = useState(null)
+  const [children, setChildren] = useState([])
+  const [selectedChildId, setSelectedChildId] = useState('')
   const [message, setMessage] = useState('')
   const [tab, setTab] = useState('upcoming')
   const [search, setSearch] = useState('')
@@ -114,6 +116,18 @@ export default function LiveSessions() {
   const [form, setForm] = useState({ title: '', subject: '', session_date: '', start_time: '', end_time: '', max_spots: 20, price: 0 })
 
   useEffect(() => { fetchSessions(); if (user) fetchMyEnrollments() }, [user])
+
+  useEffect(() => {
+    if (!user) return
+    if (profile?.role === 'parent') {
+      supabase.from('profiles').select('id, full_name').eq('parent_id', user.id).then(({ data }) => {
+        const kids = data || []
+        setChildren(kids)
+        setSelectedChildId(prev => prev || (kids[0]?.id || ''))
+      })
+    }
+    fetchMyEnrollments()
+  }, [user, profile])
 
   const fetchSessions = async () => {
     let query = supabase
@@ -136,6 +150,16 @@ export default function LiveSessions() {
   }
 
   const fetchMyEnrollments = async () => {
+    if (profile?.role === 'parent') {
+      const { data: kids } = await supabase.from('profiles').select('id').eq('parent_id', user.id)
+      const ids = (kids || []).map(k => k.id)
+      if (ids.length === 0) { setMyEnrollments({}); return }
+      const { data } = await supabase.from('enrollments').select('session_id, user_id, payment_status').in('user_id', ids)
+      const map = {}
+      data?.forEach(e => { (map[e.session_id] = map[e.session_id] || []).push(e.user_id) })
+      setMyEnrollments(map)
+      return
+    }
     const { data } = await supabase.from('enrollments').select('session_id, payment_status').eq('user_id', user.id)
     const map = {}
     data?.forEach(e => { map[e.session_id] = e.payment_status })
@@ -175,11 +199,11 @@ export default function LiveSessions() {
     }
   }
 
-  const finalizeEnrollment = async (session, reference) => {
+  const finalizeEnrollment = async (session, reference, learnerId) => {
     try {
       // Enrollment (and any payment) is verified and recorded server-side.
       const { data, error } = await supabase.functions.invoke('verify-payment', {
-        body: { type: 'enrollment', session_id: session.id, reference: reference || null },
+        body: { type: 'enrollment', session_id: session.id, reference: reference || null, learner_id: learnerId || null },
       })
       if (error || !data?.ok) {
         let detail = data?.error || ''
@@ -196,11 +220,19 @@ export default function LiveSessions() {
 
   const enroll = async (session) => {
     if (!user) return navigate('/login?next=/sessions')
-    if (myEnrollments[session.id]) return setMessage('You are already enrolled.')
+    let learnerId = user.id
+    if (profile?.role === 'parent') {
+      if (children.length === 0) return setMessage('Add a child to your account first, then enroll them.')
+      if (!selectedChildId) return setMessage('Select which child you are enrolling.')
+      learnerId = selectedChildId
+      if ((myEnrollments[session.id] || []).includes(learnerId)) return setMessage('That child is already enrolled in this session.')
+    } else if (myEnrollments[session.id]) {
+      return setMessage('You are already enrolled.')
+    }
     setEnrolling(session.id)
     try {
       if (!session.price || session.price <= 0) {
-        await finalizeEnrollment(session, null); return
+        await finalizeEnrollment(session, null, learnerId); return
       }
       if (!window.PaystackPop) {
         setMessage('Payment system not available. Please refresh and try again.')
@@ -212,7 +244,7 @@ export default function LiveSessions() {
         amount: session.price * 100,
         currency: 'GHS',
         ref: 'TM-SESS-' + Date.now() + '-' + session.id.slice(0, 8),
-        callback: r => finalizeEnrollment(session, r.reference),
+        callback: r => finalizeEnrollment(session, r.reference, learnerId),
         onClose: () => setEnrolling(null)
       })
       handler.openIframe()
@@ -224,6 +256,7 @@ export default function LiveSessions() {
 
   const today = new Date().toISOString().split('T')[0]
   const isTeacher = profile?.role === 'teacher'
+  const isParent = profile?.role === 'parent'
   const upcomingSessions = sessions.filter(s => s.session_date >= today)
   const completedSessions = sessions.filter(s => s.session_date < today)
   const baseSessions = tab === 'upcoming' ? upcomingSessions : completedSessions
@@ -449,11 +482,31 @@ export default function LiveSessions() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {isParent && (children.length > 0 ? (
+              <div style={{ background: '#fff', borderRadius: '16px', border: BORDER, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', boxShadow: SHADOW_LG }}>
+                <span style={{ fontSize: '13px', fontWeight: '800', color: TEXT }}>👨‍👩‍👧 Enrolling for</span>
+                <select value={selectedChildId} onChange={e => setSelectedChildId(e.target.value)}
+                  style={{ flex: '0 1 220px', padding: '10px 14px', border: BORDER, borderRadius: '10px', fontSize: '14px', fontFamily: 'inherit', background: '#fff', color: TEXT, cursor: 'pointer' }}>
+                  {children.map(c => <option key={c.id} value={c.id}>{c.full_name}</option>)}
+                </select>
+                <span style={{ fontSize: '12px', color: TEXT_MUTED }}>Each enrollment is recorded for the child you pick.</span>
+              </div>
+            ) : (
+              <div style={{ background: '#fff', borderRadius: '16px', border: BORDER, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', boxShadow: SHADOW_LG }}>
+                <span style={{ fontSize: '16px' }}>👶</span>
+                <span style={{ fontSize: '13px', color: TEXT_MUTED }}>Add a child to your account to enroll them in live sessions.</span>
+                <Link to="/progress" style={{ fontSize: '13px', fontWeight: '800', color: BLUE, textDecoration: 'none' }}>Add a child →</Link>
+              </div>
+            ))}
             {displayed.map(session => {
               const enrolledCount = enrollmentCounts[session.id] || 0
               const spotsLeft = session.max_spots - enrolledCount
               const isFull = spotsLeft <= 0
-              const isEnrolled = !!myEnrollments[session.id]
+              const enrolledKids = isParent ? (myEnrollments[session.id] || []) : []
+              const isEnrolled = isParent ? enrolledKids.length > 0 : !!myEnrollments[session.id]
+              const selectedEnrolled = isParent ? enrolledKids.includes(selectedChildId) : isEnrolled
+              const activeChildName = isParent ? ((children.find(c => c.id === selectedChildId)?.full_name || '').split(' ')[0]) : ''
+              const kidNames = enrolledKids.map(id => children.find(c => c.id === id)?.full_name).filter(Boolean).join(', ')
               const canSeeLink = isTeacher || isEnrolled
               const reviews = session.teachers?.reviews || []
               const avgRating = reviews.length > 0 ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1) : null
@@ -469,7 +522,7 @@ export default function LiveSessions() {
                 >
                   {isEnrolled && (
                     <div style={{ background: 'rgba(109,40,217,0.1)', padding: '7px 18px', fontSize: '12px', fontWeight: '800', color: '#6D28D9', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> You're enrolled in this session
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> {isParent ? `${kidNames} enrolled in this session` : "You're enrolled in this session"}
                     </div>
                   )}
                   {isFull && !isEnrolled && (
@@ -537,10 +590,10 @@ export default function LiveSessions() {
                                 🎥 Join call
                               </Link>
                             )}
-                            {!isTeacher && !isEnrolled && (
+                            {!isTeacher && (isParent ? (children.length > 0 && selectedChildId && !selectedEnrolled) : !isEnrolled) && (
                               <button onClick={() => enroll(session)} disabled={isFull || enrolling === session.id}
                                 style={{ padding: '10px 20px', background: isFull ? GREY_BG : YELLOW, color: isFull ? TEXT_MUTED : '#fff', border: 'none', borderRadius: '50px', fontSize: '13px', cursor: isFull ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: '800', boxShadow: !isFull ? SHADOW_YELLOW : 'none', transition: TRANSITION }}>
-                                {enrolling === session.id ? '⏳ Processing...' : isFull ? 'Session full' : isFree ? '🎓 Enroll free' : `💳 Enroll · GH₵ ${session.price}`}
+                                {enrolling === session.id ? '⏳ Processing...' : isFull ? 'Session full' : isParent ? (isFree ? `🎓 Enroll ${activeChildName}` : `💳 Enroll ${activeChildName} · GH₵ ${session.price}`) : (isFree ? '🎓 Enroll free' : `💳 Enroll · GH₵ ${session.price}`)}
                               </button>
                             )}
                             {isEnrolled && (
