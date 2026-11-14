@@ -107,7 +107,8 @@ export default function LiveSessions() {
   const [showForm, setShowForm] = useState(false)
   const [enrolling, setEnrolling] = useState(null)
   const [children, setChildren] = useState([])
-  const [selectedChildId, setSelectedChildId] = useState('')
+  const [enrollPickerId, setEnrollPickerId] = useState(null)
+  const [pickedIds, setPickedIds] = useState([])
   const [message, setMessage] = useState('')
   const [tab, setTab] = useState('upcoming')
   const [search, setSearch] = useState('')
@@ -120,10 +121,8 @@ export default function LiveSessions() {
   useEffect(() => {
     if (!user) return
     if (profile?.role === 'parent') {
-      supabase.from('profiles').select('id, full_name').eq('parent_id', user.id).then(({ data }) => {
-        const kids = data || []
-        setChildren(kids)
-        setSelectedChildId(prev => prev || (kids[0]?.id || ''))
+      supabase.from('profiles').select('id, full_name, grade').eq('parent_id', user.id).then(({ data }) => {
+        setChildren(data || [])
       })
     }
     fetchMyEnrollments()
@@ -199,11 +198,11 @@ export default function LiveSessions() {
     }
   }
 
-  const finalizeEnrollment = async (session, reference, learnerId) => {
+  const finalizeEnrollment = async (session, reference, learnerIds) => {
     try {
       // Enrollment (and any payment) is verified and recorded server-side.
       const { data, error } = await supabase.functions.invoke('verify-payment', {
-        body: { type: 'enrollment', session_id: session.id, reference: reference || null, learner_id: learnerId || null },
+        body: { type: 'enrollment', session_id: session.id, reference: reference || null, learner_ids: learnerIds || null },
       })
       if (error || !data?.ok) {
         let detail = data?.error || ''
@@ -213,38 +212,39 @@ export default function LiveSessions() {
         return
       }
       setMessage('✅ Enrolled successfully!')
+      setEnrollPickerId(null); setPickedIds([])
       fetchSessions(); fetchMyEnrollments()
     } catch (err) { setMessage('Error: ' + err.message) }
     finally { setEnrolling(null) }
   }
 
-  const enroll = async (session) => {
+  const openPicker = (session) => {
     if (!user) return navigate('/login?next=/sessions')
-    let learnerId = user.id
-    if (profile?.role === 'parent') {
-      if (children.length === 0) return setMessage('Add a child to your account first, then enroll them.')
-      if (!selectedChildId) return setMessage('Select which child you are enrolling.')
-      learnerId = selectedChildId
-      if ((myEnrollments[session.id] || []).includes(learnerId)) return setMessage('That child is already enrolled in this session.')
-    } else if (myEnrollments[session.id]) {
-      return setMessage('You are already enrolled.')
-    }
+    if (children.length === 0) return setMessage('Add a child to your account first, then enrol them.')
+    setPickedIds([])
+    setEnrollPickerId(session.id)
+  }
+  const togglePick = (id) => setPickedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+
+  const enrollChildren = async (session, ids) => {
+    if (!ids || ids.length === 0) return setMessage('Select at least one child.')
     setEnrolling(session.id)
     try {
       if (!session.price || session.price <= 0) {
-        await finalizeEnrollment(session, null, learnerId); return
+        await finalizeEnrollment(session, null, ids); return
       }
       if (!window.PaystackPop) {
         setMessage('Payment system not available. Please refresh and try again.')
         setEnrolling(null); return
       }
+      const total = (Number(session.price) || 0) * ids.length
       const handler = window.PaystackPop.setup({
         key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
         email: user.email,
-        amount: session.price * 100,
+        amount: total * 100,
         currency: 'GHS',
         ref: 'TM-SESS-' + Date.now() + '-' + session.id.slice(0, 8),
-        callback: r => finalizeEnrollment(session, r.reference, learnerId),
+        callback: r => finalizeEnrollment(session, r.reference, ids),
         onClose: () => setEnrolling(null)
       })
       handler.openIframe()
@@ -482,30 +482,21 @@ export default function LiveSessions() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {isParent && (children.length > 0 ? (
-              <div style={{ background: '#fff', borderRadius: '16px', border: BORDER, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', boxShadow: SHADOW_LG }}>
-                <span style={{ fontSize: '13px', fontWeight: '800', color: TEXT }}>👨‍👩‍👧 Enrolling for</span>
-                <select value={selectedChildId} onChange={e => setSelectedChildId(e.target.value)}
-                  style={{ flex: '0 1 220px', padding: '10px 14px', border: BORDER, borderRadius: '10px', fontSize: '14px', fontFamily: 'inherit', background: '#fff', color: TEXT, cursor: 'pointer' }}>
-                  {children.map(c => <option key={c.id} value={c.id}>{c.full_name}</option>)}
-                </select>
-                <span style={{ fontSize: '12px', color: TEXT_MUTED }}>Each enrollment is recorded for the child you pick.</span>
-              </div>
-            ) : (
+            {isParent && children.length === 0 && (
               <div style={{ background: '#fff', borderRadius: '16px', border: BORDER, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', boxShadow: SHADOW_LG }}>
                 <span style={{ fontSize: '16px' }}>👶</span>
-                <span style={{ fontSize: '13px', color: TEXT_MUTED }}>Add a child to your account to enroll them in live sessions.</span>
+                <span style={{ fontSize: '13px', color: TEXT_MUTED }}>Add a child to your account to enrol them in live sessions.</span>
                 <Link to="/progress" style={{ fontSize: '13px', fontWeight: '800', color: BLUE, textDecoration: 'none' }}>Add a child →</Link>
               </div>
-            ))}
+            )}
             {displayed.map(session => {
               const enrolledCount = enrollmentCounts[session.id] || 0
               const spotsLeft = session.max_spots - enrolledCount
               const isFull = spotsLeft <= 0
               const enrolledKids = isParent ? (myEnrollments[session.id] || []) : []
               const isEnrolled = isParent ? enrolledKids.length > 0 : !!myEnrollments[session.id]
-              const selectedEnrolled = isParent ? enrolledKids.includes(selectedChildId) : isEnrolled
-              const activeChildName = isParent ? ((children.find(c => c.id === selectedChildId)?.full_name || '').split(' ')[0]) : ''
+              const eligibleKids = isParent ? children.filter(c => !enrolledKids.includes(c.id)) : []
+              const pickerOpen = enrollPickerId === session.id
               const kidNames = enrolledKids.map(id => children.find(c => c.id === id)?.full_name).filter(Boolean).join(', ')
               const canSeeLink = isTeacher || isEnrolled
               const reviews = session.teachers?.reviews || []
@@ -590,10 +581,39 @@ export default function LiveSessions() {
                                 🎥 Join call
                               </Link>
                             )}
-                            {!isTeacher && (isParent ? (children.length > 0 && selectedChildId && !selectedEnrolled) : !isEnrolled) && (
-                              <button onClick={() => enroll(session)} disabled={isFull || enrolling === session.id}
+                            {!isTeacher && isParent && !pickerOpen && eligibleKids.length > 0 && (
+                              <button onClick={() => openPicker(session)} disabled={isFull}
                                 style={{ padding: '10px 20px', background: isFull ? GREY_BG : YELLOW, color: isFull ? TEXT_MUTED : '#fff', border: 'none', borderRadius: '50px', fontSize: '13px', cursor: isFull ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: '800', boxShadow: !isFull ? SHADOW_YELLOW : 'none', transition: TRANSITION }}>
-                                {enrolling === session.id ? '⏳ Processing...' : isFull ? 'Session full' : isParent ? (isFree ? `🎓 Enroll ${activeChildName}` : `💳 Enroll ${activeChildName} · GH₵ ${session.price}`) : (isFree ? '🎓 Enroll free' : `💳 Enroll · GH₵ ${session.price}`)}
+                                {isFull ? 'Session full' : isEnrolled ? '➕ Enrol another child' : (isFree ? '🎓 Enrol a child' : `💳 Enrol a child · GH₵ ${session.price} each`)}
+                              </button>
+                            )}
+                            {!isTeacher && isParent && pickerOpen && (
+                              <div style={{ flexBasis: '100%', background: GREY_BG, border: BORDER, borderRadius: '14px', padding: '14px 16px' }}>
+                                <div style={{ fontSize: '13px', fontWeight: '800', color: TEXT, marginBottom: '10px' }}>Who is this session for?</div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+                                  {eligibleKids.map(c => (
+                                    <label key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', background: '#fff', border: `1px solid ${pickedIds.includes(c.id) ? BLUE : GREY_LIGHT}`, borderRadius: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: '600', color: TEXT }}>
+                                      <input type="checkbox" checked={pickedIds.includes(c.id)} onChange={() => togglePick(c.id)} style={{ width: '16px', height: '16px', accentColor: '#6D28D9', cursor: 'pointer' }} />
+                                      {c.full_name}{c.grade ? ` · ${c.grade}` : ''}
+                                    </label>
+                                  ))}
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                  <button onClick={() => enrollChildren(session, pickedIds)} disabled={pickedIds.length === 0 || isFull || enrolling === session.id}
+                                    style={{ padding: '10px 20px', background: (pickedIds.length === 0 || isFull) ? GREY_BG : YELLOW, color: (pickedIds.length === 0 || isFull) ? TEXT_MUTED : '#fff', border: 'none', borderRadius: '50px', fontSize: '13px', cursor: (pickedIds.length === 0 || isFull) ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: '800', boxShadow: (pickedIds.length === 0 || isFull) ? 'none' : SHADOW_YELLOW }}>
+                                    {enrolling === session.id ? '⏳ Processing...' : isFree ? `Enrol ${pickedIds.length || ''} ${pickedIds.length === 1 ? 'child' : 'children'}`.replace('  ', ' ').trim() : `Pay GH₵ ${session.price * pickedIds.length} · enrol ${pickedIds.length === 1 ? 'child' : 'children'}`}
+                                  </button>
+                                  <button onClick={() => { setEnrollPickerId(null); setPickedIds([]) }}
+                                    style={{ padding: '10px 18px', background: '#fff', border: BORDER, borderRadius: '50px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700', color: TEXT_MUTED }}>
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                            {!isTeacher && !isParent && !isEnrolled && (
+                              <button onClick={() => enrollChildren(session, [user.id])} disabled={isFull || enrolling === session.id}
+                                style={{ padding: '10px 20px', background: isFull ? GREY_BG : YELLOW, color: isFull ? TEXT_MUTED : '#fff', border: 'none', borderRadius: '50px', fontSize: '13px', cursor: isFull ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: '800', boxShadow: !isFull ? SHADOW_YELLOW : 'none', transition: TRANSITION }}>
+                                {enrolling === session.id ? '⏳ Processing...' : isFull ? 'Session full' : isFree ? '🎓 Enroll free' : `💳 Enroll · GH₵ ${session.price}`}
                               </button>
                             )}
                             {isEnrolled && (

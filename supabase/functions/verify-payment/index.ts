@@ -39,7 +39,7 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
-    const { type, booking_id, session_id, reference, learner_id } = await req.json()
+    const { type, booking_id, session_id, reference, learner_id, learner_ids } = await req.json()
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE)
 
     // Identify the caller from their login token (needed for enrollments).
@@ -92,49 +92,59 @@ serve(async (req) => {
       if (!session_id) return json({ ok: false, error: 'Missing session_id' }, 400)
       if (!callerId)   return json({ ok: false, error: 'Not authenticated' }, 401)
 
-      // A parent may enroll one of their own children; otherwise the caller.
-      let enrolleeId = callerId
-      if (learner_id && learner_id !== callerId) {
+      // Who is being enrolled? A parent may enrol one or more of their own
+      // children; a learner enrols themselves. Default to the caller.
+      let requested: string[] = Array.isArray(learner_ids) && learner_ids.length
+        ? learner_ids
+        : (learner_id ? [learner_id] : [callerId])
+      requested = [...new Set(requested.filter(Boolean))]
+
+      for (const id of requested) {
+        if (id === callerId) continue
         const { data: kid } = await admin
-          .from('profiles').select('id').eq('id', learner_id).eq('parent_id', callerId).maybeSingle()
-        if (!kid) return json({ ok: false, error: 'That child is not linked to your account' }, 403)
-        enrolleeId = learner_id
+          .from('profiles').select('id').eq('id', id).eq('parent_id', callerId).maybeSingle()
+        if (!kid) return json({ ok: false, error: 'A selected child is not linked to your account' }, 403)
       }
 
       const { data: session, error: sErr } = await admin
         .from('live_sessions').select('*').eq('id', session_id).single()
       if (sErr || !session) return json({ ok: false, error: 'Session not found' }, 404)
 
-      const { data: already } = await admin
-        .from('enrollments').select('id').eq('session_id', session_id).eq('user_id', enrolleeId).maybeSingle()
-      if (already) return json({ ok: true, already: true })
+      // Drop anyone already enrolled.
+      const { data: existingEnr } = await admin
+        .from('enrollments').select('user_id').eq('session_id', session_id).in('user_id', requested)
+      const alreadySet = new Set((existingEnr || []).map((e: { user_id: string }) => e.user_id))
+      const toEnroll = requested.filter((id) => !alreadySet.has(id))
+      if (toEnroll.length === 0) return json({ ok: true, already: true })
 
       // Capacity
       const { count } = await admin
         .from('enrollments').select('*', { count: 'exact', head: true }).eq('session_id', session_id)
-      if (session.max_spots && count !== null && count >= session.max_spots) {
-        return json({ ok: false, error: 'This session is full' }, 400)
+      if (session.max_spots && count !== null && count + toEnroll.length > session.max_spots) {
+        return json({ ok: false, error: 'Not enough spots left for all selected children' }, 400)
       }
 
+      // Payment: one charge for all seats (price x number of children).
       const price = Number(session.price) || 0
       if (price > 0) {
         if (!reference) return json({ ok: false, error: 'Missing reference' }, 400)
         const { data: existing } = await admin
           .from('payments').select('id').eq('reference', reference).maybeSingle()
         if (!existing) {
-          const vr = await verifyPaystack(reference, Math.round(price * 100))
+          const total = price * toEnroll.length
+          const vr = await verifyPaystack(reference, Math.round(total * 100))
           if (!vr.ok) return json({ ok: false, error: vr.error }, 400)
-          await admin.from('payments').insert({ payer_id: callerId, amount: price, reference, status: 'success' })
+          await admin.from('payments').insert({ payer_id: callerId, amount: total, reference, status: 'success' })
         }
       }
 
-      const { error: eErr } = await admin.from('enrollments')
-        .insert({ session_id, user_id: enrolleeId, payment_status: 'paid' })
+      const rows = toEnroll.map((id) => ({ session_id, user_id: id, payment_status: 'paid' }))
+      const { error: eErr } = await admin.from('enrollments').insert(rows)
       if (eErr) return json({ ok: false, error: eErr.message }, 500)
 
       await admin.from('notifications').insert({
         user_id: session.teacher_id, title: 'New enrollment',
-        message: `Someone enrolled in: ${session.title}.`, type: 'enrollment', link: '/sessions',
+        message: `${toEnroll.length} new enrolment${toEnroll.length === 1 ? '' : 's'} in: ${session.title}.`, type: 'enrollment', link: '/sessions',
       })
       return json({ ok: true })
     }
