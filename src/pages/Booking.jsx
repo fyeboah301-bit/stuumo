@@ -329,10 +329,11 @@ export default function Booking() {
 
   useEffect(() => {
     if (user && profile?.role === 'parent') {
-      supabase.from('profiles').select('id, full_name').eq('parent_id', user.id).then(({ data }) => {
+      supabase.from('profiles').select('id, full_name, grade').eq('parent_id', user.id).then(({ data }) => {
         setChildren(data || [])
         if (data && data.length === 1) setSelectedChild(data[0])
       })
+      fetchMyBookings()
     }
   }, [user, profile])
 
@@ -353,9 +354,15 @@ export default function Booking() {
   }
 
   const fetchMyBookings = async () => {
+    let clientIds = [user.id]
+    if (profile?.role === 'parent') {
+      const { data: kids } = await supabase.from('profiles').select('id').eq('parent_id', user.id)
+      clientIds = (kids || []).map(k => k.id)
+    }
+    if (clientIds.length === 0) { setBookings([]); return }
     const { data } = await supabase.from('bookings')
-      .select('*, teachers (id, profiles (full_name, avatar_url)), room_id')
-      .eq('client_id', user.id)
+      .select('*, teachers (id, profiles (full_name, avatar_url)), room_id, child:client_id (full_name)')
+      .in('client_id', clientIds)
       .order('created_at', { ascending: false })
     setBookings(data || [])
   }
@@ -814,7 +821,7 @@ export default function Booking() {
                           <div style={{ padding: '14px', background: GREY_BG, borderRadius: '14px', border: BORDER }}>
                             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '14px' }}>
                               <span style={{ fontSize: '18px', flexShrink: 0 }}>👶</span>
-                              <p style={{ fontSize: '13px', color: TEXT_MUTED, margin: 0, lineHeight: '1.6' }}>No child linked yet. Create an account for your child now — you'll get their login to share, and this session will be booked for them.</p>
+                              <p style={{ fontSize: '13px', color: TEXT_MUTED, margin: 0, lineHeight: '1.6' }}>No child added yet. Add your child below — no extra login needed — and this session will be booked for them.</p>
                             </div>
                             <CreateChildForm parentId={user.id} onCreated={(child) => setSelectedChild(child)} />
                           </div>

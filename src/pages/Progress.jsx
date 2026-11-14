@@ -130,7 +130,7 @@ export default function Progress() {
             <span style={{ fontSize: '20px' }}>👶</span>
             <div>
               <h3 style={{ color: '#0B0B0B', fontSize: '15px', fontWeight: '700', margin: 0, letterSpacing: '-0.01em' }}>Add your child</h3>
-              <p style={{ color: 'rgba(0,0,0,0.7)', fontSize: '12px', margin: 0, marginTop: '2px' }}>Create an account for your child in seconds — you'll get their login to share</p>
+              <p style={{ color: 'rgba(0,0,0,0.7)', fontSize: '12px', margin: 0, marginTop: '2px' }}>Add your child in seconds — no extra login needed. You manage everything from here.</p>
             </div>
           </div>
           <div style={{ padding: '1.25rem 1.5rem' }}>
@@ -141,9 +141,9 @@ export default function Progress() {
         {children.length === 0 ? (
           <div style={{ background: '#fff', borderRadius: '20px', border: BORDER, padding: '5rem 2rem', textAlign: 'center', boxShadow: SHADOW_LG }}>
             <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: LIGHT_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '38px', margin: '0 auto 1.25rem' }}>👨‍👩‍👧</div>
-            <h3 style={{ fontSize: '20px', fontWeight: '700', color: TEXT, marginBottom: '8px', letterSpacing: '-0.01em' }}>No linked accounts yet</h3>
+            <h3 style={{ fontSize: '20px', fontWeight: '700', color: TEXT, marginBottom: '8px', letterSpacing: '-0.01em' }}>No children added yet</h3>
             <p style={{ fontSize: '14px', color: TEXT_MUTED, maxWidth: '360px', margin: '0 auto', lineHeight: '1.7' }}>
-              Link your child's account above to start monitoring their bookings, assignments and certificates.
+              Add your child above to start booking lessons and tracking their bookings, assignments and certificates.
             </p>
           </div>
         ) : (
