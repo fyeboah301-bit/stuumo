@@ -5,17 +5,29 @@ import { BLUE, YELLOW, GREY_BG, GREY_LIGHT, TEXT_MUTED } from '../styles/colors'
 import { useNavigate } from 'react-router-dom'
 
 export default function NotificationBell() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const [notifications, setNotifications] = useState([])
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
+  const scopeRef = useRef([])
   const navigate = useNavigate()
 
   useEffect(() => {
     if (!user) return
-    fetchNotifications()
+    let cancelled = false
+    const setup = async () => {
+      let ids = [user.id]
+      if (profile?.role === 'parent') {
+        const { data: kids } = await supabase.from('profiles').select('id').eq('parent_id', user.id)
+        ids = [user.id, ...((kids || []).map(k => k.id))]
+      }
+      if (cancelled) return
+      scopeRef.current = ids
+      fetchNotifications()
+    }
+    setup()
 
-    // Real-time subscription
+    // Real-time subscription (own notifications; children's refresh on open)
     const channel = supabase
       .channel(`notifications:${user.id}`)
       .on('postgres_changes', {
@@ -26,8 +38,10 @@ export default function NotificationBell() {
       }, () => fetchNotifications())
       .subscribe()
 
-    return () => supabase.removeChannel(channel)
-  }, [user])
+    return () => { cancelled = true; supabase.removeChannel(channel) }
+  }, [user, profile])
+
+  useEffect(() => { if (open) fetchNotifications() }, [open])
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -38,17 +52,18 @@ export default function NotificationBell() {
   }, [])
 
   const fetchNotifications = async () => {
+    const ids = scopeRef.current.length ? scopeRef.current : [user.id]
     const { data } = await supabase
       .from('notifications')
       .select('*')
-      .eq('user_id', user.id)
+      .in('user_id', ids)
       .order('created_at', { ascending: false })
       .limit(20)
     setNotifications(data || [])
   }
 
   const markAllRead = async () => {
-    await supabase.from('notifications').update({ read: true }).eq('user_id', user.id).eq('read', false)
+    await supabase.from('notifications').update({ read: true }).in('user_id', scopeRef.current.length ? scopeRef.current : [user.id]).eq('read', false)
     setNotifications(prev => prev.map(n => ({ ...n, read: true })))
   }
 

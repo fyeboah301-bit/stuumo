@@ -67,15 +67,28 @@ export default function Messages() {
   const [sending, setSending] = useState(false)
   const [search, setSearch] = useState('')
   const [showList, setShowList] = useState(true)
+  const [childIds, setChildIds] = useState([])
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
 
   const isTeacher = profile?.role === 'teacher'
+  const myIds = [user?.id, ...childIds].filter(Boolean)
+  const childLabel = (conv) => (profile?.role === 'parent' ? conv.profiles?.full_name : null)
 
   useEffect(() => {
-    if (!user) navigate('/login')
-    else fetchConversations()
-  }, [user])
+    if (!user) { navigate('/login'); return }
+    if (profile?.role === 'parent') {
+      supabase.from('profiles').select('id').eq('parent_id', user.id).then(({ data }) => {
+        setChildIds((data || []).map(k => k.id))
+      })
+    } else {
+      setChildIds([])
+    }
+  }, [user, profile])
+
+  useEffect(() => {
+    if (user) fetchConversations()
+  }, [user, childIds])
 
   useEffect(() => {
     const bookingId = searchParams.get('booking')
@@ -94,7 +107,7 @@ export default function Messages() {
         filter: `booking_id=eq.${activeBooking.id}`
       }, payload => {
         setMessages(prev => prev.some(m => m.id === payload.new.id) ? prev : [...prev, payload.new])
-        if (payload.new.receiver_id === user.id) {
+        if (payload.new.receiver_id === user.id || childIds.includes(payload.new.receiver_id)) {
           supabase.from('messages').update({ read: true }).eq('id', payload.new.id)
         }
       }).subscribe()
@@ -140,14 +153,14 @@ export default function Messages() {
   .select('*, profiles:client_id (full_name, avatar_url), teachers (id, profiles (full_name, avatar_url))')
   .eq('status', 'confirmed')
   .or('payment_status.eq.paid,amount.eq.0')
-  .or(`client_id.eq.${user.id},teacher_id.eq.${user.id}`)
+  .or(`client_id.in.(${myIds.join(',')}),teacher_id.eq.${user.id}`)
   .order('created_at', { ascending: false })
     const convs = data || []
     setConversations(convs)
     const meta = {}
     await Promise.all(convs.map(async conv => {
       const { data: msgs } = await supabase.from('messages').select('*').eq('booking_id', conv.id).order('created_at', { ascending: false }).limit(1)
-      const { count } = await supabase.from('messages').select('*', { count: 'exact', head: true }).eq('booking_id', conv.id).eq('receiver_id', user.id).eq('read', false)
+      const { count } = await supabase.from('messages').select('*', { count: 'exact', head: true }).eq('booking_id', conv.id).in('receiver_id', myIds).eq('read', false)
       meta[conv.id] = { lastMessage: msgs?.[0] || null, unread: count || 0 }
     }))
     setConversationMeta(meta)
@@ -157,7 +170,7 @@ export default function Messages() {
   const fetchMessages = async (bookingId) => {
     const { data } = await supabase.from('messages').select('*').eq('booking_id', bookingId).order('created_at', { ascending: true })
     setMessages(data || [])
-    await supabase.from('messages').update({ read: true }).eq('booking_id', bookingId).eq('receiver_id', user.id)
+    await supabase.from('messages').update({ read: true }).eq('booking_id', bookingId).in('receiver_id', myIds)
     setConversationMeta(prev => ({ ...prev, [bookingId]: { ...prev[bookingId], unread: 0 } }))
   }
 
@@ -167,9 +180,9 @@ export default function Messages() {
     setTimeout(() => inputRef.current?.focus(), 100)
   }
 
-  const getOtherPersonId     = (conv) => conv.client_id === user.id ? conv.teacher_id : conv.client_id
-  const getOtherPersonName   = (conv) => conv.client_id === user.id ? conv.teachers?.profiles?.full_name : conv.profiles?.full_name
-  const getOtherPersonAvatar = (conv) => conv.client_id === user.id ? conv.teachers?.profiles?.avatar_url : conv.profiles?.avatar_url
+  const getOtherPersonId     = (conv) => conv.teacher_id === user.id ? conv.client_id : conv.teacher_id
+  const getOtherPersonName   = (conv) => conv.teacher_id === user.id ? conv.profiles?.full_name : conv.teachers?.profiles?.full_name
+  const getOtherPersonAvatar = (conv) => conv.teacher_id === user.id ? conv.profiles?.avatar_url : conv.teachers?.profiles?.avatar_url
 
   const sendMessage = async (e) => {
     e.preventDefault()
@@ -341,7 +354,7 @@ export default function Messages() {
                   )}
                 </div>
                 <span style={{ fontSize: '11px', background: isActive ? 'rgba(0,0,0,0.15)' : GREY_BG, color: isActive ? BLUE : TEXT_MUTED, padding: '2px 9px', borderRadius: '50px', fontWeight: '600' }}>
-                  {conv.subject}
+                  {conv.subject}{childLabel(conv) ? ` · for ${childLabel(conv)}` : ''}
                 </span>
               </div>
               {unread > 0 && !isActive && (
@@ -367,7 +380,7 @@ export default function Messages() {
               <div style={{ fontSize: '15px', fontWeight: '700', color: '#0B0B0B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>
                 {getOtherPersonName(activeBooking)}
               </div>
-              <div style={{ fontSize: '12px', color: 'rgba(0,0,0,0.65)', marginTop: '1px' }}>📚 {activeBooking.subject}</div>
+              <div style={{ fontSize: '12px', color: 'rgba(0,0,0,0.65)', marginTop: '1px' }}>📚 {activeBooking.subject}{childLabel(activeBooking) ? ` · for ${childLabel(activeBooking)}` : ''}</div>
             </div>
             <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
               {activeBooking.room_id && (
