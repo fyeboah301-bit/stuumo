@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { BLUE, YELLOW, DARK_BLUE, TRANSITION } from '../styles/colors'
 import NotificationBell from './NotificationBell'
 import Logo from './Logo'
+import { isNativeApp } from '../lib/platform'
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 900)
@@ -62,8 +63,7 @@ export default function NavBar() {
     { to: '/messages',         label: 'Messages',          icon: '💬' },
     { to: '/assignments',      label: 'Assignments',       icon: '📝' },
     { to: '/certificates',     label: 'Certificates',      icon: '📄' },
-    { to: '/referrals',        label: 'Refer & Earn',      icon: '🎁' },
-    { to: '/dashboard',        label: 'Dashboard',         icon: '👤' },
+    { to: '/dashboard',        label: 'My Dashboard',      icon: '👤' },
   ]
 
   const learnerLinks = [
@@ -73,13 +73,23 @@ export default function NavBar() {
     { to: '/messages',     label: 'Messages',        icon: '💬' },
     { to: '/assignments',  label: 'Assignments',     icon: '📝' },
     { to: '/certificates', label: 'Certificates',    icon: '📄' },
-    { to: '/referrals',    label: 'Refer & Earn',    icon: '🎁' },
-    ...(profile?.role === 'parent' ? [{ to: '/progress', label: 'Progress', icon: '📈' }] : []),
-    { to: '/dashboard',    label: 'Dashboard',       icon: '👤' },
+    ...(profile?.role === 'parent' ? [{ to: '/progress', label: 'My Children', icon: '📈' }] : []),
+    { to: '/dashboard',    label: 'My Dashboard',    icon: '👤' },
   ]
 
   const mobileLinks = profile?.role === 'teacher' ? teacherLinks : learnerLinks
   const isTeacher = profile?.role === 'teacher'
+
+  if (isNativeApp()) {
+    return (
+      <nav style={{ background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 200, borderBottom: '1px solid #E2E8F0', padding: '0.6rem 1rem', paddingTop: 'calc(0.6rem + env(safe-area-inset-top))' }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <Logo variant="yellow" height={28} />
+        </Link>
+        {profile && <NotificationBell />}
+      </nav>
+    )
+  }
 
   return (
     <>
@@ -119,7 +129,7 @@ export default function NavBar() {
                   <NavLink to="/messages"         label="Messages"         isActive={isActive('/messages')} />
                   <NavLink to="/assignments"      label="Assignments"      isActive={isActive('/assignments')} />
                   <NavLink to="/certificates"     label="Certificates"     isActive={isActive('/certificates')} />
-                  <NavLink to="/referrals"        label="Refer & Earn"     isActive={isActive('/referrals')} />
+                  <NavLink to="/dashboard"        label="My Dashboard"     isActive={isActive('/dashboard')} />
                 </>
               ) : (
                 <>
@@ -128,8 +138,8 @@ export default function NavBar() {
                   <NavLink to="/booking"     label="Book a session" isActive={isActive('/booking')} />
                   <NavLink to="/messages"    label="Messages"       isActive={isActive('/messages')} />
                   <NavLink to="/assignments" label="Assignments"    isActive={isActive('/assignments')} />
-                  <NavLink to="/referrals"   label="Refer & Earn"   isActive={isActive('/referrals')} />
-                  {profile?.role === 'parent' && <NavLink to="/progress" label="Progress" isActive={isActive('/progress')} />}
+                  {profile?.role === 'parent' && <NavLink to="/progress" label="My Children" isActive={isActive('/progress')} />}
+                  <NavLink to="/dashboard"   label="My Dashboard"   isActive={isActive('/dashboard')} />
                 </>
               )}
             </div>

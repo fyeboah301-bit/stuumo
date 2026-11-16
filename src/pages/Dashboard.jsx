@@ -66,6 +66,7 @@ const TEACHER_SECTIONS = [
   { key: 'portfolio', icon: '📁', label: 'Portfolio', group: 'Showcase' },
   { key: 'videos', icon: '🎥', label: 'Pitch videos', group: 'Showcase' },
   { key: 'earnings', icon: '💰', label: 'Earnings', group: 'Account' },
+  { key: 'referrals', icon: '🎁', label: 'Refer & Earn', group: 'Account' },
   { key: 'profile', icon: '👤', label: 'Profile', group: 'Account' },
 ]
 
@@ -206,6 +207,7 @@ export default function Dashboard() {
               {activeSection === 'portfolio' && <PortfolioUploads userId={user.id} />}
               {activeSection === 'videos' && <PitchVideos userId={user.id} />}
               {activeSection === 'earnings' && <TeacherEarnings userId={user.id} />}
+              {activeSection === 'referrals' && <ReferCard userId={user.id} profile={profile} />}
               {activeSection === 'profile' && <ProfileEditor />}
             </div>
           </div>
@@ -582,6 +584,8 @@ function LearnerOverview({ userId, profile }) {
           </div>
         ))}
       </div>
+
+      <ReferCard userId={userId} profile={profile} />
     </div>
   )
 }
@@ -623,6 +627,10 @@ function TeacherEarnings({ userId }) {
               <div style={{ fontSize: '20px', fontWeight: '700', color, fontFamily: 'Tahoma, Geneva, sans-serif' }}>{value}</div>
             </div>
           ))}
+        </div>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', background: '#EDE9FE', border: '1px solid #DDD6FE', borderRadius: '12px', padding: '12px 14px', marginBottom: '1.25rem' }}>
+          <span style={{ fontSize: '16px', flexShrink: 0 }}>🗓️</span>
+          <p style={{ fontSize: '12.5px', color: '#5B21B6', margin: 0, lineHeight: 1.6, fontWeight: '600' }}>Payouts are sent <strong>every two weeks</strong>, and only for sessions that have been <strong>completed</strong>. A pending amount clears once the session is done and the next payout cycle runs.</p>
         </div>
         {bookings.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '1.5rem', color: TEXT_MUTED, background: GREY_BG, borderRadius: '10px' }}>
@@ -806,6 +814,9 @@ function Qualifications({ userId }) {
   const [uploading, setUploading] = useState(false)
   const [message, setMessage] = useState('')
   const [certificates, setCertificates] = useState([])
+  const [teacherRow, setTeacherRow] = useState(null)
+  const [eduLevel, setEduLevel] = useState('')
+  const EDU_LEVELS = ['SHS Graduate', 'Bachelors Degree', 'Masters Degree', 'PhD']
 
   const TYPE_META = {
     academic: { icon: '🎓', label: 'Academic degree' },
@@ -815,20 +826,24 @@ function Qualifications({ userId }) {
   const fetchUploads = async () => {
     const { data } = await supabase.from('certificates').select('*').eq('teacher_id', userId).order('id', { ascending: false })
     setCertificates(data || [])
+    const { data: t } = await supabase.from('teachers').select('education_level, pending_education_level').eq('id', userId).single()
+    setTeacherRow(t)
   }
 
   useEffect(() => { fetchUploads() }, [])
 
   const upload = async () => {
     if (!certFile || !certName) return setMessage('Please select a file and enter a name.')
+    if (certType === 'academic' && !eduLevel) return setMessage('Select the education level this certificate is for.')
     setUploading(true); setMessage('')
     try {
       const fileName = `${userId}/${Date.now()}.${certFile.name.split('.').pop()}`
       const { error } = await supabase.storage.from('certificates').upload(fileName, certFile)
       if (error) throw error
       const { data: urlData } = supabase.storage.from('certificates').getPublicUrl(fileName)
-      await supabase.from('certificates').insert({ teacher_id: userId, file_url: urlData.publicUrl, certificate_name: certName, status: 'pending', certificate_type: certType })
-      setMessage('✅ Uploaded! Our team will review it shortly.'); setCertFile(null); setCertName(''); fetchUploads()
+      await supabase.from('certificates').insert({ teacher_id: userId, file_url: urlData.publicUrl, certificate_name: certName, status: 'pending', certificate_type: certType, education_level: certType === 'academic' ? (eduLevel || null) : null })
+      if (certType === 'academic' && eduLevel) await supabase.from('teachers').update({ pending_education_level: eduLevel }).eq('id', userId)
+      setMessage('✅ Uploaded! Our team will review it shortly.'); setCertFile(null); setCertName(''); setEduLevel(''); fetchUploads()
     } catch (err) { setMessage('Error: ' + err.message) }
     finally { setUploading(false) }
   }
@@ -839,6 +854,16 @@ function Qualifications({ userId }) {
         🔒 Reviewed by Stuumo before the “Verified” badge shows on your public profile. Add your academic degrees and teaching certificates here.
       </p>
       <StatusMessage message={message} onClose={() => setMessage('')} />
+      {teacherRow && (
+        <div style={{ background: teacherRow.education_level ? '#EDE9FE' : '#F5F5F5', border: `1px solid ${teacherRow.education_level ? '#DDD6FE' : '#E2E8F0'}`, borderRadius: '12px', padding: '12px 14px', marginBottom: '14px' }}>
+          <div style={{ fontSize: '11px', fontWeight: '800', color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>Your teacher category</div>
+          <div style={{ fontSize: '15px', fontWeight: '800', color: '#5B21B6' }}>{teacherRow.education_level || 'Not set yet'}</div>
+          {teacherRow.pending_education_level && teacherRow.pending_education_level !== teacherRow.education_level && (
+            <div style={{ fontSize: '12px', color: '#92400E', marginTop: '6px', fontWeight: '600' }}>⏳ Upgrade to {teacherRow.pending_education_level} is awaiting admin approval.</div>
+          )}
+          <div style={{ fontSize: '11.5px', color: TEXT_MUTED, marginTop: '6px', lineHeight: 1.5 }}>To move to a higher category, upload the matching academic certificate below — your category changes only after an admin approves it.</div>
+        </div>
+      )}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         <div>
           <label style={lbl}>Type</label>
@@ -851,6 +876,16 @@ function Qualifications({ userId }) {
             ))}
           </div>
         </div>
+        {certType === 'academic' && (
+          <div>
+            <label style={lbl}>Education level this certificate certifies</label>
+            <select style={inp} value={eduLevel} onChange={e => setEduLevel(e.target.value)}>
+              <option value="">Select level…</option>
+              {EDU_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+            </select>
+            <div style={{ fontSize: '12px', color: TEXT_MUTED, marginTop: '4px' }}>Once an admin approves this, it sets or upgrades your teacher category.</div>
+          </div>
+        )}
         <div>
           <label style={lbl}>{certType === 'academic' ? 'Degree name' : 'Certificate name'}</label>
           <input style={inp} placeholder={certType === 'academic' ? 'e.g. BSc Mathematics — University of Ghana' : 'e.g. PGDE — University of Education, Winneba'} value={certName} onChange={e => setCertName(e.target.value)} />
@@ -1157,3 +1192,45 @@ function GhanaCardRenewalBanner({ userId, expiry, onDone }) {
   )
 }
 
+
+function ReferCard({ userId, profile }) {
+  const [code, setCode] = useState(profile?.referral_code || '')
+  const [stats, setStats] = useState({ total: 0, earned: 0 })
+  const [copied, setCopied] = useState('')
+  useEffect(() => {
+    let active = true
+    ;(async () => {
+      let c = profile?.referral_code
+      if (!c) {
+        c = 'TM' + userId.replace(/-/g, '').slice(0, 6).toUpperCase()
+        await supabase.from('profiles').update({ referral_code: c }).eq('id', userId)
+      }
+      if (!active) return
+      setCode(c)
+      const { data } = await supabase.from('referral_rewards').select('reward_status').eq('referrer_id', userId)
+      setStats({ total: (data || []).length, earned: (data || []).filter(r => r.reward_status !== 'pending').length })
+    })()
+    return () => { active = false }
+  }, [userId])
+  const link = `${window.location.origin}/register?ref=${code}`
+  const copy = (text, key) => { try { navigator.clipboard?.writeText(text) } catch (e) {} setCopied(key); setTimeout(() => setCopied(''), 1500) }
+  return (
+    <SectionCard title="Refer & Earn" icon="🎁" color="linear-gradient(135deg, #6D28D9 0%, #5B21B6 100%)">
+      <p style={{ fontSize: '13px', color: TEXT_MUTED, margin: '0 0 14px', lineHeight: 1.6 }}>Invite friends to Stuumo. When they book their first session, you both earn a reward.</p>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
+        {[['Invited', stats.total], ['Rewards earned', stats.earned]].map(([label, value]) => (
+          <div key={label} style={{ flex: 1, background: GREY_BG, border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
+            <div style={{ fontSize: '22px', fontWeight: '800', color: '#6D28D9' }}>{value}</div>
+            <div style={{ fontSize: '10.5px', color: TEXT_MUTED, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '3px' }}>{label}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: '10px', fontWeight: '800', color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '6px' }}>Your referral code</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#EDE9FE', border: '1px solid #DDD6FE', borderRadius: '12px', padding: '12px 14px', marginBottom: '10px' }}>
+        <b style={{ flex: 1, fontSize: '16px', letterSpacing: '0.05em', color: '#5B21B6' }}>{code || '\u2014'}</b>
+        <button onClick={() => copy(code, 'code')} style={{ fontSize: '12px', fontWeight: '800', color: '#fff', background: '#6D28D9', border: 'none', borderRadius: '8px', padding: '7px 12px', cursor: 'pointer', fontFamily: 'inherit' }}>{copied === 'code' ? '\u2713 Copied' : 'Copy'}</button>
+      </div>
+      <button onClick={() => copy(link, 'link')} style={{ width: '100%', padding: '12px', background: 'linear-gradient(135deg,#6D28D9,#5B21B6)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: '800', cursor: 'pointer', fontFamily: 'inherit' }}>{copied === 'link' ? '\u2713 Link copied' : '\uD83D\uDD17 Copy invite link'}</button>
+    </SectionCard>
+  )
+}

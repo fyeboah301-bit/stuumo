@@ -32,7 +32,7 @@ const gradeColor = (score, max) => {
 }
 
 export default function Progress() {
-  usePageMeta('Progress Dashboard')
+  usePageMeta('My Children')
 
   const { user, profile } = useAuth()
   const navigate = useNavigate()
@@ -94,13 +94,13 @@ export default function Progress() {
         <div style={{ maxWidth: '960px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <div style={{ marginBottom: '1.75rem' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F5F5F5', border: '1px solid #E2E8F0', color: YELLOW, fontSize: '11px', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 14px', borderRadius: '50px', marginBottom: '12px' }}>
-              👨‍👩‍👧 Parent dashboard
+              👨‍👩‍👧 My Children
             </div>
             <h1 style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: isMobile ? '26px' : '36px', color: '#0B0B0B', marginBottom: '8px', fontWeight: '700', letterSpacing: '-0.02em', lineHeight: '1.15' }}>
-              {selectedChild ? `${selectedChild.full_name}'s Progress` : 'Progress Dashboard'}
+              {selectedChild ? selectedChild.full_name : 'My Children'}
             </h1>
             <p style={{ fontSize: '14px', color: 'rgba(0,0,0,0.7)', margin: 0, lineHeight: '1.6' }}>
-              Monitor your child's bookings, assignments, grades and certificates
+              A clear breakdown of each child's bookings, assignments, grades and certificates
             </p>
           </div>
 
@@ -148,7 +148,7 @@ export default function Progress() {
           </div>
         ) : (
           <>
-            {children.length > 1 && (
+            {children.length > 0 && (
               <div style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
                 {children.map(child => (
                   <button key={child.id} onClick={() => setSelectedChild(child)}

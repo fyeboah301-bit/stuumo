@@ -1,10 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Logo from './components/Logo'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { LoginPromptProvider } from './context/LoginPrompt'
 import { lazy, Suspense, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { BLUE } from './styles/colors'
 import NotFound from './pages/NotFound'
+import AppWelcome from './pages/AppWelcome'
+import BottomTabBar from './components/BottomTabBar'
+import { isNativeApp } from './lib/platform'
 
 // ─── LAZY LOADED PAGES ───────────────────────────────────────────
 const Home = lazy(() => import('./pages/Home'))
@@ -79,13 +83,29 @@ function ScrollToHash() {
   useEffect(() => {
     if (!hash) return
     const id = hash.slice(1)
-    const t = setTimeout(() => {
+    let tries = 0, timer
+    const tryScroll = () => {
       const el = document.getElementById(id)
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 80)
-    return () => clearTimeout(t)
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.scrollY - 80
+        window.scrollTo({ top: y, behavior: 'smooth' })
+      } else if (tries++ < 20) {
+        timer = setTimeout(tryScroll, 100)
+      }
+    }
+    timer = setTimeout(tryScroll, 60)
+    return () => clearTimeout(timer)
   }, [hash, pathname])
   return null
+}
+
+function RootRoute() {
+  const { user, profile } = useAuth()
+  if (!isNativeApp()) return <Home />
+  if (!user) return <AppWelcome />
+  if (!profile) return <PageLoader />
+  const home = profile.role === 'teacher' ? '/dashboard' : profile.role === 'parent' ? '/progress' : '/dashboard'
+  return <Navigate to={home} replace />
 }
 
 function AppRoutes() {
@@ -96,7 +116,7 @@ function AppRoutes() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* PUBLIC */}
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<RootRoute />} />
           <Route path="/login" element={<Login />} />
           <Route path="/reset-password" element={<SetPassword />} />
           <Route path="/register" element={<Register />} />
@@ -134,7 +154,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <LoginPromptProvider>
+          <AppRoutes />
+          <BottomTabBar />
+        </LoginPromptProvider>
       </AuthProvider>
     </BrowserRouter>
   )

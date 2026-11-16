@@ -9,6 +9,13 @@ const BLUE = '#0B0B0B'
 const YELLOW = '#6D28D9'
 
 const LEVELS = ['Primary (1–6)', 'JHS (7–9)', 'SHS (10–12)', 'University', 'Professional']
+const EDU_LEVELS = ['SHS Graduate', 'Bachelors Degree', 'Masters Degree', 'PhD']
+const EDU_CERT = {
+  'SHS Graduate': 'your SHS / WASSCE certificate',
+  'Bachelors Degree': "your Bachelor's degree certificate",
+  'Masters Degree': "your Master's degree certificate",
+  'PhD': 'your PhD / doctorate certificate',
+}
 
 // ── Curriculum by country & level ────────────────────────────────────────────
 const CURRICULUM = {
@@ -435,6 +442,7 @@ export default function TeacherApplication() {
   const [experience, setExperience]     = useState('')
   const [rate, setRate]                 = useState('')
   const [selectedLangs, setSelectedLangs] = useState([])
+  const [educationLevel, setEducationLevel] = useState('')
 
   // Step 2
   const [subjectSearch, setSubjectSearch] = useState('')
@@ -485,6 +493,7 @@ export default function TeacherApplication() {
         setExperience(teacher.years_experience?.toString() || '')
         setRate(teacher.hourly_rate?.toString() || '')
         setSelectedLangs(teacher.languages || [])
+        setEducationLevel(teacher.pending_education_level || teacher.education_level || '')
         setLevels(teacher.teaching_levels || [])
         setSubjects(teacher.subjects || [])
         if (isResub) setStep(3)
@@ -519,12 +528,14 @@ export default function TeacherApplication() {
 
   const saveStep1 = async () => {
     if (!bio.trim()) return setError('Please write a short bio')
+    if (!educationLevel) return setError('Please select your highest level of education')
     setSaving(true); setError('')
     await supabase.from('teachers').update({
       bio: bio.trim(),
       years_experience: experience ? parseInt(experience) : null,
       hourly_rate: rate ? parseFloat(rate) : 0,
       languages: selectedLangs,
+      pending_education_level: educationLevel,
       application_stage: 'step_2',
     }).eq('id', user.id)
     setSaving(false); setStep(2)
@@ -601,7 +612,8 @@ export default function TeacherApplication() {
       const { data: urlData } = supabase.storage.from('certificates').getPublicUrl(path)
       const { data: cert } = await supabase.from('certificates').insert({
         teacher_id: user.id, certificate_name: certName.trim(), file_url: urlData.publicUrl,
-        status: 'pending', certificate_type: certType
+        status: 'pending', certificate_type: certType,
+        education_level: certType === 'academic' ? (educationLevel || null) : null
       }).select().single()
       setUploadedCerts(prev => [...prev, cert]); setCertFile(null); setCertName('')
       setUploadMsg('✅ Certificate uploaded')
@@ -621,6 +633,7 @@ export default function TeacherApplication() {
   const submitApplication = async () => {
     if (!avatarUrl) return setError('Please add a profile photo before submitting')
     if (!uploadedDoc) return setError('Please upload your Ghana Card before submitting')
+    if (!uploadedCerts.some(c => c.certificate_type === 'academic')) return setError(`Please upload ${educationLevel ? EDU_CERT[educationLevel] : 'your education certificate'} (type: Academic degree) for your selected level`)
     if (!payoutValid) return setError('Please complete your payout details so we can pay you')
     setSaving(true); setError('')
     await supabase.from('teachers').update({
@@ -784,6 +797,14 @@ export default function TeacherApplication() {
                     <input type="number" min="0" step="5" style={inp} placeholder="e.g. 50" value={rate} onChange={e => setRate(e.target.value)} />
                     <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '4px' }}>You can change this anytime</div>
                   </div>
+                </div>
+                <div>
+                  <label style={lbl}>Highest level of education *</label>
+                  <select style={inp} value={educationLevel} onChange={e => setEducationLevel(e.target.value)}>
+                    <option value="">Select your highest qualification…</option>
+                    {EDU_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+                  </select>
+                  <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '4px' }}>{educationLevel ? `You'll upload ${EDU_CERT[educationLevel]} in the next step for review.` : 'This sets your teacher category once your certificate is approved.'}</div>
                 </div>
                 <div>
                   <label style={lbl}>Languages you teach in</label>
@@ -1006,6 +1027,12 @@ export default function TeacherApplication() {
                   </div>
                 )}
                 <div style={{ border: '1.5px solid #E2E8F0', borderRadius: '12px', padding: '1.25rem', background: '#F5F5F5' }}>
+                  {educationLevel && (
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', background: '#EDE9FE', border: '1px solid #DDD6FE', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px' }}>
+                      <span style={{ fontSize: '15px' }}>🎓</span>
+                      <p style={{ fontSize: '12.5px', color: '#5B21B6', margin: 0, lineHeight: 1.5, fontWeight: '600' }}>For <strong>{educationLevel}</strong>, upload {EDU_CERT[educationLevel]} and set the type to <strong>Academic degree</strong>. Your category is confirmed once an admin approves it.</p>
+                    </div>
+                  )}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
                     <div>
                       <label style={lbl}>Certificate name</label>

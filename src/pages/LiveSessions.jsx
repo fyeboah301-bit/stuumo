@@ -3,6 +3,7 @@ import Logo from '../components/Logo'
 import { supabase } from '../lib/supabase'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLoginPrompt } from '../context/LoginPrompt'
 import {
   BLUE, YELLOW, DARK_BLUE, LIGHT_BLUE, GREY_BG, GREY_LIGHT,
   TEXT, TEXT_MUTED, GRADIENT_BLUE, GRADIENT_HERO,
@@ -97,6 +98,7 @@ export default function LiveSessions() {
   usePageMeta('Live Sessions', 'Join live online classes with verified teachers from anywhere.')
 
   const { user, profile } = useAuth()
+  const promptLogin = useLoginPrompt()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const isMobile = useIsMobile()
@@ -219,7 +221,7 @@ export default function LiveSessions() {
   }
 
   const openPicker = (session) => {
-    if (!user) return navigate('/login?next=/sessions')
+    if (!user) return promptLogin('Log in or sign up to enrol in live sessions.')
     if (children.length === 0) return setMessage('Add a child to your account first, then enrol them.')
     setPickedIds([])
     setEnrollPickerId(session.id)
@@ -227,6 +229,7 @@ export default function LiveSessions() {
   const togglePick = (id) => setPickedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
 
   const enrollChildren = async (session, ids) => {
+    if (!user) return promptLogin('Log in or sign up to enrol in live sessions.')
     if (!ids || ids.length === 0) return setMessage('Select at least one child.')
     setEnrolling(session.id)
     try {
@@ -532,7 +535,9 @@ export default function LiveSessions() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
                         <h4 style={{ fontSize: '17px', fontWeight: '800', color: TEXT, margin: 0, flex: 1, minWidth: 0, lineHeight: '1.3', letterSpacing: '-0.01em' }}>{session.title}</h4>
-                        {isFree ? (
+                        {!isUpcoming ? (
+                          <span style={{ fontSize: '12px', fontWeight: '800', color: '#6B7280', background: '#F5F5F5', padding: '4px 12px', borderRadius: '50px', flexShrink: 0 }}>Completed</span>
+                        ) : isFree ? (
                           <span style={{ fontSize: '13px', fontWeight: '800', color: '#0B0B0B', background: '#F5F5F5', padding: '4px 12px', borderRadius: '50px', flexShrink: 0 }}>Free</span>
                         ) : (
                           <div style={{ textAlign: 'right', flexShrink: 0 }}>
@@ -563,13 +568,17 @@ export default function LiveSessions() {
 
                       <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '12px' }}>
                         <span style={{ fontSize: '13px', color: TEXT_MUTED, fontWeight: '500' }}>🕐 {session.start_time} – {session.end_time}</span>
-                        <span style={{ fontSize: '13px', color: TEXT_MUTED }}>·</span>
-                        <span style={{ fontSize: '13px', color: TEXT_MUTED, fontWeight: '500' }}>👥 {enrolledCount}/{session.max_spots} enrolled</span>
+                        {isUpcoming && <>
+                          <span style={{ fontSize: '13px', color: TEXT_MUTED }}>·</span>
+                          <span style={{ fontSize: '13px', color: TEXT_MUTED, fontWeight: '500' }}>👥 {enrolledCount}/{session.max_spots} enrolled</span>
+                        </>}
                       </div>
 
-                      <div style={{ marginBottom: '14px', maxWidth: '280px' }}>
-                        <SpotsMeter spotsLeft={spotsLeft} maxSpots={session.max_spots} />
-                      </div>
+                      {isUpcoming && (
+                        <div style={{ marginBottom: '14px', maxWidth: '280px' }}>
+                          <SpotsMeter spotsLeft={spotsLeft} maxSpots={session.max_spots} />
+                        </div>
+                      )}
 
                       {isUpcoming && (
                         <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>

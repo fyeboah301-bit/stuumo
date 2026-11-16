@@ -42,7 +42,7 @@ export default function ForTeachers() {
     ['What do I need to join?', 'A valid Ghana Card for identity, and your teaching certificates or qualifications to upload for review.'],
     ['How long does verification take?', 'Most teachers are reviewed within 24–48 hours of submitting their documents.'],
     ['Do I set my own price?', 'Yes. You choose your hourly rate and can change it anytime from your dashboard.'],
-    ['When and how do I get paid?', 'You’re paid out after completed sessions, by mobile money or bank transfer. Payments are processed securely through Paystack.'],
+    ['When and how do I get paid?', 'Payouts are made every two weeks, and only for sessions that have been completed — sent by mobile money or bank transfer, processed securely through Paystack.'],
     ['Is there a joining fee?', 'No. It’s free to create a teacher account. Stuumo keeps a small service fee on paid bookings — you keep the rest.'],
   ]
 
@@ -82,7 +82,7 @@ export default function ForTeachers() {
         <Eyebrow>Earnings &amp; payouts</Eyebrow>
         <H2>You set the rate. You keep most of it.</H2>
         <p style={{ fontSize: isMobile ? '15px' : '16px', color: TEXT_MUTED, lineHeight: '1.8', margin: '0 0 1.5rem' }}>
-          You decide your own hourly rate and can adjust it anytime. When a learner books and pays, Stuumo keeps a small service fee to run the platform and handle secure payments — you keep the large majority of every booking. Payouts are made after completed sessions by mobile money or bank transfer.
+          You decide your own hourly rate and can adjust it anytime. When a learner books and pays, Stuumo keeps a small service fee to run the platform and handle secure payments — you keep the large majority of every booking. Payouts are made every two weeks, for completed sessions only, by mobile money or bank transfer.
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '1rem' }}>
           {[

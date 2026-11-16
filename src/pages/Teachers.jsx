@@ -42,9 +42,9 @@ export default function Teachers() {
   const [selectedSubject, setSelectedSubject] = useState(searchParams.get('subject') || 'All')
   const [search, setSearch] = useState(searchParams.get('q') || '')
   const [filters, setFilters] = useState({
-    verifiedOnly: searchParams.get('verified') === '1',
     hasVideos: searchParams.get('videos') === '1',
     hasCerts: searchParams.get('certs') === '1',
+    eduLevels: (searchParams.get('edu') || '').split(',').filter(Boolean),
     minRating: searchParams.get('minRating') || '',
     maxPrice: searchParams.get('maxPrice') || '',
     minPrice: searchParams.get('minPrice') || '',
@@ -59,9 +59,9 @@ export default function Teachers() {
     const params = {}
     if (search) params.q = search
     if (selectedSubject !== 'All') params.subject = selectedSubject
-    if (filters.verifiedOnly) params.verified = '1'
     if (filters.hasVideos) params.videos = '1'
     if (filters.hasCerts) params.certs = '1'
+    if (filters.eduLevels.length) params.edu = filters.eduLevels.join(',')
     if (filters.minRating) params.minRating = filters.minRating
     if (filters.minPrice) params.minPrice = filters.minPrice
     if (filters.maxPrice) params.maxPrice = filters.maxPrice
@@ -90,7 +90,7 @@ export default function Teachers() {
 
   const clearFilters = () => {
     setFilters({
-      verifiedOnly: false, hasVideos: false, hasCerts: false,
+      hasVideos: false, hasCerts: false, eduLevels: [],
       minRating: '', maxPrice: '', minPrice: '',
       city: '', country: '', teachingLevel: '', sortBy: 'default'
     })
@@ -102,7 +102,7 @@ export default function Teachers() {
   const countries = [...new Set(teachers.map(t => t.profiles?.country).filter(Boolean))].sort()
 
   const activeFilterCount = [
-    filters.verifiedOnly, filters.hasVideos, filters.hasCerts,
+    filters.hasVideos, filters.hasCerts, filters.eduLevels.length,
     filters.minRating, filters.maxPrice, filters.minPrice,
     filters.city, filters.country, filters.teachingLevel,
     filters.sortBy !== 'default'
@@ -120,9 +120,9 @@ export default function Teachers() {
           !t.subjects?.join(' ').toLowerCase().includes(q) &&
           !t.profiles?.city?.toLowerCase().includes(q)) return false
       }
-      if (filters.verifiedOnly && !t.is_verified) return false
       if (filters.hasVideos && !(t.pitch_videos?.length > 0)) return false
-      if (filters.hasCerts && !(t.certificates?.some(c => c.status === 'approved'))) return false
+      if (filters.hasCerts && !(t.certificates?.some(c => c.status === 'approved' && c.certificate_type === 'teaching'))) return false
+      if (filters.eduLevels.length && !filters.eduLevels.includes(t.education_level)) return false
       if (filters.minRating && avg < parseFloat(filters.minRating)) return false
       if (filters.minPrice && (t.hourly_rate || 0) < parseFloat(filters.minPrice)) return false
       if (filters.maxPrice && (t.hourly_rate || 0) > parseFloat(filters.maxPrice)) return false
@@ -225,7 +225,7 @@ export default function Teachers() {
       <div>
         <div style={sectionLabel}>Teacher type</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          {[['verifiedOnly', 'Verified teachers only'], ['hasCerts', 'Has teaching certificate'], ['hasVideos', 'Has pitch video']].map(([key, label]) => (
+          {[['hasCerts', 'Has teaching license'], ['hasVideos', 'Has pitch video']].map(([key, label]) => (
             <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '8px 10px', borderRadius: '8px', background: filters[key] ? LIGHT_BLUE : 'transparent', transition: TRANSITION }}>
               <div style={{ width: '18px', height: '18px', borderRadius: '5px', border: `2px solid ${filters[key] ? BLUE : GREY_LIGHT}`, background: filters[key] ? '#6D28D9' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: TRANSITION }}>
                 {filters[key] && <span style={{ color: '#0B0B0B', fontSize: '11px', fontWeight: '800', lineHeight: 1 }}>✓</span>}
@@ -234,6 +234,26 @@ export default function Teachers() {
               <input type="checkbox" checked={filters[key]} onChange={e => setFilter(key, e.target.checked)} style={{ display: 'none' }} />
             </label>
           ))}
+        </div>
+      </div>
+
+      <div style={{ height: '1px', background: GREY_LIGHT }} />
+
+      <div>
+        <div style={sectionLabel}>Education level</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          {['SHS Graduate', 'Bachelors Degree', 'Masters Degree', 'PhD'].map(lvl => {
+            const on = filters.eduLevels.includes(lvl)
+            return (
+              <label key={lvl} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '8px 10px', borderRadius: '8px', background: on ? LIGHT_BLUE : 'transparent', transition: TRANSITION }}>
+                <div style={{ width: '18px', height: '18px', borderRadius: '5px', border: `2px solid ${on ? BLUE : GREY_LIGHT}`, background: on ? '#6D28D9' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: TRANSITION }}>
+                  {on && <span style={{ color: '#fff', fontSize: '11px', fontWeight: '800', lineHeight: 1 }}>✓</span>}
+                </div>
+                <span style={{ fontSize: '14px', color: on ? BLUE : TEXT_MUTED, fontWeight: on ? '600' : '400' }}>{lvl}</span>
+                <input type="checkbox" checked={on} onChange={() => setFilter('eduLevels', on ? filters.eduLevels.filter(x => x !== lvl) : [...filters.eduLevels, lvl])} style={{ display: 'none' }} />
+              </label>
+            )
+          })}
         </div>
       </div>
 
@@ -320,8 +340,8 @@ export default function Teachers() {
 
             {activeFilterCount > 0 && (
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '1rem' }}>
-                {filters.verifiedOnly && <FilterChip label="Verified only" onRemove={() => setFilter('verifiedOnly', false)} />}
-                {filters.hasCerts && <FilterChip label="Has certificate" onRemove={() => setFilter('hasCerts', false)} />}
+                {filters.hasCerts && <FilterChip label="Teaching license" onRemove={() => setFilter('hasCerts', false)} />}
+                {filters.eduLevels.map(lvl => <FilterChip key={lvl} label={lvl} onRemove={() => setFilter('eduLevels', filters.eduLevels.filter(x => x !== lvl))} />)}
                 {filters.hasVideos && <FilterChip label="Has video" onRemove={() => setFilter('hasVideos', false)} />}
                 {filters.minRating && <FilterChip label={`⭐ ${filters.minRating}+`} onRemove={() => setFilter('minRating', '')} />}
                 {filters.country && <FilterChip label={filters.country} onRemove={() => setFilter('country', '')} />}

@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stuumo App</title>
+<meta name="description" content="Full mobile app screen mockups of Stuumo (student, parent, teacher) for presentation and Figma import." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Serif:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --purple:#6D28D9; --purple-deep:#5B21B6; --ink:#0B0B0B; --muted:#6B7280;
+    --light:#9CA3AF; --bg:#F5F5F5; --border:#E2E8F0; --white:#FFFFFF;
+    --board:#ECEAF3; --board-2:#E4E1EE; --ok-bg:#EDE7F9; --ok-tx:#5B21B6;
+    --red:#DC2626; --green:#166534;
+    --ui:Tahoma, Geneva, Verdana, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:var(--ui);background:radial-gradient(1200px 600px at 50% -5%, #F3F1FA 0%, var(--board) 45%, var(--board-2) 100%);color:var(--ink);-webkit-font-smoothing:antialiased;padding:40px 16px 70px}
+  .wrap{max-width:1320px;margin:0 auto}
+  .brand{font-family:'Roboto Serif',Georgia,serif;font-weight:700;color:var(--purple);letter-spacing:-0.01em}
+  header.top{display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:10px}
+  header.top .brand{font-size:40px;line-height:1}
+  header.top .sub{margin-top:10px;font-size:15px;color:var(--muted);max-width:600px;line-height:1.6}
+  .tag{display:inline-block;margin-top:14px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--purple);background:#fff;border:1px solid var(--border);padding:6px 14px;border-radius:999px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:36px 28px;justify-items:center}
+  .section{grid-column:1/-1;width:100%;display:flex;align-items:center;gap:14px;margin:30px 0 0}
+  .section h2{font-size:14px;font-weight:800;color:var(--purple-deep);letter-spacing:.08em;margin:0;text-transform:uppercase;white-space:nowrap}
+  .section .line{flex:1;height:1px;background:rgba(91,33,182,.18)}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:12px;width:300px}
+  .cap{font-size:13px;font-weight:700;color:#4B5563}
+  .cap b{color:var(--purple);margin-right:7px}
+
+  .phone{width:300px;height:636px;background:#0B0B0B;border-radius:44px;padding:11px;box-shadow:0 26px 54px rgba(27,16,54,.26),0 8px 18px rgba(27,16,54,.16);flex-shrink:0}
+  .screen{width:100%;height:100%;background:var(--white);border-radius:34px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+  .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:22px;background:#0B0B0B;border-radius:0 0 16px 16px;z-index:40}
+  .sbar{height:40px;flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 5px;font-size:12px;font-weight:700}
+  .sbar.w{color:#fff}.sbar.w .bar,.sbar.w .batt{background:#fff;border-color:#fff}.sbar.w .batt i{background:#fff}
+  .sbar .r{display:flex;align-items:center;gap:5px}
+  .bar{width:3px;border-radius:1px;background:var(--ink)}
+  .batt{width:22px;height:11px;border:1.5px solid var(--ink);border-radius:3px;position:relative;display:inline-block}
+  .batt::after{content:"";position:absolute;right:-3px;top:3px;width:2px;height:5px;background:var(--ink);border-radius:0 1px 1px 0}
+  .batt i{position:absolute;inset:1.5px;width:70%;background:var(--ink);border-radius:1px;display:block}
+
+  .appbar{height:50px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);background:#fff}
+  .appbar .brand{font-size:21px}
+  .back{font-size:14px;color:var(--muted);font-weight:600}
+  .bell{width:33px;height:33px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;position:relative;color:var(--ink)}
+  .bell svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .bell .dot{position:absolute;top:5px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--purple);border:2px solid #fff}
+
+  .body{flex:1;overflow:hidden;display:flex;flex-direction:column}
+  .scroll{flex:1;overflow:hidden;padding:14px 14px 8px}
+
+  .tabs{height:60px;flex-shrink:0;display:flex;border-top:1px solid var(--border);background:#fff}
+  .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;overflow:hidden}
+  .tab .ic{color:#9CA3AF;display:flex;align-items:center;justify-content:center}
+  .tab .lb{font-size:9px;font-weight:600;color:var(--muted);white-space:nowrap}
+  .tab.on .ic{color:var(--purple);transform:translateY(-1px)}
+  .tab.on .lb{color:var(--purple);font-weight:800}
+  .tic{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;display:block}
+
+  .h1{font-size:19px;font-weight:700;letter-spacing:-.02em;margin:0}
+  .muted{color:var(--muted)}
+  .card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:13px 14px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 11px;border-radius:999px}
+  .pill.pri{background:var(--purple);color:#fff}.pill.soft{background:#EDE9FE;color:var(--purple)}
+  .pill.ok{background:var(--ok-bg);color:var(--ok-tx)}.pill.gray{background:var(--bg);color:var(--muted)}
+  .pill.warn{background:#FEF3C7;color:#92400E}
+  .btn{display:flex;align-items:center;justify-content:center;border:none;border-radius:12px;font-family:var(--ui);font-weight:800;font-size:14px}
+  .btn.p{background:linear-gradient(135deg,#6D28D9,#5B21B6);color:#fff;padding:13px}
+  .btn.o{background:#fff;color:var(--purple);border:2px solid var(--purple);padding:12px}
+  .btn.g{background:#166534;color:#fff;padding:10px}.btn.r{background:#fff;color:var(--red);border:1px solid #FECACA;padding:10px}
+  .av{border-radius:50%;background:linear-gradient(135deg,#4B5563,#6B7280);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+  .avp{background:linear-gradient(135deg,#6D28D9,#5B21B6)}
+  .field{border:1px solid var(--border);border-radius:11px;padding:11px 13px;font-size:13px;color:var(--muted);background:#fff}
+  .chip{font-size:12px;font-weight:700;padding:7px 14px;border-radius:999px;border:2px solid var(--border);color:var(--muted);background:#fff}
+  .chip.on{border-color:var(--purple);background:#EDE9FE;color:var(--purple)}
+  .lbl{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+  .stat{background:#fff;border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center}
+  .stat .v{font-size:20px;font-weight:800;color:var(--purple)}
+  .row{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--border);font-size:14px;font-weight:600}
+  .row .ri{width:34px;height:34px;border-radius:10px;background:#EDE9FE;color:var(--purple);display:flex;align-items:center;justify-content:center;font-size:15px}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--board:#ECEAF3;--board-2:#E4E1EE}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></symbol>
+  <symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M8.5 11h7M8.5 15h4.5"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="12" rx="1.5"/><path d="M3 13.5h18M12 9v12"/><path d="M12 9C11 5.5 9.5 4.5 8 5.2 6.5 6 7.5 9 12 9z"/><path d="M12 9c1-3.5 2.5-4.5 4-3.8C17.5 6 16.5 9 12 9z"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
+</svg>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Stuumo</div>
+    <div class="sub">Full mobile app — verified tutoring for Ghana. Screens across onboarding, students, parents and teachers.</div>
+    <span class="tag">Product walkthrough · iOS &amp; Android</span>
+  </header>
+
+  <div class="grid">
+
+    <!-- ══ ONBOARDING ══ -->
+    <div class="section"><h2>Onboarding</h2><div class="line"></div></div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="body" style="background:linear-gradient(180deg,#FFFFFF,#F3F1FA)">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px">
+            <div class="brand" style="font-size:46px">Stuumo</div>
+            <div style="font-size:22px;font-weight:700;letter-spacing:-.02em;margin:22px 0 8px;line-height:1.2">Learn with verified teachers</div>
+            <div class="muted" style="font-size:14px;line-height:1.6;max-width:230px">Book trusted tutors, join live classes and track progress — all in one place.</div>
+          </div>
+          <div style="padding:20px;display:flex;flex-direction:column;gap:11px">
+            <div class="btn p" style="box-shadow:0 8px 20px rgba(109,40,217,.28)">Log in</div>
+            <div class="btn o">Create account</div>
+          </div>
+        </div>
+      </div></div>
+      <div class="cap"><b>1</b>Welcome</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="body" style="padding:26px 22px">
+          <div class="brand" style="font-size:30px;text-align:center;margin-top:18px">Stuumo</div>
+          <div class="h1" style="text-align:center;margin:26px 0 24px">Welcome back</div>
+          <div class="lbl" style="margin-bottom:6px">Email</div>
+          <div class="field" style="margin-bottom:14px">frank@email.com</div>
+          <div class="lbl" style="margin-bottom:6px">Password</div>
+          <div class="field" style="margin-bottom:8px">••••••••</div>
+          <div style="text-align:right;font-size:12px;font-weight:700;color:var(--purple);margin-bottom:18px">Forgot password?</div>
+          <div class="btn p">Log in</div>
+          <div class="muted" style="text-align:center;font-size:12.5px;margin-top:18px">New here? <b style="color:var(--purple)">Create account</b></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>2</b>Log in</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="body" style="padding:24px 20px">
+          <div class="brand" style="font-size:26px;text-align:center;margin-top:10px">Stuumo</div>
+          <div class="h1" style="text-align:center;margin:22px 0 4px">Create your account</div>
+          <div class="muted" style="text-align:center;font-size:13px;margin-bottom:22px">I am a…</div>
+          <div class="card" style="display:flex;align-items:center;gap:13px;margin-bottom:12px;border:2px solid var(--purple)"><span style="font-size:26px">📚</span><div><div style="font-size:15px;font-weight:800">Learner</div><div class="muted" style="font-size:12px">Find tutors and learn</div></div></div>
+          <div class="card" style="display:flex;align-items:center;gap:13px;margin-bottom:12px"><span style="font-size:26px">👨‍👩‍👧</span><div><div style="font-size:15px;font-weight:800">Parent</div><div class="muted" style="font-size:12px">Book tutors for your child</div></div></div>
+          <div class="card" style="display:flex;align-items:center;gap:13px"><span style="font-size:26px">🎓</span><div><div style="font-size:15px;font-weight:800">Teacher</div><div class="muted" style="font-size:12px">Teach and earn</div></div></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>3</b>Choose role</div>
+    </div>
+
+    <!-- ══ STUDENT ══ -->
+    <div class="section"><h2>Student</h2><div class="line"></div></div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="brand">Stuumo</span><span class="bell"><svg><use href="#i-bell"/></svg><span class="dot"></span></span></div>
+        <div class="body"><div class="scroll">
+          <div class="h1" style="margin-bottom:2px">Hi, Kofi 👋</div>
+          <div class="muted" style="font-size:12px;margin-bottom:13px">Ready for your next lesson?</div>
+          <div class="card" style="background:linear-gradient(135deg,#6D28D9,#5B21B6);color:#fff;border:none;margin-bottom:12px">
+            <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;opacity:.85">Next session</div>
+            <div style="font-size:16px;font-weight:800;margin:5px 0 2px">Mathematics with Akosua</div>
+            <div style="font-size:12px;opacity:.9">📅 Sat 16 Nov · 4:00 PM</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px"><div class="stat"><div class="v">3</div><div class="lbl" style="margin-top:3px">Due tasks</div></div><div class="stat"><div class="v">5</div><div class="lbl" style="margin-top:3px">Certificates</div></div></div>
+          <div class="btn p">Find a tutor</div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab on"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-search"/></svg></span><span class="lb">Tutors</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-cal"/></svg></span><span class="lb">Book</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>4</b>Student home</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="brand">Stuumo</span><span class="bell"><svg><use href="#i-bell"/></svg></span></div>
+        <div class="body"><div class="scroll">
+          <div class="h1" style="margin-bottom:10px">Find tutors</div>
+          <div class="field" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">🔎 <span>Search subject or name…</span></div>
+          <div style="display:flex;gap:7px;margin-bottom:13px"><span class="pill pri">All</span><span class="pill gray">Maths</span><span class="pill gray">Science</span><span class="pill gray">English</span></div>
+          <div class="card" style="display:flex;gap:11px;margin-bottom:10px"><div class="av avp" style="width:46px;height:46px;font-size:16px">A</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700">Akosua Boateng</div><div class="muted" style="font-size:11.5px;margin:2px 0 6px">Maths · Science · SHS</div><div style="display:flex;align-items:center;gap:7px"><span class="pill ok">⭐ 4.9</span><span style="font-size:13px;font-weight:800;color:var(--purple)">GH₵ 60</span><span class="muted" style="font-size:11px">/hr</span></div></div></div>
+          <div class="card" style="display:flex;gap:11px"><div class="av" style="width:46px;height:46px;font-size:16px">K</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700">Kwabena Osei</div><div class="muted" style="font-size:11.5px;margin:2px 0 6px">English · Literature · JHS</div><div style="display:flex;align-items:center;gap:7px"><span class="pill ok">⭐ 4.8</span><span style="font-size:13px;font-weight:800;color:var(--purple)">GH₵ 45</span><span class="muted" style="font-size:11px">/hr</span></div></div></div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab on"><span class="ic"><svg class="tic"><use href="#i-search"/></svg></span><span class="lb">Tutors</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-cal"/></svg></span><span class="lb">Book</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>5</b>Find tutors</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="back">‹ Back</span><span class="bell"><svg><use href="#i-bell"/></svg></span></div>
+        <div class="body"><div class="scroll" style="text-align:center">
+          <div class="av avp" style="width:74px;height:74px;font-size:28px;margin:6px auto 10px">A</div>
+          <div style="font-size:18px;font-weight:800">Akosua Boateng</div>
+          <div style="display:flex;gap:6px;justify-content:center;margin:8px 0 12px"><span class="pill ok">⭐ 4.9 (32)</span><span class="pill soft">✓ Verified</span></div>
+          <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:14px"><span class="pill gray">Maths</span><span class="pill gray">Science</span><span class="pill gray">SHS</span></div>
+          <div class="card" style="text-align:left;margin-bottom:12px"><div class="muted" style="font-size:12.5px;line-height:1.6">10+ years teaching WASSCE Maths &amp; Science. Patient, results-driven, flexible evenings.</div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span class="lbl">Rate</span><span style="font-size:18px;font-weight:800;color:var(--purple)">GH₵ 60<span class="muted" style="font-size:11px;font-weight:600">/hr</span></span></div>
+          <div class="btn p">Book a session</div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab on"><span class="ic"><svg class="tic"><use href="#i-search"/></svg></span><span class="lb">Tutors</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-cal"/></svg></span><span class="lb">Book</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>6</b>Tutor profile</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="brand">Stuumo</span><span class="bell"><svg><use href="#i-bell"/></svg></span></div>
+        <div class="body"><div class="scroll">
+          <div class="h1" style="margin-bottom:3px">Book a session</div>
+          <div class="muted" style="font-size:12px;margin-bottom:14px">with Akosua Boateng · GH₵ 60</div>
+          <div class="lbl" style="margin-bottom:6px">Subject</div>
+          <div class="field" style="margin-bottom:12px">Mathematics</div>
+          <div class="lbl" style="margin-bottom:6px">What do you need?</div>
+          <div class="field" style="margin-bottom:12px;height:56px;color:var(--light)">I need help with calculus…</div>
+          <div class="lbl" style="margin-bottom:6px">Pick a time</div>
+          <div style="display:flex;gap:7px;margin-bottom:16px"><span class="pill soft">📅 Sat 16</span><span class="pill gray">4:00 PM</span></div>
+          <div class="btn p">Request session →</div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-search"/></svg></span><span class="lb">Tutors</span></div><div class="tab on"><span class="ic"><svg class="tic"><use href="#i-cal"/></svg></span><span class="lb">Book</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>7</b>Book a session</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="brand">Stuumo</span><span class="bell"><svg><use href="#i-bell"/></svg></span></div>
+        <div class="body"><div class="scroll">
+          <div class="h1" style="margin-bottom:11px">Assignments</div>
+          <div class="card" style="margin-bottom:9px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:14px;font-weight:700">Quadratic equations</div><div class="muted" style="font-size:11.5px;margin-top:2px">Maths · due 18 Nov</div></div><span class="pill warn">Due</span></div>
+          <div class="card" style="margin-bottom:9px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:14px;font-weight:700">Photosynthesis essay</div><div class="muted" style="font-size:11.5px;margin-top:2px">Science · submitted</div></div><span class="pill gray">Submitted</span></div>
+          <div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:14px;font-weight:700">Algebra worksheet</div><div class="muted" style="font-size:11.5px;margin-top:2px">Maths · graded</div></div><span class="pill ok">82% · Distinction</span></div>
+          <div class="btn p" style="margin-top:14px">Submit "Quadratic equations"</div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab on"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-search"/></svg></span><span class="lb">Tutors</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-cal"/></svg></span><span class="lb">Book</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>8</b>Assignments</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="brand">Stuumo</span><span class="bell"><svg><use href="#i-bell"/></svg></span></div>
+        <div class="body"><div class="scroll">
+          <div class="h1" style="margin-bottom:11px">Certificates</div>
+          <div class="card" style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#6D28D9,#5B21B6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px">🏆</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700">Mathematics — Distinction</div><div class="muted" style="font-size:11.5px;margin:2px 0 5px">Akosua Boateng · 10 Nov 2026</div><span class="pill ok">✓ Verified</span></div></div>
+          <div class="card" style="display:flex;gap:12px;align-items:center"><div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#4B5563,#6B7280);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px">🏆</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700">Integrated Science — Merit</div><div class="muted" style="font-size:11.5px;margin:2px 0 5px">Kwabena Osei · 28 Oct 2026</div><span class="pill ok">✓ Verified</span></div></div>
+          <div style="display:flex;gap:8px;margin-top:14px"><div class="btn p" style="flex:1;padding:11px;font-size:13px">View</div><div class="btn o" style="flex:1;padding:10px;font-size:13px">Share</div></div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab on"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-search"/></svg></span><span class="lb">Tutors</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-cal"/></svg></span><span class="lb">Book</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>9</b>Certificates</div>
+    </div>
+
+    <!-- ══ PARENT ══ -->
+    <div class="section"><h2>Parent</h2><div class="line"></div></div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="brand">Stuumo</span><span class="bell"><svg><use href="#i-bell"/></svg><span class="dot"></span></span></div>
+        <div class="body"><div class="scroll">
+          <span class="pill soft">👨‍👩‍👧 Parent dashboard</span>
+          <div class="h1" style="margin:10px 0 2px">Ama's Progress</div>
+          <div class="muted" style="font-size:12px;margin-bottom:12px">Bookings, assignments &amp; certificates</div>
+          <div style="display:flex;gap:8px;margin-bottom:14px"><span class="chip on">Ama</span><span class="chip">Kofi</span><span class="chip">+ Add</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px"><div class="stat"><div class="v">3</div><div class="lbl" style="margin-top:3px">Active</div></div><div class="stat"><div class="v">8</div><div class="lbl" style="margin-top:3px">Graded</div></div><div class="stat"><div class="v">2</div><div class="lbl" style="margin-top:3px">Pending</div></div><div class="stat"><div class="v">4</div><div class="lbl" style="margin-top:3px">Certs</div></div></div>
+          <div class="card" style="display:flex;align-items:center;gap:11px"><div class="av" style="width:42px;height:42px;font-size:15px">A</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700">Mathematics</div><div class="muted" style="font-size:12px">👩‍🏫 Akosua B. · 12 Nov</div></div><span class="pill ok">Paid</span></div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab on"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-search"/></svg></span><span class="lb">Tutors</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-cal"/></svg></span><span class="lb">Book</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>10</b>Parent home · child switcher</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="brand">Stuumo</span><span class="bell"><svg><use href="#i-bell"/></svg></span></div>
+        <div class="body"><div class="scroll">
+          <div class="h1" style="margin-bottom:3px">Book a session</div>
+          <div class="muted" style="font-size:12px;margin-bottom:12px">with Akosua Boateng · GH₵ 60</div>
+          <div class="lbl" style="margin-bottom:6px">Booking for</div>
+          <div class="card" style="display:flex;align-items:center;justify-content:space-between;background:#EDE9FE;border-color:#DDD6FE;margin-bottom:13px"><span style="display:flex;align-items:center;gap:9px"><span class="av avp" style="width:30px;height:30px;font-size:12px">A</span><b style="font-size:13.5px;color:var(--purple-deep)">Ama Mensah</b></span><span style="color:var(--purple);font-size:12px">▼</span></div>
+          <div class="lbl" style="margin-bottom:6px">Subject</div>
+          <div class="field" style="margin-bottom:11px">Mathematics</div>
+          <div class="lbl" style="margin-bottom:6px">What do you need?</div>
+          <div class="field" style="margin-bottom:11px;height:48px;color:var(--light)">Help preparing for BECE…</div>
+          <div style="display:flex;gap:7px;margin-bottom:14px"><span class="pill soft">📅 Sat 16</span><span class="pill gray">4:00 PM</span></div>
+          <div class="btn p">Request session →</div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-search"/></svg></span><span class="lb">Tutors</span></div><div class="tab on"><span class="ic"><svg class="tic"><use href="#i-cal"/></svg></span><span class="lb">Book</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>11</b>Book · pick child</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="brand">Stuumo</span><span class="bell"><svg><use href="#i-bell"/></svg></span></div>
+        <div class="body"><div class="scroll">
+          <div class="h1" style="margin-bottom:12px">Live sessions</div>
+          <div class="card" style="padding:0;overflow:hidden">
+            <div style="padding:13px 14px;display:flex;gap:11px;align-items:flex-start"><div style="background:linear-gradient(135deg,#6D28D9,#5B21B6);color:#fff;border-radius:12px;padding:9px 7px;text-align:center;min-width:46px"><div style="font-size:19px;font-weight:800;line-height:1">18</div><div style="font-size:9px;text-transform:uppercase;opacity:.85">Nov</div></div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:800">BECE Maths Masterclass</div><div class="muted" style="font-size:11.5px;margin-top:3px">👩‍🏫 Akosua B. · 🕐 5–6 PM</div></div><span style="font-size:13px;font-weight:800;color:var(--purple)">GH₵ 20</span></div>
+            <div style="padding:13px 14px;background:var(--bg);border-top:1px solid var(--border)">
+              <div style="font-size:12.5px;font-weight:800;margin-bottom:9px">Who is this session for?</div>
+              <label style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:#fff;border:1px solid var(--purple);border-radius:10px;margin-bottom:7px;font-size:13px;font-weight:600"><span style="width:15px;height:15px;border-radius:4px;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px">✓</span> Ama Mensah · JHS 2</label>
+              <label style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:#fff;border:1px solid var(--border);border-radius:10px;margin-bottom:11px;font-size:13px;font-weight:600"><span style="width:15px;height:15px;border-radius:4px;border:1.5px solid var(--border)"></span> Kofi Mensah · Primary 5</label>
+              <div style="display:flex;gap:7px"><div class="btn p" style="padding:10px 14px;font-size:12.5px">Pay GH₵ 20 · enrol</div><div class="btn" style="padding:10px 14px;font-size:12.5px;background:#fff;border:1px solid var(--border);color:var(--muted)">Cancel</div></div>
+            </div>
+          </div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-search"/></svg></span><span class="lb">Tutors</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-cal"/></svg></span><span class="lb">Book</span></div><div class="tab on"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>12</b>Enrol children</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="brand">Stuumo</span><span class="bell"><svg><use href="#i-bell"/></svg><span class="dot"></span></span></div>
+        <div class="body"><div class="scroll">
+          <div class="h1" style="margin-bottom:11px">Messages</div>
+          <div class="card" style="display:flex;gap:11px;align-items:center;margin-bottom:9px;border-color:#DDD6FE"><div class="av avp" style="width:42px;height:42px;font-size:15px">A</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><b style="font-size:13.5px">Akosua Boateng</b><span class="muted" style="font-size:10px">2m</span></div><div class="muted" style="font-size:12px;margin:2px 0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">You: Thanks, see you Saturday!</div><span class="pill gray">Maths · for Ama</span></div><span style="width:9px;height:9px;border-radius:50%;background:var(--purple)"></span></div>
+          <div class="card" style="display:flex;gap:11px;align-items:center"><div class="av" style="width:42px;height:42px;font-size:15px">K</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><b style="font-size:13.5px">Kwabena Osei</b><span class="muted" style="font-size:10px">1h</span></div><div class="muted" style="font-size:12px;margin:2px 0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Great progress this week.</div><span class="pill gray">English · for Kofi</span></div></div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-search"/></svg></span><span class="lb">Tutors</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-cal"/></svg></span><span class="lb">Book</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab on"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>13</b>Messages · per child</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="brand">Stuumo</span><span class="bell" style="background:#EDE9FE"><svg><use href="#i-bell"/></svg><span class="dot"></span></span></div>
+        <div class="body"><div class="scroll">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px"><div class="h1">Notifications</div><span class="pill soft">Mark all read</span></div>
+          <div class="card" style="display:flex;gap:10px;align-items:flex-start;margin-bottom:9px;background:#F7F4FD"><span style="font-size:18px">✅</span><div><div style="font-size:13px;font-weight:700">Booking confirmed 🎉</div><div class="muted" style="font-size:11.5px;margin-top:2px">Akosua accepted Ama's Maths session</div></div></div>
+          <div class="card" style="display:flex;gap:10px;align-items:flex-start;margin-bottom:9px;background:#F7F4FD"><span style="font-size:18px">🎥</span><div><div style="font-size:13px;font-weight:700">Enrolment confirmed</div><div class="muted" style="font-size:11.5px;margin-top:2px">Kofi enrolled in BECE Maths Masterclass</div></div></div>
+          <div class="card" style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:18px">💬</span><div><div style="font-size:13px;font-weight:700">New message</div><div class="muted" style="font-size:11.5px;margin-top:2px">Kwabena Osei: Great progress this week.</div></div></div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab on"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-search"/></svg></span><span class="lb">Tutors</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-cal"/></svg></span><span class="lb">Book</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>14</b>Parent notifications</div>
+    </div>
+
+    <!-- ══ TEACHER ══ -->
+    <div class="section"><h2>Teacher</h2><div class="line"></div></div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="brand">Stuumo</span><span class="bell"><svg><use href="#i-bell"/></svg><span class="dot"></span></span></div>
+        <div class="body"><div class="scroll">
+          <div class="card" style="margin-bottom:12px;box-shadow:0 10px 26px rgba(0,0,0,.14)">
+            <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--purple)">Needs your attention</div>
+            <div style="font-size:17px;font-weight:800;margin:7px 0 4px;letter-spacing:-.01em">4 people want to book you</div>
+            <div class="muted" style="font-size:12px;margin-bottom:12px">Reply quickly to lock in the session.</div>
+            <div class="pill pri" style="font-size:12px">Review requests →</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px"><div class="stat"><div class="v">26</div><div class="lbl" style="margin-top:3px">Bookings</div></div><div class="stat"><div class="v">18</div><div class="lbl" style="margin-top:3px">Students</div></div><div class="stat"><div class="v" style="font-size:16px">GH₵1.2k</div><div class="lbl" style="margin-top:3px">Earned</div></div><div class="stat"><div class="v">4.9★</div><div class="lbl" style="margin-top:3px">Rating</div></div></div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab on"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-clip"/></svg></span><span class="lb">Requests</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-gift"/></svg></span><span class="lb">Earn</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>15</b>Teacher dashboard</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="brand">Stuumo</span><span class="bell"><svg><use href="#i-bell"/></svg><span class="dot"></span></span></div>
+        <div class="body"><div class="scroll">
+          <div class="h1" style="margin-bottom:12px">Booking requests</div>
+          <div class="card" style="margin-bottom:11px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div class="av" style="width:38px;height:38px;font-size:14px">A</div><div><div style="font-size:14px;font-weight:700">Ama Mensah</div><div class="muted" style="font-size:11.5px">Maths · Sat 16 Nov, 4 PM</div></div></div>
+            <div class="muted" style="font-size:12px;background:var(--bg);border-radius:10px;padding:9px 11px;margin-bottom:10px">"Needs help preparing for BECE exams."</div>
+            <div style="display:flex;gap:8px"><div class="btn g" style="flex:1">✓ Accept</div><div class="btn r" style="flex:1">✗ Decline</div></div>
+          </div>
+          <div class="card" style="opacity:.75"><div style="display:flex;align-items:center;gap:10px"><div class="av" style="width:38px;height:38px;font-size:14px">K</div><div><div style="font-size:14px;font-weight:700">Kofi Asante</div><div class="muted" style="font-size:11.5px">Science · Sun 17 Nov, 2 PM</div></div></div></div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab on"><span class="ic"><svg class="tic"><use href="#i-clip"/></svg></span><span class="lb">Requests</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-gift"/></svg></span><span class="lb">Earn</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>16</b>Booking requests</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="brand">Stuumo</span><span class="bell"><svg><use href="#i-bell"/></svg></span></div>
+        <div class="body"><div class="scroll">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><div class="h1">My sessions</div><span class="pill pri" style="font-size:11px">+ New</span></div>
+          <div class="card" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-size:14px;font-weight:800">BECE Maths Masterclass</div><div class="muted" style="font-size:11.5px;margin-top:3px">18 Nov · 5–6 PM · GH₵ 20</div></div><span class="pill soft">Upcoming</span></div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px"><span class="muted" style="font-size:12px">👥 14/20 enrolled</span><span style="font-size:12px;font-weight:700;color:var(--purple)">Edit</span></div></div>
+          <div class="card"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-size:14px;font-weight:800">Algebra Crash Course</div><div class="muted" style="font-size:11.5px;margin-top:3px">10 Nov · Completed · GH₵ 15</div></div><span class="pill gray">Done</span></div><div style="margin-top:10px"><span class="muted" style="font-size:12px">👥 20/20 enrolled · GH₵ 240 earned</span></div></div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-clip"/></svg></span><span class="lb">Requests</span></div><div class="tab on"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-gift"/></svg></span><span class="lb">Earn</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>17</b>My live sessions</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="brand">Stuumo</span><span class="bell"><svg><use href="#i-bell"/></svg></span></div>
+        <div class="body"><div class="scroll">
+          <div class="h1" style="margin-bottom:13px">Create live session</div>
+          <div class="lbl" style="margin-bottom:6px">Title</div><div class="field" style="margin-bottom:11px">BECE Maths Masterclass</div>
+          <div class="lbl" style="margin-bottom:6px">Subject</div><div class="field" style="margin-bottom:11px">Mathematics</div>
+          <div style="display:flex;gap:9px;margin-bottom:11px"><div style="flex:1"><div class="lbl" style="margin-bottom:6px">Date</div><div class="field">18 Nov</div></div><div style="flex:1"><div class="lbl" style="margin-bottom:6px">Time</div><div class="field">5:00 PM</div></div></div>
+          <div style="display:flex;gap:9px;margin-bottom:16px"><div style="flex:1"><div class="lbl" style="margin-bottom:6px">Max spots</div><div class="field">20</div></div><div style="flex:1"><div class="lbl" style="margin-bottom:6px">Price (GH₵)</div><div class="field">20</div></div></div>
+          <div class="btn p">Create session</div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-clip"/></svg></span><span class="lb">Requests</span></div><div class="tab on"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-gift"/></svg></span><span class="lb">Earn</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>18</b>Create live session</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="brand">Stuumo</span><span class="bell"><svg><use href="#i-bell"/></svg></span></div>
+        <div class="body"><div class="scroll">
+          <div class="h1" style="margin-bottom:12px">Earnings</div>
+          <div class="card" style="background:linear-gradient(135deg,#6D28D9,#5B21B6);color:#fff;border:none;margin-bottom:12px"><div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;opacity:.85">Available balance</div><div style="font-size:28px;font-weight:800;margin:6px 0 2px">GH₵ 1,240</div><div style="font-size:11.5px;opacity:.9">GH₵ 320 pending clearance</div></div>
+          <div class="btn p" style="margin-bottom:14px">Request payout</div>
+          <div class="lbl" style="margin-bottom:8px">Recent</div>
+          <div class="card" style="display:flex;justify-content:space-between;margin-bottom:8px"><div><div style="font-size:13px;font-weight:700">Maths · Ama M.</div><div class="muted" style="font-size:11px">12 Nov</div></div><span style="font-weight:800;color:var(--green)">+GH₵ 48</span></div>
+          <div class="card" style="display:flex;justify-content:space-between"><div><div style="font-size:13px;font-weight:700">Live class · 14 seats</div><div class="muted" style="font-size:11px">10 Nov</div></div><span style="font-weight:800;color:var(--green)">+GH₵ 224</span></div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-clip"/></svg></span><span class="lb">Requests</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div><div class="tab on"><span class="ic"><svg class="tic"><use href="#i-gift"/></svg></span><span class="lb">Earn</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>19</b>Earnings &amp; payouts</div>
+    </div>
+
+    <!-- ══ IN SESSION ══ -->
+    <div class="section"><h2>In a session</h2><div class="line"></div></div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div style="height:56px;flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 14px;border-bottom:1px solid var(--border)"><span style="font-size:16px;color:var(--muted)">‹</span><div class="av avp" style="width:34px;height:34px;font-size:13px">A</div><div style="flex:1"><div style="font-size:14px;font-weight:800">Akosua Boateng</div><div class="muted" style="font-size:11px">Maths · for Ama</div></div><span style="width:34px;height:34px;border-radius:50%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center"><svg style="width:17px;height:17px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><use href="#i-video"/></svg></span></div>
+        <div class="body" style="background:var(--bg)"><div class="scroll" style="display:flex;flex-direction:column;gap:9px;justify-content:flex-end">
+          <div style="align-self:center" class="muted"><span class="pill gray">Today</span></div>
+          <div style="align-self:flex-start;max-width:78%;background:#fff;border:1px solid var(--border);border-radius:14px 14px 14px 4px;padding:9px 12px;font-size:12.5px">Hi! Looking forward to Saturday's session. Please have the past questions ready.</div>
+          <div style="align-self:flex-end;max-width:78%;background:linear-gradient(135deg,#6D28D9,#5B21B6);color:#fff;border-radius:14px 14px 4px 14px;padding:9px 12px;font-size:12.5px">Will do — thank you! 🙏</div>
+          <div style="align-self:flex-end;max-width:78%;background:linear-gradient(135deg,#6D28D9,#5B21B6);color:#fff;border-radius:14px 14px 4px 14px;padding:9px 12px;font-size:12.5px">See you Saturday!</div>
+        </div></div>
+        <div style="height:54px;flex-shrink:0;display:flex;align-items:center;gap:9px;padding:0 13px;border-top:1px solid var(--border);background:#fff"><div class="field" style="flex:1;color:var(--light)">Message…</div><span style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#6D28D9,#5B21B6);color:#fff;display:flex;align-items:center;justify-content:center">➤</span></div>
+      </div></div>
+      <div class="cap"><b>20</b>Chat thread</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar w"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="body" style="background:#0B0B0B;position:relative">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div class="av avp" style="width:92px;height:92px;font-size:34px">A</div></div>
+          <div style="position:absolute;top:14px;right:14px;width:84px;height:120px;border-radius:14px;background:linear-gradient(135deg,#4B5563,#6B7280);border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:22px">K</div>
+          <div style="position:absolute;top:18px;left:14px;background:rgba(0,0,0,.4);color:#fff;border-radius:999px;padding:5px 12px;font-size:11px;font-weight:700">🔴 Live · 42:15</div>
+          <div style="position:absolute;bottom:26px;left:0;right:0;display:flex;justify-content:center;gap:14px">
+            <span style="width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:19px">🎤</span>
+            <span style="width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:19px">🎥</span>
+            <span style="width:50px;height:50px;border-radius:50%;background:#DC2626;color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px">📞</span>
+          </div>
+        </div>
+      </div></div>
+      <div class="cap"><b>21</b>Video class</div>
+    </div>
+
+    <!-- ══ MORE ══ -->
+    <div class="section"><h2>More</h2><div class="line"></div></div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="back">‹ Back</span><span class="brand" style="font-size:18px">Stuumo</span><span style="width:33px"></span></div>
+        <div class="body"><div class="scroll">
+          <div class="card" style="background:linear-gradient(135deg,#6D28D9,#5B21B6);color:#fff;border:none;text-align:center;margin-bottom:14px;padding:20px 14px"><div style="font-size:30px">🎁</div><div style="font-size:16px;font-weight:800;margin:8px 0 4px">Invite friends, earn rewards</div><div style="font-size:12px;opacity:.9;line-height:1.5">Give GH₵ 10 off, get GH₵ 10 when they book their first session.</div></div>
+          <div class="lbl" style="margin-bottom:6px">Your referral code</div>
+          <div class="card" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><b style="font-size:16px;letter-spacing:.05em;color:var(--purple)">STUUMO-FY23</b><span class="pill pri">Copy</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px"><div class="stat"><div class="v">6</div><div class="lbl" style="margin-top:3px">Invited</div></div><div class="stat"><div class="v">GH₵ 60</div><div class="lbl" style="margin-top:3px">Earned</div></div></div>
+          <div class="btn p" style="margin-top:14px">Share invite link</div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-search"/></svg></span><span class="lb">Tutors</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-cal"/></svg></span><span class="lb">Book</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>22</b>Refer &amp; earn</div>
+    </div>
+
+    <div class="cell">
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span class="r"><span class="bar" style="height:7px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="batt"><i></i></span></span></div>
+        <div class="appbar"><span class="back">‹ Back</span><span class="brand" style="font-size:18px">Stuumo</span><span style="width:33px"></span></div>
+        <div class="body"><div class="scroll">
+          <div style="text-align:center;margin:6px 0 16px"><div class="av avp" style="width:72px;height:72px;font-size:26px;margin:0 auto 10px">F</div><div style="font-size:17px;font-weight:800">Frank Yeboah</div><div class="muted" style="font-size:12px;margin-top:2px">Parent · Accra</div></div>
+          <div class="row"><span class="ri">👤</span><span style="flex:1">Edit profile</span><span class="muted">›</span></div>
+          <div class="row"><span class="ri">👧</span><span style="flex:1">My children</span><span class="muted">›</span></div>
+          <div class="row"><span class="ri">💳</span><span style="flex:1">Payment methods</span><span class="muted">›</span></div>
+          <div class="row"><span class="ri">🔔</span><span style="flex:1">Notifications</span><span class="muted">›</span></div>
+          <div class="row"><span class="ri">❓</span><span style="flex:1">Help &amp; support</span><span class="muted">›</span></div>
+          <div class="row" style="border-bottom:none;color:var(--red)"><span class="ri" style="background:#FEE2E2;color:var(--red)">⎋</span><span style="flex:1">Log out</span></div>
+        </div></div>
+        <div class="tabs">
+          <div class="tab"><span class="ic"><svg class="tic"><use href="#i-home"/></svg></span><span class="lb">Home</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-search"/></svg></span><span class="lb">Tutors</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-cal"/></svg></span><span class="lb">Book</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-video"/></svg></span><span class="lb">Sessions</span></div><div class="tab"><span class="ic"><svg class="tic"><use href="#i-chat"/></svg></span><span class="lb">Chats</span></div>
+        </div>
+      </div></div>
+      <div class="cap"><b>23</b>Profile &amp; settings</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

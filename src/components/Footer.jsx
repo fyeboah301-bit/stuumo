@@ -4,10 +4,12 @@ import {
   TEXT_MUTED, GRADIENT_HERO, TRANSITION, BORDER,
 } from '../styles/colors'
 import Logo from './Logo'
+import { isNativeApp } from '../lib/platform'
 
 export default function Footer({ variant = 'light' }) {
   const isDark = false  // dark variant retired — always light, keeps 'Teach' visible
   const year = new Date().getFullYear()
+  if (isNativeApp()) return null
 
   if (isDark) {
     return (
@@ -135,7 +137,14 @@ export default function Footer({ variant = 'light' }) {
                   { label: 'Find teachers',      to: '/teachers' },
                   { label: 'Live sessions',       to: '/sessions' },
                   { label: 'Book a session',      to: '/booking' },
-                  { label: 'Verify certificate',  to: '/verify' },
+                ]
+              },
+              {
+                heading: 'Company',
+                links: [
+                  { label: 'About us',            to: '/about' },
+                  { label: 'How it works',        to: '/how-it-works' },
+                  { label: 'For teachers',        to: '/for-teachers' },
                 ]
               },
               {

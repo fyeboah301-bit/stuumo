@@ -3,6 +3,7 @@ import Logo from '../components/Logo'
 import { supabase } from '../lib/supabase'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLoginPrompt } from '../context/LoginPrompt'
 import PublicNav from '../components/PublicNav'
 import {
   BLUE, YELLOW, DARK_BLUE, LIGHT_BLUE, GREY_BG, GREY_LIGHT,
@@ -64,6 +65,7 @@ function Section({ title, icon, gradient, children }) {
 export default function TeacherProfile() {
   const { id } = useParams()
   const { user, profile } = useAuth()
+  const promptLogin = useLoginPrompt()
   const isMobile = useIsMobile()
   const [teacher, setTeacher] = useState(null)
   const [availability, setAvailability] = useState([])
@@ -469,10 +471,10 @@ export default function TeacherProfile() {
                   📅 Send booking request
                 </Link>
               ) : !user ? (
-                <Link to={`/login?next=${encodeURIComponent('/booking?teacher=' + teacher.id)}`}
-                  style={{ display: 'block', padding: '14px', background: GRADIENT_BLUE, color: '#fff', borderRadius: '50px', fontSize: '15px', textDecoration: 'none', textAlign: 'center', fontWeight: '700', boxShadow: SHADOW_BLUE }}>
+                <button onClick={() => promptLogin('Log in or sign up to book a session with this teacher.')}
+                  style={{ display: 'block', width: '100%', padding: '14px', background: GRADIENT_BLUE, color: '#fff', border: 'none', borderRadius: '50px', fontSize: '15px', textAlign: 'center', fontWeight: '700', boxShadow: SHADOW_BLUE, cursor: 'pointer', fontFamily: 'inherit' }}>
                   Log in or sign up to book
-                </Link>
+                </button>
               ) : null}
               <Link to="/sessions"
                 style={{ display: 'block', padding: '12px', background: GREY_BG, color: BLUE, borderRadius: '50px', fontSize: '14px', textDecoration: 'none', textAlign: 'center', fontWeight: '700', border: BORDER, transition: TRANSITION }}>
@@ -531,9 +533,9 @@ export default function TeacherProfile() {
               </Link>
             </div>
           ) : !user ? (
-            <Link to={`/login?next=${encodeURIComponent('/booking?teacher=' + teacher.id)}`} style={{ display: 'block', padding: '14px', background: GRADIENT_BLUE, color: '#fff', borderRadius: '50px', fontSize: '15px', textDecoration: 'none', textAlign: 'center', fontWeight: '700', boxShadow: SHADOW_BLUE }}>
+            <button onClick={() => promptLogin('Log in or sign up to book a session with this teacher.')} style={{ display: 'block', width: '100%', padding: '14px', background: GRADIENT_BLUE, color: '#fff', border: 'none', borderRadius: '50px', fontSize: '15px', textAlign: 'center', fontWeight: '700', boxShadow: SHADOW_BLUE, cursor: 'pointer', fontFamily: 'inherit' }}>
               Log in or sign up to book this teacher
-            </Link>
+            </button>
           ) : null}
         </div>
       )}
