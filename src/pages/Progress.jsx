@@ -53,7 +53,7 @@ export default function Progress() {
   }, [selectedChild])
 
   const fetchChildren = async () => {
-    const { data } = await supabase.from('profiles').select('*').eq('parent_id', user.id)
+    const { data } = await supabase.from('profiles').select('id, full_name, grade, avatar_url').eq('parent_id', user.id)
     setChildren(data || [])
     if (data && data.length > 0) setSelectedChild(data[0])
     else setLoading(false)
