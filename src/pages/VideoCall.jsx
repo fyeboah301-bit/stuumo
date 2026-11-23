@@ -4,7 +4,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { TRANSITION } from '../styles/colors'
-import { Room, RoomEvent, Track } from 'livekit-client'
+import { Room, RoomEvent, Track, VideoPresets } from 'livekit-client'
 
 // One participant's video + audio, attached from their LiveKit tracks.
 function ParticipantTile({ participant, isLocal, tick }) {
@@ -96,7 +96,21 @@ export default function VideoCall() {
         if (!data?.ok) throw new Error(data?.error || 'Could not start the call.')
         if (cancelled) return
 
-        room = new Room({ adaptiveStream: true, dynacast: true })
+        room = new Room({
+          adaptiveStream: true,
+          dynacast: true,
+          // Ghana-tuned: cap capture at 360p, simulcast down to 180p for weak
+          // receivers, and keep audio robust on lossy 3G (DTX + redundant audio).
+          videoCaptureDefaults: { resolution: VideoPresets.h360.resolution },
+          publishDefaults: {
+            simulcast: true,
+            videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360],
+            videoCodec: 'vp8',
+            videoEncoding: VideoPresets.h360.encoding,
+            dtx: true,
+            red: true,
+          },
+        })
         roomRef.current = room
 
         const bump = () => !cancelled && refresh(room)

@@ -125,8 +125,9 @@ export default function Terms() {
 
       <LegalSection heading="13. Governing law">
         <LegalParagraph>
-          These Terms are governed by the laws of the jurisdiction in which Stuumo is established, without
-          regard to conflict-of-law rules. [Insert governing-law jurisdiction and dispute-resolution venue.]
+          These Terms are governed by the laws of the Republic of Ghana, without regard to conflict-of-law
+          rules, and the courts of Ghana have jurisdiction over any dispute arising from them. [Confirm the
+          registered entity name and any preferred dispute-resolution venue with counsel before launch.]
         </LegalParagraph>
       </LegalSection>
     </LegalLayout>

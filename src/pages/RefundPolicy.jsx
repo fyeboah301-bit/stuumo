@@ -20,10 +20,6 @@ export default function RefundPolicy() {
           'Cancel less than 24 hours before the session start time: the session may be non-refundable, because the Teacher has reserved the time. We may offer a credit at our discretion.',
           'No-show by the learner: the session is treated as delivered and is non-refundable.',
         ]} />
-        <LegalParagraph>
-          [Adjust these windows to the policy you want to run — e.g. 12h, 24h, or 48h — and confirm whether
-          late cancellations give a credit or nothing.]
-        </LegalParagraph>
       </LegalSection>
 
       <LegalSection heading="2. Teacher cancellations and no-shows">

@@ -41,17 +41,52 @@ serve(async (req) => {
     const userId = u?.user?.id
     if (!userId) return json({ ok: false, error: 'Please sign in to join the call.' })
 
-    // Only issue a token for a room that actually belongs to a booking or a live session.
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE)
-    const [{ data: b }, { data: s }] = await Promise.all([
-      admin.from('bookings').select('id').eq('room_id', room).limit(1),
-      admin.from('live_sessions').select('id').eq('room_id', room).limit(1),
-    ])
-    if ((!b || b.length === 0) && (!s || s.length === 0)) {
-      return json({ ok: false, error: 'This session room does not exist.' })
+
+    // Identities this user may join as: themselves plus any child profiles they manage.
+    const { data: kids } = await admin.from('profiles').select('id').eq('parent_id', userId)
+    const ownedIds = new Set<string>([userId, ...((kids || []).map((k: { id: string }) => k.id))])
+
+    let roomExists = false
+    let allowed = false
+
+    // 1:1 booking room? Allow the teacher, the client, or the client's parent.
+    const { data: bk } = await admin
+      .from('bookings')
+      .select('client_id, teacher_id')
+      .eq('room_id', room)
+      .maybeSingle()
+    if (bk) {
+      roomExists = true
+      if (bk.teacher_id === userId || ownedIds.has(bk.client_id)) allowed = true
     }
-    // Hardening TODO: also verify this user is a participant of that booking/session
-    // (client, their child, the teacher, or enrolled) before issuing the token.
+
+    // Live-session room? Allow the host teacher or anyone enrolled (self or their child).
+    if (!allowed) {
+      const { data: ls } = await admin
+        .from('live_sessions')
+        .select('id, teacher_id')
+        .eq('room_id', room)
+        .is('deleted_at', null)
+        .maybeSingle()
+      if (ls) {
+        roomExists = true
+        if (ls.teacher_id === userId) {
+          allowed = true
+        } else {
+          const { data: enr } = await admin
+            .from('enrollments')
+            .select('id')
+            .eq('session_id', ls.id)
+            .in('user_id', Array.from(ownedIds))
+            .limit(1)
+          if (enr && enr.length > 0) allowed = true
+        }
+      }
+    }
+
+    if (!roomExists) return json({ ok: false, error: 'This session room does not exist.' })
+    if (!allowed) return json({ ok: false, error: 'You are not a participant of this session.' })
 
     const at = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
       identity: userId,
