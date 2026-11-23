@@ -347,7 +347,7 @@ export default function LiveSessions() {
               <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>🎥</div>
               <div>
                 <h3 style={{ color: '#0B0B0B', fontSize: '16px', fontWeight: '700', margin: 0 }}>Create a new live session</h3>
-                <p style={{ color: 'rgba(0,0,0,0.7)', fontSize: '13px', margin: 0 }}>A Jitsi video call room is auto-created</p>
+                <p style={{ color: 'rgba(0,0,0,0.7)', fontSize: '13px', margin: 0 }}>A video call room is auto-created</p>
               </div>
             </div>
             <form onSubmit={createSession} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -387,7 +387,7 @@ export default function LiveSessions() {
               </div>
               <div style={{ background: LIGHT_BLUE, borderRadius: '12px', padding: '12px 16px', fontSize: '13px', color: BLUE, display: 'flex', alignItems: 'center', gap: '10px', border: '1px solid rgba(0,0,0,0.15)' }}>
                 <span style={{ fontSize: '18px', flexShrink: 0 }}>🎥</span>
-                A Jitsi video call room will be automatically created for this session.
+                A video call room will be automatically created for this session.
               </div>
               <button type="submit" style={{ padding: '14px', background: YELLOW, color: '#FFFFFF', border: 'none', borderRadius: '50px', fontSize: '15px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '800', boxShadow: SHADOW_YELLOW, transition: TRANSITION }}>
                 Create session →
