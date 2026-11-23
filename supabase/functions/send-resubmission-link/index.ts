@@ -37,7 +37,7 @@ serve(async (req) => {
         method: 'POST',
         headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'Stuumo <onboarding@resend.dev>',
+          from: 'Stuumo <noreply@stuumo.com>',
           to: [email],
           subject: 'Action needed: resubmit a document on your Stuumo application',
           html: `
