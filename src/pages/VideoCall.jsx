@@ -7,49 +7,78 @@ import { TRANSITION } from '../styles/colors'
 import { Room, RoomEvent, Track, VideoPresets } from 'livekit-client'
 
 // One participant's video + audio, attached from their LiveKit tracks.
-function ParticipantTile({ participant, isLocal, tick }) {
+function ParticipantTile({ participant, isLocal, tick, isScreen = false }) {
   const videoRef = useRef(null)
   const audioRef = useRef(null)
+  const attachedVid = useRef(null)
+  const attachedAud = useRef(null)
   const [camOff, setCamOff] = useState(true)
 
   useEffect(() => {
-    const camPub = participant.getTrackPublication(Track.Source.Camera)
-    const micPub = participant.getTrackPublication(Track.Source.Microphone)
-    const hasVideo = !!(camPub && camPub.track && !camPub.isMuted)
-    setCamOff(!hasVideo)
+    const source = isScreen ? Track.Source.ScreenShare : Track.Source.Camera
+    const vidPub = participant.getTrackPublication(source)
+    const vidTrack = (vidPub && !vidPub.isMuted) ? vidPub.track : null
+    setCamOff(!vidTrack)
 
-    if (hasVideo && videoRef.current) camPub.track.attach(videoRef.current)
-    if (!isLocal && micPub && micPub.track && audioRef.current) micPub.track.attach(audioRef.current)
-
-    return () => {
-      if (camPub && camPub.track && videoRef.current) camPub.track.detach(videoRef.current)
-      if (!isLocal && micPub && micPub.track && audioRef.current) micPub.track.detach(audioRef.current)
+    // Attach only when the track actually changes. Re-attaching on every
+    // re-render tears the <video> down each frame, which blanks the local
+    // self-preview and can feed an event->render loop.
+    if (vidTrack && videoRef.current && attachedVid.current !== vidTrack) {
+      if (attachedVid.current) attachedVid.current.detach(videoRef.current)
+      vidTrack.attach(videoRef.current)
+      attachedVid.current = vidTrack
+    } else if (!vidTrack && attachedVid.current && videoRef.current) {
+      attachedVid.current.detach(videoRef.current)
+      attachedVid.current = null
     }
-  }, [participant, isLocal, tick])
+
+    // Participant mic: attach on their camera tile only (never the screen
+    // tile), so one person's audio is never played twice.
+    const micPub = (!isLocal && !isScreen) ? participant.getTrackPublication(Track.Source.Microphone) : null
+    const micTrack = (micPub && !micPub.isMuted) ? micPub.track : null
+    if (micTrack && audioRef.current && attachedAud.current !== micTrack) {
+      if (attachedAud.current) attachedAud.current.detach(audioRef.current)
+      micTrack.attach(audioRef.current)
+      attachedAud.current = micTrack
+    } else if (!micTrack && attachedAud.current && audioRef.current) {
+      attachedAud.current.detach(audioRef.current)
+      attachedAud.current = null
+    }
+  }, [participant, isLocal, isScreen, tick])
+
+  // Detach for good only when the tile unmounts.
+  useEffect(() => () => {
+    if (attachedVid.current) attachedVid.current.detach()
+    if (attachedAud.current) attachedAud.current.detach()
+    attachedVid.current = null
+    attachedAud.current = null
+  }, [])
 
   const name = participant.name || (isLocal ? 'You' : 'Guest')
   const initial = (name || '?').charAt(0).toUpperCase()
   const micPub = participant.getTrackPublication(Track.Source.Microphone)
   const muted = !micPub || micPub.isMuted
+  const label = isScreen ? `${name}'s screen` : `${name}${isLocal ? ' (you)' : ''}`
 
   return (
-    <div style={{ position: 'relative', background: '#141019', borderRadius: '16px', overflow: 'hidden', aspectRatio: '16 / 10', border: '1px solid rgba(255,255,255,0.08)', minWidth: 0 }}>
+    <div style={{ position: 'relative', gridColumn: isScreen ? '1 / -1' : 'auto', background: isScreen ? '#000' : '#141019', borderRadius: '16px', overflow: 'hidden', aspectRatio: isScreen ? '16 / 9' : '16 / 10', border: isScreen ? '1px solid rgba(109,40,217,0.5)' : '1px solid rgba(255,255,255,0.08)', minWidth: 0 }}>
       <video
         ref={videoRef}
         autoPlay
         playsInline
-        muted={isLocal}
-        style={{ width: '100%', height: '100%', objectFit: 'cover', display: camOff ? 'none' : 'block', transform: isLocal ? 'scaleX(-1)' : 'none' }}
+        muted={isLocal || isScreen}
+        style={{ width: '100%', height: '100%', objectFit: isScreen ? 'contain' : 'cover', display: camOff ? 'none' : 'block', transform: (isLocal && !isScreen) ? 'scaleX(-1)' : 'none' }}
       />
-      {!isLocal && <audio ref={audioRef} autoPlay />}
+      {!isLocal && !isScreen && <audio ref={audioRef} autoPlay />}
       {camOff && (
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'linear-gradient(135deg,#6D28D9,#5B21B6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px', fontWeight: '800', color: '#fff' }}>{initial}</div>
+          <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'linear-gradient(135deg,#6D28D9,#5B21B6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px', fontWeight: '800', color: '#fff' }}>{isScreen ? '🖥️' : initial}</div>
         </div>
       )}
       <div style={{ position: 'absolute', left: '10px', bottom: '10px', display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(0,0,0,0.55)', borderRadius: '50px', padding: '4px 10px' }}>
-        {muted && <span style={{ fontSize: '11px' }}>🔇</span>}
-        <span style={{ fontSize: '12px', color: '#fff', fontWeight: '600', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}{isLocal ? ' (you)' : ''}</span>
+        {isScreen && <span style={{ fontSize: '11px' }}>🖥️</span>}
+        {!isScreen && muted && <span style={{ fontSize: '11px' }}>🔇</span>}
+        <span style={{ fontSize: '12px', color: '#fff', fontWeight: '600', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
       </div>
     </div>
   )
@@ -67,6 +96,7 @@ export default function VideoCall() {
   const [tick, setTick] = useState(0)
   const [micOn, setMicOn] = useState(true)
   const [camOn, setCamOn] = useState(true)
+  const [screenOn, setScreenOn] = useState(false)
   const [elapsed, setElapsed] = useState(0)
 
   const displayName = profile?.full_name || 'Guest'
@@ -79,6 +109,8 @@ export default function VideoCall() {
     const list = [{ p: room.localParticipant, isLocal: true }]
     room.remoteParticipants.forEach((p) => list.push({ p, isLocal: false }))
     setTiles(list)
+    const sp = room.localParticipant.getTrackPublication(Track.Source.ScreenShare)
+    setScreenOn(!!(sp && sp.track && !sp.isMuted))
     setTick((t) => t + 1)
   }, [])
 
@@ -144,7 +176,7 @@ export default function VideoCall() {
       if (room) room.disconnect()
       roomRef.current = null
     }
-  }, [user, roomId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user?.id, roomId]) // eslint-disable-line react-hooks/exhaustive-deps -- id, not the object, so an auth refresh on tab focus doesn't reconnect the room
 
   // Session timer (runs once connected)
   useEffect(() => {
@@ -152,6 +184,7 @@ export default function VideoCall() {
     const t = setInterval(() => setElapsed((e) => e + 1), 1000)
     return () => clearInterval(t)
   }, [status])
+
 
   const toggleMic = async () => {
     const room = roomRef.current; if (!room) return
@@ -165,6 +198,18 @@ export default function VideoCall() {
     await room.localParticipant.setCameraEnabled(next)
     setCamOn(next); setTick((t) => t + 1)
   }
+  const toggleScreen = async () => {
+    const room = roomRef.current; if (!room) return
+    try {
+      await room.localParticipant.setScreenShareEnabled(!screenOn)
+      // screenOn is re-derived in refresh() from LocalTrackPublished/Unpublished,
+      // so it stays correct whether stopped here or via the browser own bar.
+    } catch (e) {
+      // getDisplayMedia picker cancelled or blocked - nothing to do.
+    }
+    setTick((t) => t + 1)
+  }
+  const canScreenShare = typeof navigator !== 'undefined' && !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia)
   const leave = () => {
     if (window.confirm('Leave this session? The call will continue for other participants.')) {
       if (roomRef.current) roomRef.current.disconnect()
@@ -182,6 +227,14 @@ export default function VideoCall() {
 
   if (!user) return null
 
+  const renderTiles = []
+  tiles.forEach(({ p, isLocal }) => {
+    renderTiles.push({ p, isLocal, isScreen: false, key: (p.sid || p.identity) + ':cam' })
+    const sp = p.getTrackPublication(Track.Source.ScreenShare)
+    if (sp && sp.track && !sp.isMuted) {
+      renderTiles.push({ p, isLocal, isScreen: true, key: (p.sid || p.identity) + ':screen' })
+    }
+  })
   const cols = tiles.length <= 1 ? 1 : tiles.length <= 4 ? 2 : 3
 
   return (
@@ -259,8 +312,8 @@ export default function VideoCall() {
               <div style={{ position: 'absolute', top: '16px', left: 0, right: 0, textAlign: 'center', color: '#6B7280', fontSize: '13px', zIndex: 1 }}>Waiting for others to join…</div>
             )}
             <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gap: '14px', maxWidth: '1100px', margin: '0 auto', minHeight: '100%', alignContent: 'center' }}>
-              {tiles.map(({ p, isLocal }) => (
-                <ParticipantTile key={p.sid || p.identity} participant={p} isLocal={isLocal} tick={tick} />
+              {renderTiles.map(({ p, isLocal, isScreen, key }) => (
+                <ParticipantTile key={key} participant={p} isLocal={isLocal} isScreen={isScreen} tick={tick} />
               ))}
             </div>
           </div>
@@ -276,6 +329,11 @@ export default function VideoCall() {
           <button onClick={toggleCam} title={camOn ? 'Turn camera off' : 'Turn camera on'} style={ctrlStyle(!camOn)}>
             <span style={{ fontSize: '18px' }}>{camOn ? '📹' : '🚫'}</span>
           </button>
+          {canScreenShare && (
+            <button onClick={toggleScreen} title={screenOn ? 'Stop sharing' : 'Share screen'} style={{ ...ctrlStyle(false), background: screenOn ? '#6D28D9' : 'rgba(255,255,255,0.1)' }}>
+              <span style={{ fontSize: '18px' }}>🖥️</span>
+            </button>
+          )}
           <button onClick={leave} title="Leave" style={{ ...ctrlStyle(false), background: '#C0362C', width: 'auto', padding: '0 20px', gap: '8px' }}>
             <span style={{ fontSize: '16px' }}>📞</span>
             <span style={{ fontSize: '13px', color: '#fff', fontWeight: '700' }}>Leave</span>
