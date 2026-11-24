@@ -141,9 +141,9 @@ export default function LiveSessions() {
     if (!error && data) {
       setSessions(data)
       if (data.length > 0) {
-        const { data: enrollData } = await supabase.from('enrollments').select('session_id').in('session_id', data.map(s => s.id))
+        const { data: countData } = await supabase.from('session_enrollment_counts').select('session_id, enrolled_count').in('session_id', data.map(s => s.id))
         const counts = {}
-        enrollData?.forEach(e => { counts[e.session_id] = (counts[e.session_id] || 0) + 1 })
+        countData?.forEach(c => { counts[c.session_id] = c.enrolled_count })
         setEnrollmentCounts(counts)
       }
     }

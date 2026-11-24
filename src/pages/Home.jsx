@@ -329,12 +329,12 @@ export default function Home() {
           .order('session_date', { ascending: true })
           .order('start_time', { ascending: true })
           .limit(7),
-        supabase.from('enrollments').select('session_id'),
+        supabase.from('session_enrollment_counts').select('session_id, enrolled_count'),
       ])
       setSessionCount(sessions || 0)
       setTeacherCount(teachers || 0)
       const counts = {}
-      ;(enrollData || []).forEach(e => { counts[e.session_id] = (counts[e.session_id] || 0) + 1 })
+      ;(enrollData || []).forEach(e => { counts[e.session_id] = e.enrolled_count })
       setUpcomingSessions((liveSessions || []).map(s => {
         const reviews = s.teachers?.reviews || []
         return {
