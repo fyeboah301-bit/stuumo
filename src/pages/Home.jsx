@@ -199,7 +199,7 @@ function FeaturedSession({ session, isMobile }) {
             <span style={{ fontSize: '12px', fontWeight: '700', color: spotsMsgColor }}>{spotsMsg}</span>
           </div>
           <div style={{ height: '8px', background: '#F5F5F5', borderRadius: '50px', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${spotsPct}%`, background: barColor, borderRadius: '50px', transition: 'width 0.6s ease' }} />
+            <div style={{ height: '100%', width: `${Math.max(50, spotsPct)}%`, background: barColor, borderRadius: '50px', transition: 'width 0.6s ease' }} />
           </div>
         </div>
 
@@ -282,7 +282,7 @@ function SessionCard({ session, isMobile }) {
             <span style={{ fontSize: '11px', fontWeight: '700', color: spotsPct >= 70 ? '#6D28D9' : TEXT_MUTED }}>{spotsLeft} left {spotsPct >= 70 ? '🔥' : ''}</span>
           </div>
           <div style={{ height: '4px', background: '#F5F5F5', borderRadius: '50px', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${spotsPct}%`, background: barColor, borderRadius: '50px' }} />
+            <div style={{ height: '100%', width: `${Math.max(50, spotsPct)}%`, background: barColor, borderRadius: '50px' }} />
           </div>
         </div>
 
