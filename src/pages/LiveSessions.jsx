@@ -568,7 +568,7 @@ export default function LiveSessions() {
 
                       <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '12px' }}>
                         <span style={{ fontSize: '13px', color: TEXT_MUTED, fontWeight: '500' }}>🕐 {session.start_time} – {session.end_time}</span>
-                        {isUpcoming && <>
+                        {isUpcoming && profile?.role === 'teacher' && <>
                           <span style={{ fontSize: '13px', color: TEXT_MUTED }}>·</span>
                           <span style={{ fontSize: '13px', color: TEXT_MUTED, fontWeight: '500' }}>👥 {enrolledCount}/{session.max_spots} enrolled</span>
                         </>}

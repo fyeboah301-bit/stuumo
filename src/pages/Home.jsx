@@ -195,7 +195,7 @@ function FeaturedSession({ session, isMobile }) {
         {/* Spots progress */}
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-            <span style={{ fontSize: '13px', color: TEXT_MUTED }}>{enrolled} enrolled · {spotsLeft} spots left</span>
+            <span style={{ fontSize: '13px', color: TEXT_MUTED }}>{spotsLeft} spot{spotsLeft !== 1 ? 's' : ''} left</span>
             <span style={{ fontSize: '12px', fontWeight: '700', color: spotsMsgColor }}>{spotsMsg}</span>
           </div>
           <div style={{ height: '8px', background: '#F5F5F5', borderRadius: '50px', overflow: 'hidden' }}>
@@ -278,7 +278,7 @@ function SessionCard({ session, isMobile }) {
 
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
-            <span style={{ fontSize: '11px', color: TEXT_MUTED }}>{enrolled} enrolled</span>
+            <span style={{ fontSize: '11px', color: TEXT_MUTED }}>{spotsLeft <= 0 ? 'Full' : 'Enrolling now'}</span>
             <span style={{ fontSize: '11px', fontWeight: '700', color: spotsPct >= 70 ? '#6D28D9' : TEXT_MUTED }}>{spotsLeft} left {spotsPct >= 70 ? '🔥' : ''}</span>
           </div>
           <div style={{ height: '4px', background: '#F5F5F5', borderRadius: '50px', overflow: 'hidden' }}>
