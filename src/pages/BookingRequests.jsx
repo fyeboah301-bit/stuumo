@@ -160,7 +160,7 @@ export default function BookingRequests() {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '10px' }}>
             {[
               ['⏳', pending.length, 'Pending'],
               ['✅', confirmed.length, 'Confirmed'],
@@ -185,7 +185,7 @@ export default function BookingRequests() {
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '4px', marginBottom: '1.5rem', background: '#fff', padding: '4px', borderRadius: '50px', border: BORDER, width: 'fit-content', boxShadow: SHADOW_LG }}>
+        <div style={{ display: 'flex', gap: '4px', marginBottom: '1.5rem', background: '#fff', padding: '4px', borderRadius: '24px', border: BORDER, maxWidth: '100%', flexWrap: 'wrap', boxShadow: SHADOW_LG }}>
           {[
             ['pending', '⏳ Pending', pending.length],
             ['upcoming', '📅 Upcoming', upcomingList.length],

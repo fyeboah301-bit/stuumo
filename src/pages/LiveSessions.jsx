@@ -365,7 +365,7 @@ export default function LiveSessions() {
                 <label style={lbl}>Date</label>
                 <input style={inp} type="date" value={form.session_date} onChange={e => setForm({ ...form, session_date: e.target.value })} required />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '14px' }}>
                 <div>
                   <label style={lbl}>Start time</label>
                   <input style={inp} type="time" value={form.start_time} onChange={e => setForm({ ...form, start_time: e.target.value })} required />
@@ -375,7 +375,7 @@ export default function LiveSessions() {
                   <input style={inp} type="time" value={form.end_time} onChange={e => setForm({ ...form, end_time: e.target.value })} required />
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '14px' }}>
                 <div>
                   <label style={lbl}>Max spots</label>
                   <input style={inp} type="number" min="1" max="100" value={form.max_spots} onChange={e => setForm({ ...form, max_spots: e.target.value })} required />
@@ -427,7 +427,7 @@ export default function LiveSessions() {
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '4px', marginBottom: '1.25rem', background: '#fff', padding: '4px', borderRadius: '50px', border: BORDER, width: 'fit-content', boxShadow: SHADOW_LG }}>
+        <div style={{ display: 'flex', gap: '4px', marginBottom: '1.25rem', background: '#fff', padding: '4px', borderRadius: '24px', border: BORDER, maxWidth: '100%', flexWrap: 'wrap', boxShadow: SHADOW_LG }}>
           {[['upcoming', '📅 Upcoming', upcomingSessions.length], ['completed', '✓ Completed', completedSessions.length]].map(([key, label, count]) => (
             <button key={key} onClick={() => setTab(key)}
               style={{ padding: '9px 22px', border: 'none', borderRadius: '50px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', background: tab === key ? '#6D28D9' : 'transparent', color: tab === key ? '#fff' : TEXT_MUTED, fontWeight: tab === key ? '700' : '400', display: 'flex', alignItems: 'center', gap: '7px', boxShadow: tab === key ? SHADOW_BLUE : 'none', transition: TRANSITION }}>

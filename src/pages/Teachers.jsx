@@ -299,7 +299,7 @@ export default function Teachers() {
 
       <div style={{ background: '#fff', borderBottom: `1px solid ${GREY_LIGHT}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 1.25rem' }}>
-          <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', scrollbarWidth: 'none', padding: '12px 0' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', padding: '12px 0' }}>
             {['All', ...SUBJECTS].map(s => (
               <button key={s} onClick={() => setSelectedSubject(s)}
                 style={{ padding: '7px 18px', borderRadius: '50px', border: 'none', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', background: selectedSubject === s ? '#6D28D9' : GREY_BG, color: selectedSubject === s ? '#fff' : TEXT_MUTED, fontWeight: selectedSubject === s ? '700' : '400', whiteSpace: 'nowrap', flexShrink: 0, boxShadow: selectedSubject === s ? SHADOW_BLUE : 'none', transition: TRANSITION }}>
@@ -518,7 +518,7 @@ function TeacherCard({ teacher, selectedSubject, setSelectedSubject }) {
             ))}
           </div>
         )}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '4px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px', marginTop: '4px' }}>
           <Link to={`/teachers/${teacher.id}`}
             style={{ padding: '11px', background: GREY_BG, color: BLUE, border: `1px solid ${GREY_LIGHT}`, borderRadius: '50px', fontSize: '13px', textDecoration: 'none', fontWeight: '700', textAlign: 'center', transition: TRANSITION }}
             onMouseEnter={e => { e.currentTarget.style.background = LIGHT_BLUE; e.currentTarget.style.borderColor = 'rgba(0,0,0,0.3)' }}

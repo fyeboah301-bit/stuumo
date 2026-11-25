@@ -479,7 +479,7 @@ export default function Home() {
             <h2 style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: isMobile ? '28px' : '40px', fontWeight: '700', color: TEXT, marginBottom: '12px', letterSpacing: '-0.02em' }}>How Stuumo works</h2>
             <p style={{ fontSize: isMobile ? '14px' : '16px', color: TEXT_MUTED, maxWidth: '480px', margin: '0 auto', lineHeight: '1.7' }}>From sign-up to first lesson in three simple steps</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? '1rem' : '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))', gap: isMobile ? '1rem' : '1.5rem' }}>
             {[
               { num: '1', title: 'Create your profile',  desc: 'Teachers upload certificates and pitch videos. Parents and learners just need basic details to get started.', icon: '✏️' },
               { num: '2', title: 'We verify teachers',   desc: 'Our team checks every certificate within 24–48 hours. Only approved teachers appear in search results.', icon: '🛡️' },
@@ -522,7 +522,7 @@ export default function Home() {
             <h2 style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: isMobile ? '28px' : '40px', fontWeight: '700', color: TEXT, marginBottom: '12px', letterSpacing: '-0.02em' }}>Built for everyone</h2>
             <p style={{ fontSize: isMobile ? '14px' : '16px', color: TEXT_MUTED, maxWidth: '400px', margin: '0 auto', lineHeight: '1.7' }}>Three distinct experiences, one trusted platform</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? '1.25rem' : '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))', gap: isMobile ? '1.25rem' : '1.5rem' }}>
             {[
               { role: 'Teachers', headerBg: GRADIENT_YELLOW,                                          headerColor: '#fff',  img: teacherImg, desc: 'Build your profile and grow your student base',         features: ['Upload certificates for verification', 'Two 30-second pitch videos', 'Schedule live online sessions', 'Receive private session bookings'],      ctaBg: GRADIENT_YELLOW,                                          ctaColor: '#fff' },
               { role: 'Parents',  headerBg: 'linear-gradient(135deg, #4B5563 0%, #6B7280 100%)',    headerColor: '#fff',  img: parentImg,  desc: 'Find trusted, verified teachers for your children',     features: ['Browse verified profiles', 'Watch teaching preview videos', 'Book private sessions for your ward', 'View teacher credentials and reviews'],   ctaBg: 'linear-gradient(135deg, #4B5563 0%, #6B7280 100%)',    ctaColor: '#fff' },
@@ -572,7 +572,7 @@ export default function Home() {
               <h2 style={{ fontFamily: 'Tahoma, Geneva, sans-serif', fontSize: isMobile ? '28px' : '40px', fontWeight: '700', color: TEXT, marginBottom: '12px', letterSpacing: '-0.02em' }}>What parents and learners say</h2>
               <p style={{ fontSize: isMobile ? '14px' : '16px', color: TEXT_MUTED, maxWidth: '540px', margin: '0 auto', lineHeight: '1.7' }}>Real reviews from people who found their teacher on Stuumo.</p>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? '1rem' : '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))', gap: isMobile ? '1rem' : '1.5rem' }}>
               {testimonials.map((t, i) => (
                 <div key={i} style={{ background: '#fff', border: `1px solid ${GREY_LIGHT}`, borderRadius: '18px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
                   <div style={{ display: 'flex', gap: '3px' }}>

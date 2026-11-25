@@ -67,7 +67,7 @@ export default function Admin() {
 
       {/* STATS */}
       <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', padding: '1.5rem 2rem' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '1rem' }}>
           {[
             ['Total teachers', teachers.length, '🎓'],
             ['Verified teachers', teachers.filter(t => t.is_verified).length, '✅'],

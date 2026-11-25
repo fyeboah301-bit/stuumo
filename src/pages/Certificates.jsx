@@ -258,7 +258,7 @@ export default function Certificates() {
           </div>
 
           {loading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '1.25rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, minmax(0, 1fr))', gap: '1.25rem' }}>
               {[1, 2].map(i => (
                 <div key={i} style={{ background: '#fff', borderRadius: '20px', border: BORDER, height: '280px', animation: 'pulse 1.5s infinite' }} />
               ))}
@@ -272,7 +272,7 @@ export default function Certificates() {
               </p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '1.25rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, minmax(0, 1fr))', gap: '1.25rem' }}>
               {certificates.map(cert => {
                 const gc = gradeColor(cert.grade_label)
                 return (
@@ -301,7 +301,7 @@ export default function Certificates() {
                         {cert.grade_label} — {cert.average_score}%
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '1rem', marginBottom: '1.25rem' }}>
                         {[
                           ['Awarded to', cert.learner?.full_name],
                           ['Subject', cert.subject],
@@ -350,7 +350,7 @@ export default function Certificates() {
         {!isTeacher && certificates.length === 0 && !loading && (
           <div style={{ background: '#fff', borderRadius: '20px', border: BORDER, padding: isMobile ? '1.5rem' : '2rem', marginTop: '1.5rem', boxShadow: SHADOW_LG }}>
             <h3 style={{ fontSize: '16px', fontWeight: '800', color: TEXT, marginBottom: '1.25rem', letterSpacing: '-0.01em' }}>💡 How to earn a certificate</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))', gap: '1rem' }}>
               {[
                 { step: '1', icon: '📝', title: 'Complete assignments', desc: 'Your teacher assigns graded work across sessions' },
                 { step: '2', icon: '⭐', title: 'Score 60% or above', desc: 'Average 60%+ across all graded assignments in a subject' },

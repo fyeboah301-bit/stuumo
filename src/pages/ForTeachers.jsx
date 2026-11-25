@@ -64,7 +64,7 @@ export default function ForTeachers() {
           <Eyebrow>How teaching works</Eyebrow>
           <H2>From sign-up to your first student</H2>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: isMobile ? '1rem' : '1.25rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, minmax(0, 1fr))', gap: isMobile ? '1rem' : '1.25rem' }}>
           {steps.map(([t, d], i) => (
             <div key={t} style={{ background: '#fff', border: `1px solid ${GREY_LIGHT}`, borderRadius: '16px', padding: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'flex-start', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
               <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(109,40,217,0.12)', color: '#6D28D9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '16px', flexShrink: 0 }}>{i + 1}</div>
@@ -84,7 +84,7 @@ export default function ForTeachers() {
         <p style={{ fontSize: isMobile ? '15px' : '16px', color: TEXT_MUTED, lineHeight: '1.8', margin: '0 0 1.5rem' }}>
           You decide your own hourly rate and can adjust it anytime. When a learner books and pays, Stuumo keeps a small service fee to run the platform and handle secure payments — you keep the large majority of every booking. Payouts are made every two weeks, for completed sessions only, by mobile money or bank transfer.
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))', gap: '1rem' }}>
           {[
             ['Your rate, your call', 'Set and change your hourly rate whenever you like.'],
             ['Keep the majority', 'A small service fee covers payments and platform costs; the rest is yours.'],

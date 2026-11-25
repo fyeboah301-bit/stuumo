@@ -70,7 +70,7 @@ export default function HowItWorks() {
           <Eyebrow>Three simple steps</Eyebrow>
           <H2>From search to session</H2>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? '1rem' : '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))', gap: isMobile ? '1rem' : '1.5rem' }}>
           {steps.map(([t, d], i) => (
             <div key={t} style={{ background: '#fff', border: `1px solid ${GREY_LIGHT}`, borderRadius: '18px', padding: '1.75rem', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(109,40,217,0.12)', color: '#6D28D9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '18px', marginBottom: '1.25rem' }}>{i + 1}</div>
@@ -95,7 +95,7 @@ export default function HowItWorks() {
       <Section id="safety" isMobile={isMobile}>
         <Eyebrow>Safety &amp; verification</Eyebrow>
         <H2>Built to protect families</H2>
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: isMobile ? '0.875rem' : '1.25rem', marginTop: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, minmax(0, 1fr))', gap: isMobile ? '0.875rem' : '1.25rem', marginTop: '1.5rem' }}>
           {safety.map(([t, d]) => (
             <div key={t} style={{ background: '#fff', border: `1px solid ${GREY_LIGHT}`, borderRadius: '16px', padding: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'flex-start', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
               <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(109,40,217,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -117,7 +117,7 @@ export default function HowItWorks() {
         <p style={{ fontSize: isMobile ? '15px' : '16px', color: TEXT_MUTED, lineHeight: '1.8', margin: '0 0 1.25rem' }}>
           Joining Stuumo is free. Each teacher sets their own hourly rate, shown clearly on their profile, so you always know the price before you book. You pay only when you book a session — there are no subscriptions or hidden fees for parents and learners.
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))', gap: '1rem' }}>
           {[
             ['Free to join', 'Create an account and browse teachers at no cost.'],
             ['Pay per session', 'You’re charged only when a teacher confirms your booking.'],

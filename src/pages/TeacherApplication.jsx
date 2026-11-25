@@ -787,7 +787,7 @@ export default function TeacherApplication() {
                     {bio.length < 80 ? `${80 - bio.length} more characters recommended` : '✓ Good length'}
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '14px' }}>
                   <div>
                     <label style={lbl}>Years of experience</label>
                     <input type="number" min="0" max="50" style={inp} placeholder="e.g. 3" value={experience} onChange={e => setExperience(e.target.value)} />
@@ -1033,7 +1033,7 @@ export default function TeacherApplication() {
                       <p style={{ fontSize: '12.5px', color: '#5B21B6', margin: 0, lineHeight: 1.5, fontWeight: '600' }}>For <strong>{educationLevel}</strong>, upload {EDU_CERT[educationLevel]} and set the type to <strong>Academic degree</strong>. Your category is confirmed once an admin approves it.</p>
                     </div>
                   )}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px', marginBottom: '10px' }}>
                     <div>
                       <label style={lbl}>Certificate name</label>
                       <input style={inp} placeholder="e.g. PGDE — UEW" value={certName} onChange={e => setCertName(e.target.value)} />

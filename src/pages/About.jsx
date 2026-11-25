@@ -86,7 +86,7 @@ export default function About() {
           <Eyebrow>Why Stuumo</Eyebrow>
           <h2 style={{ fontSize: isMobile ? '26px' : '36px', fontWeight: '700', color: TEXT, letterSpacing: '-0.02em', margin: 0 }}>What makes us different</h2>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: isMobile ? '0.875rem' : '1.25rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, minmax(0, 1fr))', gap: isMobile ? '0.875rem' : '1.25rem' }}>
           {why.map(([t, d]) => (
             <div key={t} style={{ background: '#fff', border: `1px solid ${GREY_LIGHT}`, borderRadius: '16px', padding: '1.5rem', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
               <h3 style={{ fontSize: '16px', fontWeight: '700', color: TEXT, margin: '0 0 6px' }}>{t}</h3>
@@ -102,7 +102,7 @@ export default function About() {
           <Eyebrow>How it works</Eyebrow>
           <h2 style={{ fontSize: isMobile ? '26px' : '36px', fontWeight: '700', color: TEXT, letterSpacing: '-0.02em', margin: 0 }}>Three steps to a better session</h2>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? '1rem' : '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))', gap: isMobile ? '1rem' : '1.5rem' }}>
           {steps.map(([title, desc], i) => (
             <div key={title} style={{ background: '#fff', border: `1px solid ${GREY_LIGHT}`, borderRadius: '18px', padding: '1.75rem', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(109,40,217,0.12)', color: '#6D28D9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '18px', marginBottom: '1.25rem' }}>{i + 1}</div>
@@ -120,7 +120,7 @@ export default function About() {
           <h2 style={{ fontSize: isMobile ? '26px' : '36px', fontWeight: '700', color: TEXT, letterSpacing: '-0.02em', margin: '0 0 12px' }}>Built to protect families</h2>
           <p style={{ fontSize: isMobile ? '14px' : '16px', color: TEXT_MUTED, maxWidth: '540px', margin: '0 auto', lineHeight: '1.7' }}>Trust is the whole point. Here is how we earn it.</p>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: isMobile ? '0.875rem' : '1.25rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, minmax(0, 1fr))', gap: isMobile ? '0.875rem' : '1.25rem' }}>
           {safety.map(([title, desc]) => (
             <div key={title} style={{ background: '#fff', border: `1px solid ${GREY_LIGHT}`, borderRadius: '16px', padding: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'flex-start', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
               <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(109,40,217,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

@@ -203,7 +203,7 @@ export default function Referrals() {
           <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#0B0B0B', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
             💡 How it works
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? '0' : '1rem', position: 'relative' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))', gap: isMobile ? '0' : '1rem', position: 'relative' }}>
             {[
               { icon: '🔗', step: '1', title: 'Share your link', desc: 'Send your unique link to friends via WhatsApp, Facebook, or email — any channel works.' },
               { icon: '📝', step: '2', title: 'They sign up', desc: 'Your friend registers on Stuumo using your link. Your code is automatically applied.' },

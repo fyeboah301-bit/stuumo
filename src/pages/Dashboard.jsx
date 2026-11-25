@@ -188,7 +188,7 @@ export default function Dashboard() {
                 </div>
               </div>
             ) : (
-              <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '6px', overflowX: 'auto', display: 'flex', gap: '4px', scrollbarWidth: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+              <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #E2E8F0', padding: '6px', display: 'flex', flexWrap: 'wrap', gap: '4px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
                 {TEACHER_SECTIONS.map(({ key, icon, label }) => (
                   <button key={key} onClick={() => setActiveSection(key)}
                     style={{ padding: '8px 14px', border: 'none', borderRadius: '8px', background: activeSection === key ? '#6D28D9' : 'transparent', color: activeSection === key ? '#fff' : TEXT_MUTED, fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: activeSection === key ? '700' : '400', whiteSpace: 'nowrap', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -405,7 +405,7 @@ function TeacherOverview({ userId, profile, navigate, setActiveSection }) {
       )}
 
       {/* ── Stats (secondary) ──────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '1.25rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '12px', marginBottom: '1.25rem' }}>
         {[
           { icon: '📅', label: 'Total bookings', value: stats.totalBookings, sub: `${stats.pendingBookings} pending`, color: BLUE, bg: LIGHT_BLUE },
           { icon: '👥', label: 'Students taught', value: stats.totalStudents, sub: 'unique learners', color: '#0B0B0B', bg: '#F5F5F5' },
@@ -566,7 +566,7 @@ function LearnerOverview({ userId, profile }) {
       </div>
 
       {/* ── Stat glance ─────────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '1.25rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '12px', marginBottom: '1.25rem' }}>
         {[
           { icon: '📅', label: 'Active bookings', value: bookingCount, hero: true },
           { icon: '🏆', label: 'Certificates', value: certCount, hero: false },
@@ -615,7 +615,7 @@ function TeacherEarnings({ userId }) {
   return (
     <div>
       <SectionCard title="Earnings overview" icon="💰" color="linear-gradient(135deg, #4B5563 0%, #6B7280 100%)">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: earnings && bookings.length > 0 ? '1.25rem' : 0 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px', marginBottom: earnings && bookings.length > 0 ? '1.25rem' : 0 }}>
           {[
             ['Gross earnings', `GH₵ ${(earnings?.totalGross || 0).toFixed(2)}`, '#0B0B0B', GREY_BG],
             ['Platform fee (20%)', `GH₵ ${(earnings?.totalCommission || 0).toFixed(2)}`, '#6D28D9', '#F5F5F5'],
@@ -704,7 +704,7 @@ function TeacherBioSection({ userId }) {
           <input style={inp} type="number" min="0" step="5" placeholder="e.g. 150" value={rate} onChange={e => setRate(e.target.value)} />
           <div style={{ fontSize: '12px', color: TEXT_MUTED, marginTop: '4px' }}>What learners pay per session. You can change this anytime.</div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
           <div>
             <label style={lbl}>Years of experience</label>
             <input style={inp} type="number" min="0" max="50" placeholder="e.g. 5" value={yearsExperience} onChange={e => setYearsExperience(e.target.value)} />
@@ -957,7 +957,7 @@ function PortfolioUploads({ userId }) {
       <p style={{ fontSize: '13px', color: TEXT_MUTED, margin: '0 0 14px', lineHeight: 1.5 }}>✨ Shown on your public profile as-is — this is your showcase, not a verified credential.</p>
       <StatusMessage message={message} onClose={() => setMessage('')} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
           <div>
             <label style={lbl}>Title</label>
             <input style={inp} placeholder="e.g. Grade 8 Algebra Lesson Plan" value={title} onChange={e => setTitle(e.target.value)} />
@@ -1105,7 +1105,7 @@ function AvailabilitySchedule({ userId }) {
             {days.map(d => <option key={d}>{d}</option>)}
           </select>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
           <div>
             <label style={lbl}>Start time</label>
             <input style={inp} type="time" value={form.start_time} onChange={e => setForm({ ...form, start_time: e.target.value })} />

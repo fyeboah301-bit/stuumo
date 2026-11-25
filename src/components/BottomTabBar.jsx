@@ -37,9 +37,12 @@ export default function BottomTabBar() {
   const hidden = !isNativeApp() || !user || path === '/' || HIDDEN.includes(path) || path.startsWith('/call/')
 
   useEffect(() => {
-    if (hidden) { document.body.style.paddingBottom = ''; return }
-    document.body.style.paddingBottom = 'calc(64px + env(safe-area-inset-bottom))'
-    return () => { document.body.style.paddingBottom = '' }
+    // #root is the scroll container in the native shell, so reserve the tab-bar
+    // space there (padding on the fixed body would not push scroll content up).
+    const scroller = document.getElementById('root') || document.body
+    if (hidden) { scroller.style.paddingBottom = ''; return }
+    scroller.style.paddingBottom = 'calc(64px + env(safe-area-inset-bottom))'
+    return () => { scroller.style.paddingBottom = '' }
   }, [hidden])
 
   if (hidden) return null

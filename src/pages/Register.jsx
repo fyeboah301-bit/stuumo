@@ -334,7 +334,7 @@ export default function Register() {
 
           <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
               <div>
                 <label style={lbl}>First name *</label>
                 <input style={inp} placeholder="e.g. Kofi" value={form.first_name} onChange={setE('first_name')} required />

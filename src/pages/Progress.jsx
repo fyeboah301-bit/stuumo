@@ -191,7 +191,7 @@ export default function Progress() {
               <button onClick={() => setShowAdd(s => !s)} style={{ padding: '9px 18px', borderRadius: '50px', border: `2px solid ${BLUE}`, background: showAdd ? LIGHT_BLUE : '#fff', color: BLUE, fontSize: '13px', fontWeight: '800', cursor: 'pointer', fontFamily: 'inherit' }}>{showAdd ? '✕ Close' : '+ Add a child'}</button>
             </div>
             {showAdd && <AddCard />}
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '14px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, minmax(0, 1fr))', gap: '14px' }}>
               {children.map(child => {
                 const s = summaries[child.id] || {}
                 return (
@@ -207,7 +207,7 @@ export default function Progress() {
                       </div>
                       <span style={{ fontSize: '20px', color: GREY_LIGHT }}>›</span>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '8px' }}>
                       {[
                         ['Next session', s.nextDate ? fmtDate(s.nextDate) : (s.upcoming ? 'TBC' : '—')],
                         ['Avg grade', s.avg != null ? `${s.avg}%` : '—'],
@@ -362,7 +362,7 @@ export default function Progress() {
                               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: gc.bg, color: gc.color, padding: '4px 12px', borderRadius: '50px', fontSize: '12px', fontWeight: '800', marginBottom: '1rem' }}>
                                 <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: gc.color }} /> {c.grade_label} — {c.average_score}%
                               </div>
-                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '1rem' }}>
+                              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px', marginBottom: '1rem' }}>
                                 {[['Subject', c.subject], ['Issued by', c.teacher?.profiles?.full_name], ['Date', fmtDate(c.issued_at)], ['Code', c.certificate_code]].map(([label, value]) => (
                                   <div key={label} style={{ background: GREY_BG, borderRadius: '10px', padding: '10px 12px', border: BORDER }}>
                                     <div style={{ fontSize: '10px', fontWeight: '800', color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '3px' }}>{label}</div>

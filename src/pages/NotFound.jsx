@@ -70,7 +70,7 @@ export default function NotFound() {
             <p style={{ fontSize: '12px', fontWeight: '800', color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '1rem' }}>
               Or go somewhere useful
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '8px' }}>
               {[
                 { to: '/teachers', icon: '👩‍🏫', label: 'Find teachers' },
                 { to: '/sessions', icon: '🎥', label: 'Live sessions' },

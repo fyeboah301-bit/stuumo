@@ -228,7 +228,7 @@ export default function Assignments() {
                 <label style={lbl}>Instructions</label>
                 <textarea style={{ ...inp, height: '90px', resize: 'vertical' }} placeholder="Describe what the student needs to do..." value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} required />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
                 <div>
                   <label style={lbl}>Due date (optional)</label>
                   <input style={inp} type="date" value={form.due_date} onChange={e => setForm({ ...form, due_date: e.target.value })} />

@@ -58,7 +58,7 @@ export default function Login() {
   const selectedRole = ROLES.find(r => r.id === role)
 
   return (
-    <div style={{ minHeight: '100vh', position: 'relative', display: 'flex', flexDirection: 'column', fontFamily: 'Tahoma, Geneva, sans-serif', background: GRADIENT_HERO }}>
+    <div style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', fontFamily: 'Tahoma, Geneva, sans-serif', background: GRADIENT_HERO }}>
 
       <div style={{ position: 'absolute', top: '-80px', right: '-80px', width: '320px', height: '320px', borderRadius: '50%', border: '1px solid rgba(0,0,0,0.06)', zIndex: 1, pointerEvents: 'none' }} />
       <div style={{ position: 'absolute', bottom: '-60px', left: '-60px', width: '240px', height: '240px', borderRadius: '50%', border: '1px solid rgba(0,0,0,0.06)', zIndex: 1, pointerEvents: 'none' }} />

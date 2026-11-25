@@ -176,7 +176,7 @@ export default function VerifyCertificate() {
               </div>
 
               {/* DETAILS GRID */}
-              <div style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
                 {[
                   ['👩‍🏫', 'Issued by', cert.teacher?.profiles?.full_name],
                   ['📝', 'Assignments', `${cert.sessions_completed} completed`],

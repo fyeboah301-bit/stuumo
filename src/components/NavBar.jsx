@@ -86,7 +86,56 @@ export default function NavBar() {
         <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
           <Logo variant="yellow" height={28} />
         </Link>
-        {profile && <NotificationBell />}
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {profile && <NotificationBell />}
+          {profile && (
+            <button
+              onClick={() => setMenuOpen((o) => !o)}
+              aria-label="Account menu"
+              style={{ padding: 0, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            >
+              {profile.avatar_url ? (
+                <img src={profile.avatar_url} alt="" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #E2E8F0' }} />
+              ) : (
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '800', color: '#FFFFFF' }}>
+                  {profile.full_name?.charAt(0)}
+                </div>
+              )}
+            </button>
+          )}
+        </div>
+
+        {profile && menuOpen && (
+          <>
+            <div
+              onClick={() => setMenuOpen(false)}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 199 }}
+            />
+            <div style={{ position: 'absolute', top: '100%', right: '12px', marginTop: '6px', width: '230px', background: '#FFFFFF', borderRadius: '14px', boxShadow: '0 16px 50px rgba(0,0,0,0.25)', border: '1px solid rgba(0,0,0,0.08)', padding: '12px', zIndex: 201 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '4px 6px 12px', borderBottom: '1px solid rgba(0,0,0,0.08)', marginBottom: '8px' }}>
+                {profile.avatar_url ? (
+                  <img src={profile.avatar_url} alt="" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                ) : (
+                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: '800', color: '#FFFFFF', flexShrink: 0 }}>{profile.full_name?.charAt(0)}</div>
+                )}
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#0B0B0B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{profile.full_name}</div>
+                  <div style={{ fontSize: '12px', color: 'rgba(0,0,0,0.55)', textTransform: 'capitalize' }}>{profile.role}</div>
+                </div>
+              </div>
+              <Link to="/dashboard" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '11px 10px', fontSize: '14px', color: '#0B0B0B', textDecoration: 'none', borderRadius: '10px', fontWeight: '600' }}>
+                <span style={{ fontSize: '16px' }}>👤</span> My Dashboard
+              </Link>
+              <button
+                onClick={handleSignOut}
+                style={{ width: '100%', marginTop: '4px', padding: '11px', background: 'rgba(192,54,44,0.08)', color: '#C0362C', border: '1px solid rgba(192,54,44,0.2)', borderRadius: '10px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}
+              >
+                Log out
+              </button>
+            </div>
+          </>
+        )}
       </nav>
     )
   }
